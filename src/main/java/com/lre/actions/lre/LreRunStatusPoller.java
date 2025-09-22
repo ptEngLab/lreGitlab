@@ -97,7 +97,7 @@ public class LreRunStatusPoller {
         long remainingMinutes = (timeslotDurationMillis - (now - startTime)) / MILLIS_PER_MINUTE;
 
         String formattedLog = String.format(
-                "| %-7s | %-30s | %-10s | %-14s |",
+                "| %-10s | %-35s | %-25s | %-14s |",
                 "RunId: " + runId,
                 "State: " + state.getValue(),
                 "Elapsed: " + elapsedSeconds + " seconds",
