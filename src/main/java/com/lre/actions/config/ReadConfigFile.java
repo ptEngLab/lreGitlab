@@ -1,0 +1,60 @@
+package com.lre.actions.config;
+
+import com.lre.actions.runmodel.LreTestRunModel;
+import com.lre.actions.runmodel.GitTestRunModel;
+import java.io.File;
+import java.io.IOException;
+import java.util.Map;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+public class ReadConfigFile {
+
+    private final ConfigParser configParser;
+    private final ConfigValidator configValidator;
+    private final ConfigMapper configMapper;
+    private Map<String, Object> cachedParameters;
+
+    public ReadConfigFile(String configFilePath) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        File configFile = new File(configFilePath);
+        JsonNode configContent = configFile.exists()
+                ? mapper.readTree(configFile)
+                : mapper.createObjectNode();
+
+        ParameterResolver resolver = new ParameterResolver(configContent);
+        this.configParser = new ConfigParser(resolver);
+        this.configValidator = new ConfigValidator(resolver);
+        this.configMapper = new ConfigMapper(); // Changed from LreConfigMapper to ConfigMapper
+    }
+
+    /**
+     * Builds the LRE test run model.
+     */
+    public LreTestRunModel buildLreTestRunModel() {
+        try {
+            return configMapper.mapToLreModel(getParameters());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Builds the GitLab test run model
+     */
+    public GitTestRunModel buildGitTestRunModel() {
+        return configMapper.mapToGitModel(getParameters());
+    }
+
+    /**
+     * Returns parsed and validated parameters (cached).
+     */
+    public Map<String, Object> getParameters() {
+        if (cachedParameters == null) {
+            cachedParameters = configParser.parseParameters(ParameterDefinitions.getDefinitions());
+            configValidator.validate(cachedParameters);
+        }
+        return cachedParameters;
+    }
+
+}

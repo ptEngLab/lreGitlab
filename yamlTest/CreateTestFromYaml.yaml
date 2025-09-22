@@ -1,0 +1,21 @@
+##########
+## This file is used to create a test from a YAML configuration.
+Group:
+  - GroupName: "Sample Test Group"
+    Description: "This is a sample test group created from YAML."
+    Tests:
+      - TestName: "Test Case 1"
+        Description: "This is the first test case."
+        Steps:
+          - Step: "Initialize test environment"
+          - Step: "Execute test logic"
+          - Step: "Validate results"
+        ExpectedResult: "All validations pass successfully."
+      - TestName: "Test Case 2"
+        Description: "This is the second test case."
+        Steps:
+          - Step: "Set up prerequisites"
+          - Step: "Run test scenario"
+          - Step: "Check outputs"
+        ExpectedResult: "Outputs match expected values."
+# End of YAML configuration

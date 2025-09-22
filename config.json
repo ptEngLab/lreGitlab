@@ -1,0 +1,10 @@
+{
+  "LRE_USERNAME": "testuser",
+  "LRE_PASSWORD": "testpassword",
+  "LRE_SERVER": "http://localhost:3000",
+  "LRE_DOMAIN": "example",
+  "LRE_PROJECT": "test-project",
+  "LRE_TEST": "2",
+  "SYNC_GITLAB_WITH_LRE_FLAG": "false",
+  "GITLAB_URL": "https://gitlab.example.com"
+}
