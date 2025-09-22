@@ -25,7 +25,7 @@ public class LreRunStatus {
     private int testInstanceId;
 
     @JsonProperty("PostRunAction")
-    private PostRunAction postRunAction;
+    private String postRunAction;
 
     @JsonProperty("TimeslotID")
     private int timeslotId;

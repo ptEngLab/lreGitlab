@@ -91,13 +91,22 @@ public class LreRunStatusPoller {
             return unknownStatus;
         }
     }
-
     private void logStateChange(RunState state, long startTime) {
-        long elapsedSeconds = (System.currentTimeMillis() - startTime) / 1000;
-        long remainingMinutes = (timeslotDurationMillis - (System.currentTimeMillis() - startTime)) / MILLIS_PER_MINUTE;
-        log.info("Run [{}] | State: {} | Elapsed: {} seconds | Time remaining: {} minutes",
-                runId, state.getValue(), elapsedSeconds, Math.max(0, remainingMinutes));
+        long now = System.currentTimeMillis();
+        long elapsedSeconds = (now - startTime) / 1000;
+        long remainingMinutes = (timeslotDurationMillis - (now - startTime)) / MILLIS_PER_MINUTE;
+
+        String formattedLog = String.format(
+                "| %-7s | %-30s | %-10s | %-14s |",
+                "RunId: " + runId,
+                "State: " + state.getValue(),
+                "Elapsed: " + elapsedSeconds + " seconds",
+                "Time remaining: " + Math.max(0, remainingMinutes) + " minutes"
+        );
+
+        log.info(formattedLog);
     }
+
 
     private void sleep(long millis) {
         try {
