@@ -41,7 +41,8 @@ public class ConfigMapper {
                 .testId(0)
                 .runId(0)
                 .lreInternalRunId(0)
-                .dashboardUrl(null);
+                .dashboardUrl(null)
+                .timeslotId(0);
 
         resolveTestDetails(params, builder);
         return builder.build();

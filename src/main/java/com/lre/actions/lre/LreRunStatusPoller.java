@@ -7,20 +7,18 @@ import com.lre.actions.common.entities.base.run.RunState;
 import com.lre.actions.runmodel.LreTestRunModel;
 import lombok.extern.slf4j.Slf4j;
 
-import static com.lre.actions.helpers.ConfigConstants.MAX_RETRIES;
+import java.util.concurrent.TimeUnit;
+
+import static com.lre.actions.helpers.ConfigConstants.*;
 
 @Slf4j
 public class LreRunStatusPoller {
-
-    private static final int RETRY_DELAY_MILLIS = 5000;
-    private static final long DEFAULT_POLL_INTERVAL_MILLIS = 30000;
-    private static final long MILLIS_PER_MINUTE = 60_000L;
 
     private final LreRestApis apiClient;
     private final LreAuthenticationManager authManager;
     private final int runId;
     private final PostRunAction postRunAction;
-    private final long pollIntervalMillis;
+    private final long pollIntervalSeconds;
     private final long timeslotDurationMillis;
 
     public LreRunStatusPoller(LreRestApis apiClient, LreTestRunModel model, int timeslotDurationInMinutes) {
@@ -28,7 +26,7 @@ public class LreRunStatusPoller {
         this.authManager = new LreAuthenticationManager(apiClient, model);
         this.runId = model.getRunId();
         this.postRunAction = model.getLrePostRunAction();
-        this.pollIntervalMillis = DEFAULT_POLL_INTERVAL_MILLIS;
+        this.pollIntervalSeconds = DEFAULT_POLL_INTERVAL_SECONDS;
         this.timeslotDurationMillis = timeslotDurationInMinutes * MILLIS_PER_MINUTE;
     }
 
@@ -63,7 +61,7 @@ public class LreRunStatusPoller {
                     break;
                 }
 
-                sleep(pollIntervalMillis);
+                sleepSeconds(pollIntervalSeconds);
 
             } catch (Exception e) {
                 consecutiveFailures++;
@@ -75,7 +73,7 @@ public class LreRunStatusPoller {
                     consecutiveFailures = 0;
                 }
 
-                sleep(RETRY_DELAY_MILLIS);
+                sleepSeconds(RETRY_DELAY_SECONDS);
             }
         }
 
@@ -108,9 +106,9 @@ public class LreRunStatusPoller {
     }
 
 
-    private void sleep(long millis) {
+    private void sleepSeconds(long seconds) {
         try {
-            Thread.sleep(millis);
+            TimeUnit.SECONDS.sleep(seconds);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             log.warn("Polling interrupted for run [{}]", runId);

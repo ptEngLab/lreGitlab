@@ -41,6 +41,7 @@ public class LreTestRunModel {
     private int runId;
     private int lreInternalRunId;
     private String dashboardUrl;
+    private int timeslotId;
 
 
 }

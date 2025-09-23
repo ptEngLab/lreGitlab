@@ -28,7 +28,6 @@ public class LreTestManager {
             log.info("Creating new test with name: {}", model.getTestName());
             createNewTest();
         }
-        logTestDetails();
     }
 
     private void findTestById(int testId) {
@@ -49,15 +48,6 @@ public class LreTestManager {
 
     private void createNewTest() {
         // TODO
-    }
-
-    private void logTestDetails() {
-        String format = "%-20s : %-20s \n";
-        String message = "Resolved test details \n" +
-                String.format(format, "Test ID", model.getTestId()) +
-                String.format(format, "Test Name", model.getTestName()) +
-                String.format(format, "Test Folder", model.getTestFolderPath());
-        log.info(message);
     }
 
 }

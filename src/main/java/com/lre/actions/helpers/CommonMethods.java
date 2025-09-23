@@ -49,10 +49,50 @@ public class CommonMethods {
     public static void writeRunIdToFile(int runId){
         try (FileWriter writer = new FileWriter(LRE_RUN_ID_FILE)){
             writer.write(String.valueOf(runId));
-            log.info("RunId {} has been updated for cleanup", runId);
+            log.debug("RunId {} has been updated for cleanup", runId);
         } catch (IOException e) {
             log.error("Failed to write run id: {}", e.getMessage());
         }
     }
+
+    public static String logTableDynamic(String[][] rows) {
+        int columns = rows[0].length;
+        int[] columnWidths = new int[columns];
+
+        // Calculate max width per column
+        for (int i = 0; i < columns; i++) {
+            for (String[] row : rows) {
+                if (i < row.length && row[i] != null) {
+                    columnWidths[i] = Math.max(columnWidths[i], row[i].length());
+                }
+            }
+        }
+
+        // Build border
+        StringBuilder borderBuilder = new StringBuilder("+");
+        for (int w : columnWidths) {
+            borderBuilder.append("-".repeat(w + 2)).append("+");
+        }
+        String border = borderBuilder + "\n"; // Add newline after a border
+
+        // Row format
+        StringBuilder formatBuilder = new StringBuilder("|");
+        for (int w : columnWidths) {
+            formatBuilder.append(" %-").append(w).append("s |");
+        }
+        String rowFormat = formatBuilder + "\n"; // Add newline after row
+
+        // Build table
+        StringBuilder sb = new StringBuilder("\n");
+        sb.append(border);
+
+        for (String[] row : rows) {
+            sb.append(String.format(rowFormat, (Object[]) row));
+            sb.append(border);
+        }
+
+        return sb.toString();
+    }
+
 
 }
