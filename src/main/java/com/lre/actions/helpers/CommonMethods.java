@@ -9,11 +9,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.function.Function;
 
 import static com.lre.actions.helpers.ConfigConstants.*;
 
 @Slf4j
 public class CommonMethods {
+
+    @FunctionalInterface
+    public interface ExceptionSupplier {
+        RuntimeException create(String message);
+    }
 
     @SuppressWarnings("unchecked")
     public static <T> T convertToType(String value, T defaultValue) {
@@ -115,5 +121,21 @@ public class CommonMethods {
         return normalized;
     }
 
-
+    public static <T extends Number> T parsePositive(
+            String value,
+            String name,
+            Function<String, T> parser,
+            ExceptionSupplier exceptionSupplier,
+            String validExamples
+    ) {
+        try {
+            T parsed = parser.apply(value);
+            if (parsed.doubleValue() <= 0) {
+                throw exceptionSupplier.create(name + " must be positive. Got: " + parsed + validExamples);
+            }
+            return parsed;
+        } catch (NumberFormatException e) {
+            throw exceptionSupplier.create("Invalid " + name + ": '" + value + "'. Must be a positive number." + validExamples);
+        }
+    }
 }

@@ -1,9 +1,8 @@
-package com.lre.actions.lre.testcontentvalidator;
+package com.lre.actions.lre.testcontentvalidator.groups;
 
 import com.lre.actions.apis.LreRestApis;
 import com.lre.actions.exceptions.LreException;
 import com.lre.actions.helpers.CommonMethods;
-import com.lre.model.test.testcontent.TestContent;
 import com.lre.model.test.testcontent.groups.Group;
 import com.lre.model.test.testcontent.groups.script.Script;
 import lombok.extern.slf4j.Slf4j;
@@ -15,35 +14,18 @@ import java.util.List;
 
 @Slf4j
 public class LreScriptValidator {
+
     private final LreRestApis restApis;
-    private final TestContent content;
     private List<Script> scriptCache;
 
-    public LreScriptValidator(LreRestApis restApis, TestContent content) {
+    public LreScriptValidator(LreRestApis restApis) {
         this.restApis = restApis;
-        this.content = content;
-        scriptCache = getAllScriptsCache();
+        this.scriptCache = restApis.getAllScripts(); // initialize cache
     }
 
-    public TestContent validateGroups() {
-
-        if (content.getGroups() != null) {
-            for (Group group : content.getGroups()) {
-                Script validatedScript = validateScript(group);
-                validateHosts(group);
-                group.setScript(validatedScript);
-                group.setScriptId(null);
-                group.setScriptName(null);
-            }
-        }
-        clearScriptCache();
-        return content;
-
-    }
-
-    private Script validateScript(Group group) {
+    public void validateAndSetScript(Group group) {
         Script script = fetchScript(group);
-        return new Script(script.getId(), script.getProtocol());
+        group.setScript(script);      // direct update
     }
 
     private Script fetchScript(Group group) {
@@ -60,6 +42,7 @@ public class LreScriptValidator {
             return fetchScriptByName(group.getScriptName(), group.getName());
         }
 
+        clearScriptCache();
         throw new LreException("No valid Script found for group: " + group.getName()
                 + ". Script ID: " + group.getScriptId()
                 + ", Script Name: " + group.getScriptName());
@@ -73,45 +56,31 @@ public class LreScriptValidator {
 
     private Script fetchScriptByName(String scriptName, String groupName) {
         String normalizedPath = CommonMethods.normalizePathWithSubject(scriptName);
-
         if (StringUtils.isBlank(normalizedPath)) {
             throw new LreException("Cannot fetch script: scriptName is null or empty for group " + groupName);
         }
 
         Path scriptPath = Paths.get(normalizedPath);
-        String folderPath = scriptPath.getParent().toString();  // safe
+        String folderPath = scriptPath.getParent().toString();
         String fileName = scriptPath.getFileName().toString();
 
-        Script script = getScriptByName(folderPath, fileName);
-        log.debug("Fetched script by Name {} for group {}", scriptName, groupName);
-        return script;
+        return getScriptByName(folderPath, fileName);
     }
 
     private Script getScriptByName(String testFolderPath, String scriptName) {
-        List<Script> scripts = getAllScriptsCache();
         log.debug("Searching for script - Folder: {}, Name: {}", testFolderPath, scriptName);
-        for (Script script : scripts) {
-            String lreScriptPath = script.getTestFolderPath();
-            String lreScriptName = script.getName();
-            if (testFolderPath.equalsIgnoreCase(lreScriptPath) && scriptName.equalsIgnoreCase(lreScriptName))
+        for (Script script : scriptCache) {
+            if (testFolderPath.equalsIgnoreCase(script.getTestFolderPath()) &&
+                    scriptName.equalsIgnoreCase(script.getName())) {
                 return script;
+            }
         }
-        String msg = String.format("No Script named '%s' was found under this folder %s", scriptName, testFolderPath);
+        String msg = String.format("No Script named '%s' was found under folder %s", scriptName, testFolderPath);
         log.warn(msg);
         throw new LreException(msg);
     }
 
-    private List<Script> getAllScriptsCache() {
-        if (scriptCache == null) scriptCache = restApis.getAllScripts();
-        return scriptCache;
-    }
-
     private void clearScriptCache() {
         scriptCache = null;
-    }
-
-    private void validateHosts(Group group){
-        LreHostValidator hostValidator = new LreHostValidator(restApis, content);
-        hostValidator.validateAndPopulateHosts(group);
     }
 }

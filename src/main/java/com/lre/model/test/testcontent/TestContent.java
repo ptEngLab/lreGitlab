@@ -7,6 +7,7 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import com.lre.model.test.testcontent.groups.Group;
 import com.lre.model.test.testcontent.lgdistribution.LGDistribution;
+import com.lre.model.test.testcontent.monitorprofile.MonitorProfile;
 import com.lre.model.test.testcontent.workloadtype.WorkloadType;
 import lombok.AllArgsConstructor;
 import lombok.Data;

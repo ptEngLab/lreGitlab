@@ -58,7 +58,7 @@ public class LogHelper {
     private static FileAppender<ILoggingEvent> createFileAppender(LoggerContext context, String logFilePath) {
         PatternLayoutEncoder encoder = new PatternLayoutEncoder();
         encoder.setContext(context);
-        encoder.setPattern("%date{yyyy-MM-dd HH:mm:ss} %-5level %-36(%logger{1}:%L) - %msg%n");
+        encoder.setPattern("%date{yyyy-MM-dd HH:mm:ss} %-5level %-40(%logger{1}:%L) - %msg%n");
         encoder.start();
         FileAppender<ILoggingEvent> fileAppender = new FileAppender<>();
         fileAppender.setContext(context);
@@ -73,7 +73,7 @@ public class LogHelper {
     private static ConsoleAppender<ILoggingEvent> createConsoleAppender(LoggerContext context) {
         PatternLayoutEncoder encoder = new PatternLayoutEncoder();
         encoder.setContext(context);
-        encoder.setPattern("%date{yyyy-MM-dd HH:mm:ss} %-5level %-36(%logger{1}:%L) - %msg%n");
+        encoder.setPattern("%date{yyyy-MM-dd HH:mm:ss} %-5level %-40(%logger{1}:%L) - %msg%n");
         encoder.start();
         ConsoleAppender<ILoggingEvent> consoleAppender = new ConsoleAppender<>();
         consoleAppender.setContext(context);

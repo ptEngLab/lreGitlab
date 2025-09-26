@@ -5,11 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.lre.actions.apis.LreRestApis;
 import com.lre.actions.exceptions.LreException;
+import com.lre.actions.lre.testcontentvalidator.groups.LreGroupValidator;
 import com.lre.actions.runmodel.LreTestRunModel;
 import com.lre.actions.utils.JsonUtils;
 import com.lre.actions.utils.XmlUtils;
 import com.lre.model.enums.LGDistributionType;
-import com.lre.model.test.testcontent.MonitorProfile;
+import com.lre.model.test.testcontent.monitorprofile.MonitorProfile;
 import com.lre.model.test.testcontent.TestContent;
 import com.lre.model.test.testcontent.lgdistribution.LGDistribution;
 import com.lre.model.test.testcontent.workloadtype.WorkloadType;
@@ -24,7 +25,7 @@ public class LreTestContentValidator {
     private static final ObjectMapper YAML_MAPPER = new ObjectMapper(new YAMLFactory());
     private final LreRestApis restApis;
     private final LreTestRunModel model;
-    private TestContent content;
+    private final TestContent content;
 
     public LreTestContentValidator(LreTestRunModel model, LreRestApis restApis) {
         this.model = model;
@@ -36,8 +37,10 @@ public class LreTestContentValidator {
     public TestContent validateAndGetTestContent() {
         validateWorkloadType();
         validateLGDistribution();
-        validateGroups();
         validateMonitorProfiles();
+        validateGroups();
+
+        cleanUpContentForApi();
 
         log.info(XmlUtils.toXml(content));
         log.info(JsonUtils.toJson(content));
@@ -53,14 +56,12 @@ public class LreTestContentValidator {
     }
 
     private void validateGroups(){
-        LreScriptValidator scriptValidator = new LreScriptValidator(restApis, content);
-        content = scriptValidator.validateGroups();
+        new LreGroupValidator(restApis, content).validateGroups();
     }
 
     private void validateWorkloadType() {
         WorkloadType workloadType = WorkloadType.fromUserInput(content.getWorkloadTypeCode());
         content.setWorkloadType(workloadType);
-        content.setWorkloadTypeCode(null); // We don't need to populate this for LRE API payload.
     }
 
     private void validateLGDistribution() {
@@ -69,7 +70,6 @@ public class LreTestContentValidator {
             content.setLgDistribution(new LGDistribution(LGDistributionType.MANUAL));
         } else if (lgAmount > 0) {
             content.setLgDistribution(new LGDistribution(LGDistributionType.ALL_TO_EACH_GROUP, content.getAmount()));
-            content.setAmount(null); // We don't need to populate this for LRE API payload.
         } else {
             throw new LreException("Invalid LG amount: " + content.getAmount());
         }
@@ -88,8 +88,15 @@ public class LreTestContentValidator {
                             .toList();
 
             content.setMonitorProfiles(profiles);
-            content.setMonitorProfileId(null); // cleanup before API call
         }
+    }
+
+    private void cleanUpContentForApi(){
+
+        // clear all the custom variables used as part of YAML parsing to null, so that they are not sent for LRE API.
+        content.setAmount(null);
+        content.setWorkloadTypeCode(null);
+        content.setMonitorProfileId(null);
     }
 
 

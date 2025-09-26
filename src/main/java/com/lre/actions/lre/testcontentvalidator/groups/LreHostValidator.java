@@ -1,4 +1,4 @@
-package com.lre.actions.lre.testcontentvalidator;
+package com.lre.actions.lre.testcontentvalidator.groups;
 
 import com.lre.actions.apis.LreRestApis;
 import com.lre.actions.exceptions.LreException;
@@ -47,8 +47,6 @@ public class LreHostValidator {
     public void validateAndPopulateHosts(Group group) {
         if (content.getLgDistribution().getType() == LGDistributionType.MANUAL) parseHosts(group);
         clearCache();
-        group.setHostTemplate(null);
-        group.setHostname(null);
     }
 
     private void parseHosts(Group group) {

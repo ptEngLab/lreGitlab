@@ -101,7 +101,7 @@ public class LreTestManager {
         String testName = model.getTestName();
         String testFolderPath = model.getTestFolderPath();
         Optional<Test> existingTest = findTestByNameAndFolder(testName, testFolderPath);
-        TestContent testContent = getTestContent();
+        TestContent testContent = new LreTestContentValidator(model, restApis).validateAndGetTestContent();
         if (existingTest.isPresent()) updateExistingTest(existingTest.get(), testContent);
         else createNewTest(testName, testFolderPath, testContent);
         testsCache = null; // invalidate cache only after test creation/update
@@ -144,8 +144,4 @@ public class LreTestManager {
         model.setTestId(createdTest.getId());
     }
 
-    private TestContent getTestContent() {
-        LreTestContentValidator testContentValidator = new LreTestContentValidator(model, restApis);
-        return testContentValidator.validateAndGetTestContent();
-    }
 }

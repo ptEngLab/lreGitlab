@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.lre.model.test.testcontent.groups.hosts.Host;
+import com.lre.model.test.testcontent.groups.rts.RTS;
 import com.lre.model.test.testcontent.groups.script.Script;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -50,6 +51,10 @@ public class Group {
     private List<Host> hosts;
 
 
+    @JsonProperty("RTS")
+    @JacksonXmlProperty(localName = "RTS", namespace = LRE_API_XMLNS)
+    private RTS rts;
+
     // For YAML mapping
     @JsonProperty("ScriptId")
     private Integer scriptId = 0;
@@ -62,4 +67,11 @@ public class Group {
 
     @JsonProperty("HostTemplate")
     private String hostTemplate;
+
+    @JsonProperty("Pacing")
+    private String pacing;
+
+    @JsonProperty("ThinkTime")
+    private String thinkTime;
+
 }

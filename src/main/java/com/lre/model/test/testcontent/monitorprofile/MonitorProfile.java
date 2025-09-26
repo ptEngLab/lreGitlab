@@ -1,4 +1,4 @@
-package com.lre.model.test.testcontent;
+package com.lre.model.test.testcontent.monitorprofile;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;

@@ -88,7 +88,6 @@ public class Main {
     }
 
     private static boolean runLreTest(LreTestRunModel lreTestRunModel) throws LreException, IOException {
-        log.info("Starting LRE test execution...");
         // TODO: add actual LRE logic
         LreRunClient lreRunClient = new LreRunClient(lreTestRunModel);
         lreRunClient.startRun();
