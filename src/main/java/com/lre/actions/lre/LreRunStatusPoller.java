@@ -1,9 +1,9 @@
 package com.lre.actions.lre;
 
 import com.lre.actions.apis.LreRestApis;
-import com.lre.actions.common.entities.base.run.LreRunStatus;
-import com.lre.actions.common.entities.base.run.PostRunAction;
-import com.lre.actions.common.entities.base.run.RunState;
+import com.lre.model.run.LreRunStatus;
+import com.lre.model.run.PostRunAction;
+import com.lre.model.run.RunState;
 import com.lre.actions.runmodel.LreTestRunModel;
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,26 +20,30 @@ public class LreRunStatusPoller {
     private final PostRunAction postRunAction;
     private final long pollIntervalSeconds;
     private final long timeslotDurationMillis;
+    private final LreTestRunModel model;
 
     public LreRunStatusPoller(LreRestApis apiClient, LreTestRunModel model, int timeslotDurationInMinutes) {
         this.apiClient = apiClient;
+        this.model = model;
         this.authManager = new LreAuthenticationManager(apiClient, model);
         this.runId = model.getRunId();
         this.postRunAction = model.getLrePostRunAction();
         this.pollIntervalSeconds = DEFAULT_POLL_INTERVAL_SECONDS;
-        this.timeslotDurationMillis = timeslotDurationInMinutes * MILLIS_PER_MINUTE;
+        this.timeslotDurationMillis = TimeUnit.MINUTES.toMillis(timeslotDurationInMinutes);
     }
 
     public LreRunStatus pollUntilDone() {
         long startTime = System.currentTimeMillis();
         RunState lastLoggedState = RunState.UNDEFINED;
         int consecutiveFailures = 0;
-
+        LreRunStatus lastKnownStatus = new LreRunStatus();
+        lastKnownStatus.setRunState(RunState.UNDEFINED.getValue());
 
         while (!Thread.currentThread().isInterrupted()) {
             try {
                 LreRunStatus currentStatus = apiClient.getRunStatus(runId);
                 RunState currentState = RunState.fromValue(currentStatus.getRunState());
+                lastKnownStatus = currentStatus; // store last known status
 
                 // Log state changes
                 if (currentState != lastLoggedState) {
@@ -47,66 +51,70 @@ public class LreRunStatusPoller {
                     lastLoggedState = currentState;
                 }
 
-                // Check for terminal state according to postRunAction
+                // Terminal state reached
                 if (postRunAction.isTerminal(currentState)) {
                     log.info("Run [{}] reached terminal state [{}] for PostRunAction [{}]", runId, currentState, postRunAction);
-                    return currentStatus;
+                    if (currentState == RunState.FINISHED) model.setHtmlReportAvailable(true);
+                    return currentStatus; // exit immediately
                 }
 
-                consecutiveFailures = 0; // Reset on successful fetch
+                consecutiveFailures = 0; // reset after successful fetch
 
-                // Exit loop if timeslot duration exceeded
-                if (System.currentTimeMillis() - startTime > timeslotDurationMillis) {
+                // Timeslot expired
+                if (isTimeslotExceeded(startTime)) {
                     log.info("Timeslot duration ended for run [{}], stopping monitoring", runId);
                     break;
                 }
 
-                sleepSeconds(pollIntervalSeconds);
+                sleep(pollIntervalSeconds);
 
             } catch (Exception e) {
-                consecutiveFailures++;
-                log.warn("Failed to fetch run status for run [{}]: {}", runId, e.getMessage());
-
-                if (consecutiveFailures >= MAX_RETRIES) {
-                    log.info("Maximum retries reached, reauthenticating for run [{}]", runId);
-                    authManager.login();
-                    consecutiveFailures = 0;
-                }
-
-                sleepSeconds(RETRY_DELAY_SECONDS);
+                consecutiveFailures = handleFailure(consecutiveFailures, e);
             }
         }
 
-        // Return the last known status after exiting the loop
-        try {
-            LreRunStatus finalStatus = apiClient.getRunStatus(runId);
-            log.info("Final run state for [{}]: {}", runId, finalStatus.getRunState());
-            return finalStatus;
-        } catch (Exception e) {
-            log.warn("Failed to fetch final run status for [{}]: {}", runId, e.getMessage());
-            LreRunStatus unknownStatus = new LreRunStatus();
-            unknownStatus.setRunState(RunState.UNDEFINED.getValue());
-            return unknownStatus;
-        }
+        // Return the last known status if loop exited due to timeslot expiration
+        log.info("Returning last known status for run [{}]: {}", runId, lastKnownStatus.getRunState());
+        return lastKnownStatus;
     }
+
+
+    private int handleFailure(int consecutiveFailures, Exception e) {
+        consecutiveFailures++;
+        log.warn("Failed to fetch run status for run [{}]: {}", runId, e.getMessage());
+
+        if (consecutiveFailures >= MAX_RETRIES) {
+            log.info("Maximum retries reached, reauthenticating for run [{}]", runId);
+            authManager.login();
+            consecutiveFailures = 0;
+        }
+
+        sleep(RETRY_DELAY_SECONDS);
+        return consecutiveFailures;
+    }
+
+    private boolean isTimeslotExceeded(long startTime) {
+        return System.currentTimeMillis() - startTime > timeslotDurationMillis;
+    }
+
     private void logStateChange(RunState state, long startTime) {
         long now = System.currentTimeMillis();
         long elapsedSeconds = (now - startTime) / 1000;
-        long remainingMinutes = (timeslotDurationMillis - (now - startTime)) / MILLIS_PER_MINUTE;
+        long remainingMinutes = TimeUnit.MILLISECONDS.toMinutes(Math.max(0, timeslotDurationMillis - (now - startTime)));
 
         String formattedLog = String.format(
-                "| %-10s | %-35s | %-25s | %-14s |",
+                "| %-10s | %-40s | %-25s | %-14s |",
                 "RunId: " + runId,
                 "State: " + state.getValue(),
                 "Elapsed: " + elapsedSeconds + " seconds",
-                "Time remaining: " + Math.max(0, remainingMinutes) + " minutes"
+                "Time remaining: " + remainingMinutes + " minutes"
         );
 
         log.info(formattedLog);
     }
 
 
-    private void sleepSeconds(long seconds) {
+    private void sleep(long seconds) {
         try {
             TimeUnit.SECONDS.sleep(seconds);
         } catch (InterruptedException e) {
@@ -114,5 +122,4 @@ public class LreRunStatusPoller {
             log.warn("Polling interrupted for run [{}]", runId);
         }
     }
-
 }

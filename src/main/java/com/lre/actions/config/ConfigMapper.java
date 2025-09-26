@@ -1,9 +1,10 @@
 package com.lre.actions.config;
 
+import com.lre.actions.helpers.CommonMethods;
 import com.lre.actions.helpers.TestFileHelper;
 import com.lre.actions.runmodel.LreTestRunModel;
 import com.lre.actions.runmodel.GitTestRunModel;
-import com.lre.actions.common.entities.base.run.PostRunAction;
+import com.lre.model.run.PostRunAction;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -42,7 +43,8 @@ public class ConfigMapper {
                 .runId(0)
                 .lreInternalRunId(0)
                 .dashboardUrl(null)
-                .timeslotId(0);
+                .timeslotId(0)
+                .htmlReportAvailable(false);
 
         resolveTestDetails(params, builder);
         return builder.build();
@@ -85,7 +87,7 @@ public class ConfigMapper {
             TestFileHelper.TestFileDetails details = TestFileHelper.getTestFileDetails(workspacePath, testValue);
             builder.testName(details.name())
                     .testContentToCreate(details.content())
-                    .testFolderPath(details.folder())
+                    .testFolderPath(CommonMethods.normalizePathWithSubject(details.folder()))
                     .existingTest(false);
             return;
         }

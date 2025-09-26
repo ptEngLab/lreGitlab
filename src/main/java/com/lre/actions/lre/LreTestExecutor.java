@@ -1,9 +1,9 @@
 package com.lre.actions.lre;
 
 import com.lre.actions.apis.LreRestApis;
-import com.lre.actions.common.entities.base.run.LreRunResponse;
-import com.lre.actions.common.entities.base.run.LreRunStatus;
-import com.lre.actions.common.entities.base.timeslot.TimeslotCheckRequest;
+import com.lre.model.run.LreRunResponse;
+import com.lre.model.run.LreRunStatus;
+import com.lre.model.timeslot.TimeslotCheckRequest;
 import com.lre.actions.runmodel.LreTestRunModel;
 import com.lre.actions.utils.JsonUtils;
 import lombok.AllArgsConstructor;

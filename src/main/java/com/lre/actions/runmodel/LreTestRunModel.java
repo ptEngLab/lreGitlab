@@ -1,7 +1,7 @@
 package com.lre.actions.runmodel;
 
 
-import com.lre.actions.common.entities.base.run.PostRunAction;
+import com.lre.model.run.PostRunAction;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -42,6 +42,7 @@ public class LreTestRunModel {
     private int lreInternalRunId;
     private String dashboardUrl;
     private int timeslotId;
+    private boolean htmlReportAvailable;
 
 
 }

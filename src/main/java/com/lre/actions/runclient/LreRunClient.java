@@ -1,7 +1,7 @@
 package com.lre.actions.runclient;
 
 import com.lre.actions.apis.LreRestApis;
-import com.lre.actions.common.entities.base.run.LreRunStatus;
+import com.lre.model.run.LreRunStatus;
 import com.lre.actions.exceptions.LreException;
 import com.lre.actions.lre.*;
 import com.lre.actions.runmodel.LreTestRunModel;
@@ -22,8 +22,6 @@ public class LreRunClient implements AutoCloseable {
     }
 
     public void startRun() {
-        log.info("Starting run for test: {}", model.getTestToRun());
-
         try {
             executeRunWorkflow();
             log.info("Run completed successfully for test: {}", model.getTestToRun());
@@ -35,14 +33,14 @@ public class LreRunClient implements AutoCloseable {
 
     private void executeRunWorkflow() {
         fetchTestDetails();
-        resolveTestInstance();
+/*        resolveTestInstance();
         LreTimeslotManager timeslotManager = checkTimeslotAvailability();
         initiateTestRun(timeslotManager);
-        monitorRunCompletion(timeslotManager);
+        monitorRunCompletion(timeslotManager);*/
     }
 
     private void fetchTestDetails() {
-        LreTestManager testManager = new LreTestManager(lreRestApis, model);
+        LreTestManager testManager = new LreTestManager(model, lreRestApis);
         testManager.fetchTestDetails();
         log.debug("Fetched test details, testId: {}", model.getTestId());
     }
@@ -83,4 +81,5 @@ public class LreRunClient implements AutoCloseable {
             log.warn("Error during LreRunClient cleanup", e);
         }
     }
+
 }

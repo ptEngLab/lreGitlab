@@ -1,5 +1,6 @@
 package com.lre.actions.utils;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -15,6 +16,7 @@ public class JsonUtils {
     static {
         MAPPER.registerModule(new JavaTimeModule());
         MAPPER.disable(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        MAPPER.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
 
     public static <T> T fromJson(String json, Class<T> valueType) {

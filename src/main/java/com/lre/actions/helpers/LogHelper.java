@@ -65,7 +65,7 @@ public class LogHelper {
         fileAppender.setName("FileAppender");
         fileAppender.setFile(logFilePath);
         fileAppender.setEncoder(encoder);
-        fileAppender.setAppend(true);
+        fileAppender.setAppend(false);
         fileAppender.start();
         return fileAppender;
     }

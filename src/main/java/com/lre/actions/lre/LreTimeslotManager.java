@@ -1,8 +1,8 @@
 package com.lre.actions.lre;
 
 import com.lre.actions.apis.LreRestApis;
-import com.lre.actions.common.entities.base.timeslot.TimeslotCheckRequest;
-import com.lre.actions.common.entities.base.timeslot.TimeslotCheckResponse;
+import com.lre.model.timeslot.TimeslotCheckRequest;
+import com.lre.model.timeslot.TimeslotCheckResponse;
 import com.lre.actions.exceptions.LreException;
 import com.lre.actions.runmodel.LreTestRunModel;
 import com.lre.actions.utils.JsonUtils;

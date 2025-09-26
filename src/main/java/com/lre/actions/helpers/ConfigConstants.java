@@ -30,6 +30,8 @@ public class ConfigConstants {
     public static final String LRE_API_TESTS = "tests";
     public static final String TEST_INSTANCES_NAME = "testinstances";
     public static final String TEST_SETS_NAME = "testsets";
+    public static final String TEST_PLAN_NAME = "testplan";
+    public static final String SCRIPTS_RESOURCE_NAME = "scripts";
     public static final String TEST_SET_FOLDERS_NAME = "testfolders";
     public static final String DEFAULT_TEST_SET_NAME = "AutoTestSet";
     public static final String DEFAULT_TEST_SET_FOLDER_NAME = "AutoTestSet";
@@ -46,8 +48,7 @@ public class ConfigConstants {
     public static final int MINUTES_PER_HOUR = 60;
     public static final int MAX_RETRIES = 3;
     public static final int RETRY_DELAY_SECONDS = 5;
-    public static final long DEFAULT_POLL_INTERVAL_SECONDS = 30;
-    public static final long MILLIS_PER_MINUTE = 60_000L;
+    public static final long DEFAULT_POLL_INTERVAL_SECONDS = 0;
 
 
     public static final String LRE_RUN_ID_FILE = "lre_run_id.txt";

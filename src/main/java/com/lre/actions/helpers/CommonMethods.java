@@ -46,8 +46,8 @@ public class CommonMethods {
         return logDirPath.resolve(logFileName).toAbsolutePath().toString();
     }
 
-    public static void writeRunIdToFile(int runId){
-        try (FileWriter writer = new FileWriter(LRE_RUN_ID_FILE)){
+    public static void writeRunIdToFile(int runId) {
+        try (FileWriter writer = new FileWriter(LRE_RUN_ID_FILE)) {
             writer.write(String.valueOf(runId));
             log.debug("RunId {} has been updated for cleanup", runId);
         } catch (IOException e) {
@@ -88,10 +88,31 @@ public class CommonMethods {
 
         for (String[] row : rows) {
             sb.append(String.format(rowFormat, (Object[]) row));
-            sb.append(border);
+//
         }
+        sb.append(border);
 
         return sb.toString();
+    }
+
+    public static String normalizePathWithSubject(String path) {
+        if (StringUtils.isBlank(path)) return null;
+
+        // Step 1: Normalize all slashes to backslashes
+        String normalized = path.replace("/", "\\");
+
+        // Step 2: Remove repeated backslashes (e.g., "folder\\\\sub" -> "folder\sub")
+        normalized = normalized.replaceAll("\\\\+", "\\\\");
+
+        // Step 3: Trim leading and trailing backslashes
+        normalized = normalized.replaceAll("^\\\\+|\\\\+$", "");
+
+        // Step 4: Ensure "Subject\" prefix (case-insensitive)
+        if (!normalized.regionMatches(true, 0, "Subject\\", 0, "Subject\\".length())) {
+            normalized = "Subject\\" + normalized;
+        }
+
+        return normalized;
     }
 
 

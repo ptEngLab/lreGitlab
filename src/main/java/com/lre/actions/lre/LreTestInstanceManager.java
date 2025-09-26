@@ -1,12 +1,12 @@
 package com.lre.actions.lre;
 
 import com.lre.actions.apis.LreRestApis;
-import com.lre.actions.common.entities.base.testSet.LreTestSetCreateRequest;
-import com.lre.actions.common.entities.base.testSet.LreTestSetFolder;
-import com.lre.actions.common.entities.base.testinstance.LreTestInstance;
-import com.lre.actions.common.entities.base.testinstance.LreTestInstanceCreateRequest;
-import com.lre.actions.common.entities.base.testSet.LreTestSet;
-import com.lre.actions.common.entities.base.testSet.LreTestSetFolderCreateRequest;
+import com.lre.model.testSet.LreTestSetCreateRequest;
+import com.lre.model.testSet.LreTestSetFolder;
+import com.lre.model.testinstance.LreTestInstance;
+import com.lre.model.testinstance.LreTestInstanceCreateRequest;
+import com.lre.model.testSet.LreTestSet;
+import com.lre.model.testSet.LreTestSetFolderCreateRequest;
 import com.lre.actions.runmodel.LreTestRunModel;
 import com.lre.actions.utils.JsonUtils;
 import lombok.AllArgsConstructor;
