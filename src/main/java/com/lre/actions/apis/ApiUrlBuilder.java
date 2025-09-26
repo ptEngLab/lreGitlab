@@ -74,4 +74,13 @@ public class ApiUrlBuilder {
     public String getWebLoginUrl() {
         return lreWebUrl + "/" + LRE_WEB_LOGIN_TO_PROJECT;
     }
+
+    public String getCloudTemplateUrl() {
+        return lreApiUrl + "/" + CLOUD_TEMPLATE_RESOURCE_NAME;
+    }
+
+    public String getCloudTemplateByIdUrl(int id) {
+        return lreApiUrl + "/" + CLOUD_TEMPLATE_RESOURCE_NAME + "/" + id;
+    }
+
 }

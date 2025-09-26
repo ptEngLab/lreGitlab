@@ -1,4 +1,4 @@
-package com.lre.actions.lre;
+package com.lre.actions.lre.testcontentvalidator;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -34,9 +34,9 @@ public class LreTestContentValidator {
 
 
     public TestContent validateAndGetTestContent() {
-        validateGroups();
         validateWorkloadType();
         validateLGDistribution();
+        validateGroups();
         validateMonitorProfiles();
 
         log.info(XmlUtils.toXml(content));

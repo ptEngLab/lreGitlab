@@ -1,4 +1,4 @@
-package com.lre.actions.lre;
+package com.lre.actions.lre.testcontentvalidator;
 
 import com.lre.actions.apis.LreRestApis;
 import com.lre.actions.exceptions.LreException;
@@ -29,7 +29,9 @@ public class LreScriptValidator {
 
         if (content.getGroups() != null) {
             for (Group group : content.getGroups()) {
-                group.setScript(validateScript(group));
+                Script validatedScript = validateScript(group);
+                validateHosts(group);
+                group.setScript(validatedScript);
                 group.setScriptId(null);
                 group.setScriptName(null);
             }
@@ -108,4 +110,8 @@ public class LreScriptValidator {
         scriptCache = null;
     }
 
+    private void validateHosts(Group group){
+        LreHostValidator hostValidator = new LreHostValidator(restApis, content);
+        hostValidator.validateAndPopulateHosts(group);
+    }
 }

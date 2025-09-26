@@ -2,6 +2,7 @@ package com.lre.actions.apis;
 
 import com.lre.model.run.LreRunResponse;
 import com.lre.model.run.LreRunStatus;
+import com.lre.model.test.testcontent.groups.hosts.CloudTemplate;
 import com.lre.model.test.testcontent.groups.script.Script;
 import com.lre.model.testSet.LreTestSet;
 import com.lre.model.testSet.LreTestSetFolder;
@@ -154,6 +155,16 @@ public class LreRestApis implements AutoCloseable {
                 TimeslotCheckResponse.class,
                 "timeslot check"
         );
+    }
+
+    public List<CloudTemplate> getAllCloudTemplates() {
+        return requestExecutor.getResourceList(urlBuilder.getCloudTemplateUrl(),
+                CloudTemplate.class, "cloud templates");
+    }
+
+    public CloudTemplate getCloudTemplateById(int id){
+        return requestExecutor.getResourceById(urlBuilder.getCloudTemplateByIdUrl(id),
+                CloudTemplate.class, "cloud template by id");
     }
 
 }

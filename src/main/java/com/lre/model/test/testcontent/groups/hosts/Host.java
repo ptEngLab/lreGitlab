@@ -22,4 +22,9 @@ public class Host {
     @JacksonXmlProperty(localName = "Type", namespace = LRE_API_XMLNS)
     private HostType type;
 
+    @JsonProperty("HostTemplateId")
+    @JacksonXmlProperty(localName = "HostTemplateId", namespace = LRE_API_XMLNS)
+    private String hostTemplateId;
+
+
 }

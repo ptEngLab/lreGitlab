@@ -56,4 +56,10 @@ public class Group {
 
     @JsonProperty("ScriptName")
     private String scriptName;
+
+    @JsonProperty("HostName")
+    private String hostname;
+
+    @JsonProperty("HostTemplate")
+    private String hostTemplate;
 }
