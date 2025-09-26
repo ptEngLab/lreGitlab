@@ -29,7 +29,7 @@ public class LrePacingValidator {
         """;
 
     public void validatePacingForGroup(Group group) {
-        String input = group.getPacing();
+        String input = group.getYamlPacing();
         try {
             Pacing pacing = parsePacing(input);
             attachPacingToGroup(group, pacing);

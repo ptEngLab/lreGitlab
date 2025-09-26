@@ -2,6 +2,8 @@ package com.lre.model.test.testcontent.groups.rts.log;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.lre.model.enums.LogOptionsType;
+import com.lre.model.enums.LogType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,7 +17,11 @@ public class Log {
 
     @JsonProperty("Type")
     @JacksonXmlProperty(isAttribute = true, localName = "Type")
-    private String type; // ignore, standard, extended
+    private LogType type = LogType.STANDARD; // ignore, standard, extended
+
+    @JsonProperty("LogOptions")
+    @JacksonXmlProperty(localName = "LogOptions", namespace = LRE_API_XMLNS)
+    private LogOptions logOptions;
 
     @JsonProperty("ParametersSubstitution")
     @JacksonXmlProperty(localName = "ParametersSubstitution", namespace = LRE_API_XMLNS)
@@ -29,9 +35,6 @@ public class Log {
     @JacksonXmlProperty(localName = "AdvanceTrace", namespace = LRE_API_XMLNS)
     private Boolean advanceTrace;
 
-    @JsonProperty("LogOptions")
-    @JacksonXmlProperty(localName = "LogOptions", namespace = LRE_API_XMLNS)
-    private LogOptions logOptions;
 
     @Data
     @NoArgsConstructor
@@ -40,10 +43,10 @@ public class Log {
 
         @JsonProperty("Type")
         @JacksonXmlProperty(isAttribute = true)
-        private String type; // on error / always
+        private LogOptionsType type = LogOptionsType.ON_ERROR; // on error / always
 
         @JsonProperty("CacheSize")
         @JacksonXmlProperty(localName = "CacheSize", namespace = LRE_API_XMLNS)
-        private Integer cacheSize;
+        private Integer cacheSize = 1;
     }
 }

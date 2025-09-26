@@ -57,21 +57,24 @@ public class Group {
 
     // For YAML mapping
     @JsonProperty("ScriptId")
-    private Integer scriptId = 0;
+    private Integer yamlScriptId = 0;
 
     @JsonProperty("ScriptName")
-    private String scriptName;
+    private String yamlScriptName;
 
     @JsonProperty("HostName")
-    private String hostname;
+    private String yamlHostname;
 
     @JsonProperty("HostTemplate")
-    private String hostTemplate;
+    private String yamlHostTemplate;
 
     @JsonProperty("Pacing")
-    private String pacing;
+    private String yamlPacing;
 
     @JsonProperty("ThinkTime")
-    private String thinkTime;
+    private String yamlThinkTime;
+
+    @JsonProperty("Log")
+    private String yamlLog;
 
 }

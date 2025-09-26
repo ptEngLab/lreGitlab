@@ -44,7 +44,7 @@ public class LreThinkTimeValidator {
             """;
 
     public void validateThinkTimeForGroup(Group group) {
-        String input = group.getThinkTime();
+        String input = group.getYamlThinkTime();
         try {
             ThinkTime tt = parseThinkTime(input);
             attachThinkTimeToGroup(group, tt);

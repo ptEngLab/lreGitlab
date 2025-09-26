@@ -29,23 +29,23 @@ public class LreScriptValidator {
     }
 
     private Script fetchScript(Group group) {
-        if (group.getScriptId() > 0) {
+        if (group.getYamlScriptId() > 0) {
             try {
-                return fetchScriptById(group.getScriptId(), group.getName());
+                return fetchScriptById(group.getYamlScriptId(), group.getName());
             } catch (LreException e) {
                 log.warn("Script ID {} not found for group {}, falling back to name lookup",
-                        group.getScriptId(), group.getName());
+                        group.getYamlScriptId(), group.getName());
             }
         }
 
-        if (StringUtils.isNotEmpty(group.getScriptName())) {
-            return fetchScriptByName(group.getScriptName(), group.getName());
+        if (StringUtils.isNotEmpty(group.getYamlScriptName())) {
+            return fetchScriptByName(group.getYamlScriptName(), group.getName());
         }
 
         clearScriptCache();
         throw new LreException("No valid Script found for group: " + group.getName()
-                + ". Script ID: " + group.getScriptId()
-                + ", Script Name: " + group.getScriptName());
+                + ". Script ID: " + group.getYamlScriptId()
+                + ", Script Name: " + group.getYamlScriptName());
     }
 
     private Script fetchScriptById(int scriptId, String groupName) {

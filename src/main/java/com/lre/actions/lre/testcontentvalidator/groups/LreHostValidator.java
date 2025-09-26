@@ -50,14 +50,14 @@ public class LreHostValidator {
     }
 
     private void parseHosts(Group group) {
-        if (group.getHostname() == null || group.getHostname().isEmpty()) {
+        if (group.getYamlHostname() == null || group.getYamlHostname().isEmpty()) {
             log.debug("No hosts to parse for group: {}", group.getName());
             return;
         }
 
-        Map<String, String> hostTemplateMap = parseHostTemplates(group.getHostTemplate());
+        Map<String, String> hostTemplateMap = parseHostTemplates(group.getYamlHostTemplate());
 
-        List<Host> hosts = Arrays.stream(group.getHostname().split(","))
+        List<Host> hosts = Arrays.stream(group.getYamlHostname().split(","))
                 .map(String::trim)
                 .filter(name -> !name.isEmpty())
                 .map(hostname -> createHost(hostname, hostTemplateMap, group.getName()))

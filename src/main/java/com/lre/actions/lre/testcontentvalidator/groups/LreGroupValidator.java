@@ -28,6 +28,7 @@ public class LreGroupValidator {
             new LreHostValidator(restApis, content).validateAndPopulateHosts(group);  // updates hosts directly
             new LrePacingValidator().validatePacingForGroup(group);
             new LreThinkTimeValidator().validateThinkTimeForGroup(group);
+            new LreLogValidator().validateLogForGroup(group);
 
             cleanUpGroupContentForApi(group);
         }
@@ -38,12 +39,13 @@ public class LreGroupValidator {
     private void cleanUpGroupContentForApi(Group group) {
 
         // clear all the custom variables used as part of YAML parsing to null, so that they are not sent for LRE API.
-        group.setScriptId(null);
-        group.setScriptName(null);
-        group.setHostname(null);
-        group.setHostTemplate(null);
-        group.setPacing(null);
-        group.setThinkTime(null);
+        group.setYamlScriptId(null);
+        group.setYamlScriptName(null);
+        group.setYamlHostname(null);
+        group.setYamlHostTemplate(null);
+        group.setYamlPacing(null);
+        group.setYamlThinkTime(null);
+        group.setYamlLog(null);
     }
 
 
