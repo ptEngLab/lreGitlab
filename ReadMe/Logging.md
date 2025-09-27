@@ -39,7 +39,7 @@ Log: standard:on error:1
 
 1. [x] You just want basic logging.
 2. [x] You don’t need parameter substitutions, server responses, or deep
-  traces.
+   traces.
 
 
 
@@ -117,22 +117,40 @@ Log: extended:always:substitution,trace
 Log: extended:always:server,trace
 
 ```
-
-| Example Input                                     | Mode     | Condition | Cache Size | Substitution | Server | Trace |
-| ------------------------------------------------- | -------- | --------- | ---------- | ------------ | ------ | ----- |
-| `extended:always`                                 | EXTENDED | Always    | –          | ❌            | ❌      | ❌     |
-| `extended:on error:50`                            | EXTENDED | On Error  | 50 KB      | ❌            | ❌      | ❌     |
-| `extended:on error:50:substitution,server,trace`  | EXTENDED | On Error  | 50 KB      | ✅            | ✅      | ✅     |
-| `extended:on error:100:substitution,server,trace` | EXTENDED | On Error  | 100 KB     | ✅            | ✅      | ✅     |
-| `extended:always:substitution,server,trace`       | EXTENDED | Always    | –          | ✅            | ✅      | ✅     |
-| `extended:always:substitution`                    | EXTENDED | Always    | –          | ✅            | ❌      | ❌     |
-| `extended:always:server`                          | EXTENDED | Always    | –          | ❌            | ✅      | ❌     |
-| `extended:always:trace`                           | EXTENDED | Always    | –          | ❌            | ❌      | ✅     |
-| `extended:on error:30:server`                     | EXTENDED | On Error  | 30 KB      | ❌            | ✅      | ❌     |
-| `extended:on error:15:trace`                      | EXTENDED | On Error  | 15 KB      | ❌            | ❌      | ✅     |
-| `extended:on error:20:server`                     | EXTENDED | On Error  | 20 KB      | ❌            | ✅      | ❌     |
-| `extended:on error:10:substitution,server`        | EXTENDED | On Error  | 10 KB      | ✅            | ✅      | ❌     |
-| `extended:on error:25:substitution,trace`         | EXTENDED | On Error  | 25 KB      | ✅            | ❌      | ✅     |
-| `extended:on error:30:server,trace`               | EXTENDED | On Error  | 30 KB      | ❌            | ✅      | ✅     |
-| `extended:always:substitution,trace`              | EXTENDED | Always    | –          | ✅            | ❌      | ✅     |
-| `extended:always:server,trace`                    | EXTENDED | Always    | –          | ❌            | ✅      | ✅     |
+| Input                                          | Mode     | Condition | Cache | Substitution | Server | Trace |
+| ---------------------------------------------- | -------- | --------- | ----- | ------------ | ------ | ----- |
+| ignore                                         | IGNORE   | –         | –     | ❌            | ❌      | ❌     |
+| standard:always                                | STANDARD | Always    | –     | ❌            | ❌      | ❌     |
+| standard:on error:1                            | STANDARD | On Error  | 1     | ❌            | ❌      | ❌     |
+| standard:on error:20                           | STANDARD | On Error  | 20    | ❌            | ❌      | ❌     |
+| extended:always                                | EXTENDED | Always    | –     | ❌            | ❌      | ❌     |
+| extended:on error:10                           | EXTENDED | On Error  | 10    | ❌            | ❌      | ❌     |
+| extended:on error:50                           | EXTENDED | On Error  | 50    | ❌            | ❌      | ❌     |
+| extended:always:substitution                   | EXTENDED | Always    | –     | ✅            | ❌      | ❌     |
+| extended:always:server                         | EXTENDED | Always    | –     | ❌            | ✅      | ❌     |
+| extended:always:trace                          | EXTENDED | Always    | –     | ❌            | ❌      | ✅     |
+| extended:always:substitution,server            | EXTENDED | Always    | –     | ✅            | ✅      | ❌     |
+| extended:always:substitution,trace             | EXTENDED | Always    | –     | ✅            | ❌      | ✅     |
+| extended:always:server,trace                   | EXTENDED | Always    | –     | ❌            | ✅      | ✅     |
+| extended:always:substitution,server,trace      | EXTENDED | Always    | –     | ✅            | ✅      | ✅     |
+| extended:on error:1:substitution               | EXTENDED | On Error  | 1     | ✅            | ❌      | ❌     |
+| extended:on error:1:server                     | EXTENDED | On Error  | 1     | ❌            | ✅      | ❌     |
+| extended:on error:1:trace                      | EXTENDED | On Error  | 1     | ❌            | ❌      | ✅     |
+| extended:on error:1:substitution,server        | EXTENDED | On Error  | 1     | ✅            | ✅      | ❌     |
+| extended:on error:1:substitution,trace         | EXTENDED | On Error  | 1     | ✅            | ❌      | ✅     |
+| extended:on error:1:server,trace               | EXTENDED | On Error  | 1     | ❌            | ✅      | ✅     |
+| extended:on error:1:substitution,server,trace  | EXTENDED | On Error  | 1     | ✅            | ✅      | ✅     |
+| extended:on error:20:substitution              | EXTENDED | On Error  | 20    | ✅            | ❌      | ❌     |
+| extended:on error:20:server                    | EXTENDED | On Error  | 20    | ❌            | ✅      | ❌     |
+| extended:on error:20:trace                     | EXTENDED | On Error  | 20    | ❌            | ❌      | ✅     |
+| extended:on error:20:substitution,server       | EXTENDED | On Error  | 20    | ✅            | ✅      | ❌     |
+| extended:on error:20:substitution,trace        | EXTENDED | On Error  | 20    | ✅            | ❌      | ✅     |
+| extended:on error:20:server,trace              | EXTENDED | On Error  | 20    | ❌            | ✅      | ✅     |
+| extended:on error:20:substitution,server,trace | EXTENDED | On Error  | 20    | ✅            | ✅      | ✅     |
+| extended:on error:50:substitution              | EXTENDED | On Error  | 50    | ✅            | ❌      | ❌     |
+| extended:on error:50:server                    | EXTENDED | On Error  | 50    | ❌            | ✅      | ❌     |
+| extended:on error:50:trace                     | EXTENDED | On Error  | 50    | ❌            | ❌      | ✅     |
+| extended:on error:50:substitution,server       | EXTENDED | On Error  | 50    | ✅            | ✅      | ❌     |
+| extended:on error:50:substitution,trace        | EXTENDED | On Error  | 50    | ✅            | ❌      | ✅     |
+| extended:on error:50:server,trace              | EXTENDED | On Error  | 50    | ❌            | ✅      | ✅     |
+| extended:on error:50:substitution,server,trace | EXTENDED | On Error  | 50    | ✅            | ✅      | ✅     |
