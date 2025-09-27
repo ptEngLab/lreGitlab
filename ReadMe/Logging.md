@@ -1,3 +1,75 @@
+# 📘 LRE Log Configuration – Decision Guide
+Logging in LRE can be configured as **Ignore, Standard,** or **Extended**.
+
+Use this guide to decide which one fits your needs:
+
+---
+
+## 1. Ignore Mode
+
+1. [x] Use when: You want no logs at all
+2. [x] **Example:**
+ 
+    ```yaml
+    Log: ignore
+    ```
+
+## 2. Standard Mode
+
+1. [x] **Use when:** You need basic logs, usually for debugging or lightweight monitoring.
+2. [x] **Options:**
+ 
+   1. [x] **Always** → log everything.
+   2. [x] **On Error** → log only if an error occurs. 
+   3. [x] Optional **cache size** (limits KB of stored log). 
+3. [x] **Examples:**
+
+    ```yaml
+    # Always log standard events
+    Log: standard:always
+    
+    # Log only on error, with cache size 20 KB
+    Log: standard:on error:20
+    ```
+
+## 3. Extended Mode
+
+1. [x] **Use when:** You need detailed logs for deep troubleshooting.
+2. [x] **Options**:
+   1. [x] **Always** or **On Error** (like Standard).
+   2. [x] **Cache size** (KB).
+   3. [x] **Flags** to control log content:
+      1. [x] `substitution` → log parameter substitutions
+      2. [x] `server` → log server responses
+      3. [x] `trace` → log advanced traces
+
+3. [x] **Examples:**
+    ```yaml
+    # Always log everything (all flags)
+    Log: extended:always:substitution,server,trace
+    
+    # On error, 50 KB cache, all flags
+    Log: extended:on error:50:substitution,server,trace
+    
+    # On error, 25 KB cache, only substitutions and traces
+    Log: extended:on error:25:substitution,trace
+    ```
+
+✅ Choose Extended if:
+
+* You need parameter substitution logs for debugging dynamic values.
+* You need server response logs for diagnosing API/backend issues.
+* You need trace logs for in-depth debugging.
+* You’re in debugging or development mode, not raw load-testing mode.
+
+---
+## Quick Rule of Thumb
+
+1. [x] Performance testing only → `ignore` 
+2. [x] Basic debugging → `standard`
+3. [x] Detailed troubleshooting → `extended with flags`
+
+---
 
 # LRE Log Configuration Documentation
 The `Log` configuration defines how logging is handled in an LRE (LoadRunner Enterprise) test.
