@@ -17,6 +17,7 @@ Groups:
     Pacing: "fixed delay:5/3"
     ThinkTime: "random:80-120"
     Log: standard:on error:20
+    JMeter: "StartMeasurements=true"
 
   - Name: "SampleGroup3"
     Vusers: 15
@@ -25,6 +26,5 @@ Groups:
     Pacing: "random interval: 10 - 15 / 5"
     ThinkTime: "random: 50 - 150 : 30"
     Log: ignore
+    JMeter: "StartMeasurements=true,JMeterUseDefaultPort=false,JMeterHomePath=c:/jmeter,JREPath=c:/jre,AdditionalParameters=-Xmx1024m,-Xms512m"
 
-
-#

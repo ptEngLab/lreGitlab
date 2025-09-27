@@ -1,6 +1,6 @@
-2025-09-27 15:03:55 INFO  c.l.m.Main:41                            - Starting operation: RUN_LRE_TEST
-2025-09-27 15:03:56 INFO  c.l.a.l.t.g.LreGroupValidator:36         - All groups validated successfully.
-2025-09-27 15:03:56 INFO  c.l.a.l.t.LreTestContentValidator:45     - <?xml version='1.0' encoding='UTF-8'?>
+2025-09-27 20:03:39 INFO  c.l.m.Main:41                            - Starting operation: RUN_LRE_TEST
+2025-09-27 20:03:41 WARN  c.l.a.l.t.g.LreRtsJMeterValidator:123    - jmeterusedefaultport not specified. Using default false.
+2025-09-27 20:03:41 INFO  c.l.a.l.t.LreTestContentValidator:45     - <?xml version='1.0' encoding='UTF-8'?>
 <Content xmlns="http://www.hp.com/PC/REST/API">
   <WorkloadType>
     <Type>basic</Type>
@@ -24,12 +24,7 @@
       <Vusers>50</Vusers>
       <Script>
         <ID>200</ID>
-        <Name>Optional</Name>
-        <CreatedBy>sa</CreatedBy>
-        <TestFolderPath>Subject\e2e</TestFolderPath>
-        <WorkingMode>Runtime</WorkingMode>
-        <Protocol>Web - HTTP/HTML</Protocol>
-        <IsScriptLocked>false</IsScriptLocked>
+        <ProtocolType>Web - HTTP/HTML</ProtocolType>
       </Script>
       <Hosts>
         <Host>
@@ -71,6 +66,7 @@
           <DataReturnedByServer>false</DataReturnedByServer>
           <AdvanceTrace>true</AdvanceTrace>
         </Log>
+        <JMeter/>
       </RTS>
     </Group>
     <Group>
@@ -78,12 +74,7 @@
       <Vusers>10</Vusers>
       <Script>
         <ID>10</ID>
-        <Name>Optional</Name>
-        <CreatedBy>sa</CreatedBy>
-        <TestFolderPath>Subject\e2e</TestFolderPath>
-        <WorkingMode>Runtime</WorkingMode>
-        <Protocol>Web - HTTP/HTML</Protocol>
-        <IsScriptLocked>false</IsScriptLocked>
+        <ProtocolType>Web - HTTP/HTML</ProtocolType>
       </Script>
       <Hosts>
         <Host>
@@ -107,6 +98,10 @@
             <CacheSize>20</CacheSize>
           </LogOptions>
         </Log>
+        <JMeter>
+          <StartMeasurements>true</StartMeasurements>
+          <JMeterUseDefaultPort>false</JMeterUseDefaultPort>
+        </JMeter>
       </RTS>
     </Group>
     <Group>
@@ -114,12 +109,7 @@
       <Vusers>15</Vusers>
       <Script>
         <ID>11</ID>
-        <Name>Optional</Name>
-        <CreatedBy>sa</CreatedBy>
-        <TestFolderPath>Subject\e2e</TestFolderPath>
-        <WorkingMode>Runtime</WorkingMode>
-        <Protocol>Web - HTTP/HTML</Protocol>
-        <IsScriptLocked>false</IsScriptLocked>
+        <ProtocolType>Web - HTTP/HTML</ProtocolType>
       </Script>
       <Hosts>
         <Host>
@@ -141,11 +131,18 @@
           <LimitThinkTimeSeconds>30</LimitThinkTimeSeconds>
         </ThinkTime>
         <Log Type="ignore"/>
+        <JMeter>
+          <JREPath>c:\jre</JREPath>
+          <AdditionalParameters>-Xmx1024m,-Xms512m</AdditionalParameters>
+          <StartMeasurements>true</StartMeasurements>
+          <JMeterHomePath>c:\jmeter</JMeterHomePath>
+          <JMeterUseDefaultPort>false</JMeterUseDefaultPort>
+        </JMeter>
       </RTS>
     </Group>
   </Groups>
 </Content>
 
-2025-09-27 15:03:56 INFO  c.l.a.l.t.LreTestContentValidator:46     - {"WorkloadType":{"Type":"basic","SubType":"by test","VusersDistributionMode":"by number"},"LGDistribution":{"Type":"manual"},"MonitorProfile":[{"ID":1001},{"ID":1002}],"Groups":[{"Name":"SampleGroup","Vusers":50,"Script":{"ID":200,"Name":"Optional","CreatedBy":"sa","TestFolderPath":"Subject\\e2e","WorkingMode":"Runtime","Protocol":"Web - HTTP/HTML","IsScriptLocked":false},"Hosts":[{"Name":"LG1","Type":"automatch"},{"Name":"LG2","Type":"automatch"},{"Name":"cloud1","Type":"cloud","HostTemplateId":"1"},{"Name":"cloud2","Type":"cloud","HostTemplateId":"2"},{"Name":"devserver","Type":"specific"}],"RTS":{"Pacing":{"NumberOfIterations":1,"StartNewIteration":{"Type":"immediately"}},"ThinkTime":{"Type":"modify","MultiplyFactor":2.0},"Log":{"Type":"extended","LogOptions":{"Type":"on error","CacheSize":15},"ParametersSubstitution":false,"DataReturnedByServer":false,"AdvanceTrace":true}}},{"Name":"SampleGroup2","Vusers":10,"Script":{"ID":10,"Name":"Optional","CreatedBy":"sa","TestFolderPath":"Subject\\e2e","WorkingMode":"Runtime","Protocol":"Web - HTTP/HTML","IsScriptLocked":false},"Hosts":[{"Name":"LG1","Type":"automatch"}],"RTS":{"Pacing":{"NumberOfIterations":3,"StartNewIteration":{"Type":"fixed delay","DelayOfSeconds":5}},"ThinkTime":{"Type":"random","MinPercentage":80,"MaxPercentage":120},"Log":{"Type":"standard","LogOptions":{"Type":"on error","CacheSize":20}}}},{"Name":"SampleGroup3","Vusers":15,"Script":{"ID":11,"Name":"Optional","CreatedBy":"sa","TestFolderPath":"Subject\\e2e","WorkingMode":"Runtime","Protocol":"Web - HTTP/HTML","IsScriptLocked":false},"Hosts":[{"Name":"LG2","Type":"automatch"}],"RTS":{"Pacing":{"NumberOfIterations":5,"StartNewIteration":{"Type":"random interval","DelayAtRangeOfSeconds":10,"DelayAtRangeToSeconds":15}},"ThinkTime":{"Type":"random","MinPercentage":50,"MaxPercentage":150,"LimitThinkTimeSeconds":30},"Log":{"Type":"ignore"}}}]}
-2025-09-27 15:03:56 INFO  c.l.a.l.LreTestManager:140               - Creating new test: 'CreateTestFromYaml' in folder: 'Subject\yamlTest'
-2025-09-27 15:03:57 INFO  c.l.a.r.LreRunClient:27                  - Run completed successfully for test: yamlTest/CreateTestFromYaml.yaml
+2025-09-27 20:03:41 INFO  c.l.a.l.t.LreTestContentValidator:46     - {"WorkloadType":{"Type":"basic","SubType":"by test","VusersDistributionMode":"by number"},"LGDistribution":{"Type":"manual"},"MonitorProfile":[{"ID":1001},{"ID":1002}],"Groups":[{"Name":"SampleGroup","Vusers":50,"Script":{"ID":200,"ProtocolType":"Web - HTTP/HTML"},"Hosts":[{"Name":"LG1","Type":"automatch"},{"Name":"LG2","Type":"automatch"},{"Name":"cloud1","Type":"cloud","HostTemplateId":"1"},{"Name":"cloud2","Type":"cloud","HostTemplateId":"2"},{"Name":"devserver","Type":"specific"}],"RTS":{"Pacing":{"NumberOfIterations":1,"StartNewIteration":{"Type":"immediately"}},"ThinkTime":{"Type":"modify","MultiplyFactor":2.0},"Log":{"Type":"extended","LogOptions":{"Type":"on error","CacheSize":15},"ParametersSubstitution":false,"DataReturnedByServer":false,"AdvanceTrace":true},"JMeter":{}}},{"Name":"SampleGroup2","Vusers":10,"Script":{"ID":10,"ProtocolType":"Web - HTTP/HTML"},"Hosts":[{"Name":"LG1","Type":"automatch"}],"RTS":{"Pacing":{"NumberOfIterations":3,"StartNewIteration":{"Type":"fixed delay","DelayOfSeconds":5}},"ThinkTime":{"Type":"random","MinPercentage":80,"MaxPercentage":120},"Log":{"Type":"standard","LogOptions":{"Type":"on error","CacheSize":20}},"JMeter":{"StartMeasurements":true,"JMeterUseDefaultPort":false}}},{"Name":"SampleGroup3","Vusers":15,"Script":{"ID":11,"ProtocolType":"Web - HTTP/HTML"},"Hosts":[{"Name":"LG2","Type":"automatch"}],"RTS":{"Pacing":{"NumberOfIterations":5,"StartNewIteration":{"Type":"random interval","DelayAtRangeOfSeconds":10,"DelayAtRangeToSeconds":15}},"ThinkTime":{"Type":"random","MinPercentage":50,"MaxPercentage":150,"LimitThinkTimeSeconds":30},"Log":{"Type":"ignore"},"JMeter":{"JREPath":"c:\\jre","AdditionalParameters":"-Xmx1024m,-Xms512m","StartMeasurements":true,"JMeterHomePath":"c:\\jmeter","JMeterUseDefaultPort":false}}}]}
+2025-09-27 20:03:41 INFO  c.l.a.l.LreTestManager:140               - Creating new test: 'CreateTestFromYaml' in folder: 'Subject\yamlTest'
+2025-09-27 20:03:41 INFO  c.l.a.r.LreRunClient:27                  - Run completed successfully for test: yamlTest/CreateTestFromYaml.yaml

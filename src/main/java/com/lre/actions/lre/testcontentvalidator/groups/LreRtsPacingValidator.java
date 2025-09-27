@@ -12,7 +12,7 @@ import static com.lre.actions.helpers.CommonMethods.parsePositive;
 
 @Slf4j
 @NoArgsConstructor
-public class LrePacingValidator {
+public class LreRtsPacingValidator {
 
     public static class PacingException extends IllegalArgumentException {
         public PacingException(String message) { super(message); }

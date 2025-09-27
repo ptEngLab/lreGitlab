@@ -13,19 +13,19 @@ import java.nio.file.Paths;
 import java.util.List;
 
 @Slf4j
-public class LreScriptValidator {
+public class LreGroupScriptValidator {
 
     private final LreRestApis restApis;
     private List<Script> scriptCache;
 
-    public LreScriptValidator(LreRestApis restApis) {
+    public LreGroupScriptValidator(LreRestApis restApis) {
         this.restApis = restApis;
         this.scriptCache = restApis.getAllScripts(); // initialize cache
     }
 
     public void validateAndSetScript(Group group) {
         Script script = fetchScript(group);
-        group.setScript(script);      // direct update
+        group.setScript(new Script(script.getId(), script.getProtocol()));      // return only id and protocol type
     }
 
     private Script fetchScript(Group group) {
@@ -43,6 +43,7 @@ public class LreScriptValidator {
         }
 
         clearScriptCache();
+
         throw new LreException("No valid Script found for group: " + group.getName()
                 + ". Script ID: " + group.getYamlScriptId()
                 + ", Script Name: " + group.getYamlScriptName());

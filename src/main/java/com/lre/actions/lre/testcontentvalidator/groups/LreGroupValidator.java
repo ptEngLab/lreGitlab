@@ -7,14 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 
 
 @Slf4j
-public class LreGroupValidator {
-    private final LreRestApis restApis;
-    private final TestContent content;
-
-    public LreGroupValidator(LreRestApis restApis, TestContent content) {
-        this.restApis = restApis;
-        this.content = content;
-    }
+public record LreGroupValidator(LreRestApis restApis, TestContent content) {
 
     public void validateGroups() {
         if (content.getGroups() == null || content.getGroups().isEmpty()) {
@@ -24,11 +17,12 @@ public class LreGroupValidator {
 
 
         for (Group group : content.getGroups()) {
-            new LreScriptValidator(restApis).validateAndSetScript(group);     // updates script directly
-            new LreHostValidator(restApis, content).validateAndPopulateHosts(group);  // updates hosts directly
-            new LrePacingValidator().validatePacingForGroup(group);
-            new LreThinkTimeValidator().validateThinkTimeForGroup(group);
-            new LreLogValidator().validateLogForGroup(group);
+            new LreGroupScriptValidator(restApis).validateAndSetScript(group);     // updates script directly
+            new LreGroupHostValidator(restApis, content).validateAndPopulateHosts(group);  // updates hosts directly
+            new LreRtsPacingValidator().validatePacingForGroup(group);
+            new LreRtsThinkTimeValidator().validateThinkTimeForGroup(group);
+            new LreRtsLogValidator().validateLogForGroup(group);
+            new LreRtsJMeterValidator().validateJMeterForGroup(group);
 
             cleanUpGroupContentForApi(group);
         }
@@ -46,6 +40,7 @@ public class LreGroupValidator {
         group.setYamlPacing(null);
         group.setYamlThinkTime(null);
         group.setYamlLog(null);
+        group.setYamlJMeter(null);
     }
 
 

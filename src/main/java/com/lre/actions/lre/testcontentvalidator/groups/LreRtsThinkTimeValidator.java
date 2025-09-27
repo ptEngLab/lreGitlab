@@ -14,7 +14,7 @@ import static com.lre.actions.helpers.CommonMethods.parsePositive;
 
 @Slf4j
 @NoArgsConstructor
-public class LreThinkTimeValidator {
+public class LreRtsThinkTimeValidator {
 
     public static class ThinkTimeException extends IllegalArgumentException {
         public ThinkTimeException(String message) {

@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class LreHostValidator {
+public class LreGroupHostValidator {
 
     private final LreRestApis restApis;
     private final TestContent content;
@@ -25,7 +25,7 @@ public class LreHostValidator {
     private static final Pattern CLOUD_PATTERN = Pattern.compile("^cloud\\d+$", Pattern.CASE_INSENSITIVE);
     private static final Pattern DYNAMIC_PATTERN = Pattern.compile("^docker\\d+$", Pattern.CASE_INSENSITIVE);
 
-    public LreHostValidator(LreRestApis restApis, TestContent content) {
+    public LreGroupHostValidator(LreRestApis restApis, TestContent content) {
         this.restApis = restApis;
         this.content = content;
         this.cloudTemplatesCache = getAllCloudTemplatesCache();

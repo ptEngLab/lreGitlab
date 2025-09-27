@@ -77,4 +77,7 @@ public class Group {
     @JsonProperty("Log")
     private String yamlLog;
 
+    @JsonProperty("JMeter")
+    private String yamlJMeter;
+
 }

@@ -1,5 +1,6 @@
-package com.lre.actions.lre.testcontentvalidator.groups;
+package tests;
 
+import com.lre.actions.lre.testcontentvalidator.groups.LreRtsLogValidator;
 import com.lre.model.enums.LogOptionsType;
 import com.lre.model.enums.LogType;
 import com.lre.model.test.testcontent.groups.Group;
@@ -11,9 +12,9 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class LreLogValidatorTest {
+class LreRtsLogValidatorTest {
 
-    private final LreLogValidator validator = new LreLogValidator();
+    private final LreRtsLogValidator validator = new LreRtsLogValidator();
 
     static Stream<TestCase> logScenarios() {
         return Stream.of(

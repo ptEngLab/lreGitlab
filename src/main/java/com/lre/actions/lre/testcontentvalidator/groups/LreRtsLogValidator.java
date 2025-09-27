@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 @NoArgsConstructor
 @Slf4j
-public class LreLogValidator {
+public class LreRtsLogValidator {
 
     private static final int DEFAULT_CACHE_SIZE = 1;
     private static final int MAX_CACHE_SIZE = 100;

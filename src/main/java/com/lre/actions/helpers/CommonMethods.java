@@ -94,7 +94,6 @@ public class CommonMethods {
 
         for (String[] row : rows) {
             sb.append(String.format(rowFormat, (Object[]) row));
-//
         }
         sb.append(border);
 
