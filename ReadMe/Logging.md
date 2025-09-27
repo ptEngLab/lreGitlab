@@ -57,10 +57,10 @@ Use this guide to decide which one fits your needs:
 
 ✅ Choose Extended if:
 
-* You need parameter substitution logs for debugging dynamic values.
-* You need server response logs for diagnosing API/backend issues.
-* You need trace logs for in-depth debugging.
-* You’re in debugging or development mode, not raw load-testing mode.
+* You need **parameter substitution logs** for debugging dynamic values.
+* You need **server response logs** for diagnosing API/backend issues.
+* You need **trace logs** for in-depth debugging.
+* You’re in **debugging or development mode**, not raw load-testing mode.
 
 ---
 ## Quick Rule of Thumb
