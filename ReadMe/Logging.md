@@ -1,4 +1,4 @@
-# 📘 LRE Log Configuration – Decision Guide
+# LRE Log Configuration
 
 Logging in LRE can be configured as **Ignore, Standard,** or **Extended**.
 
@@ -25,13 +25,26 @@ Use this guide to decide which one fits your needs:
     3. [x] Optional **cache size** (limits KB of stored log. value should be between **1 and 100**).
 3. [x] **Examples:**
 
-    ```yaml
-    # Always log standard events
-    Log: standard:always
+    <br>**Always log everything**
     
-    # Log only on error, with cache size 20 KB
-    Log: standard:on error:20
+    ```yaml
+    Log: standard:always
     ```
+    
+    **Log only on error, with cache size limit**
+    
+    ```yaml
+    # Log on error, limit cache to 20 KB
+    Log: standard:on error:20
+    
+    # Log on error, limit cache to 1 KB
+    Log: standard:on error:1
+    ```
+✅ Choose Standard if:
+
+1. [x] You just want basic logging.
+2. [x] You don’t need parameter substitutions, server responses, or deep
+   traces.
 
 ## 3. Extended Mode
 
@@ -56,73 +69,7 @@ Use this guide to decide which one fits your needs:
     Log: extended:on error:25:substitution,trace
     ```
 
-✅ Choose Extended if:
-
-* You need **parameter substitution logs** for debugging dynamic values.
-* You need **server response logs** for diagnosing API/backend issues.
-* You need **trace logs** for in-depth debugging.
-* You’re in **debugging or development mode**, not raw load-testing mode.
-
 ---
-
-## Quick Rule of Thumb
-
-1. [x] Performance testing only → `ignore`
-2. [x] Basic debugging → `standard`
-3. [x] Detailed troubleshooting → `extended with flags`
-
----
-
-# LRE Log Configuration Documentation
-
-The `Log` configuration defines how logging is handled in an LRE (LoadRunner Enterprise) test.
-
-It supports three primary modes:
-
-1. [x] **IGNORE** → no logging
-2. [x] **STANDARD** → basic logging, with optional error-based conditions and cache limits
-3. [x] **EXTENDED** → detailed logging with advanced options and fine-grained flags
-
----
-
-## 1. Ignore Log
-
-Disable logging entirely.
-
-```yaml
-# No logging at all
-Log: ignore
-```
-
-## 2. Standard Log
-
-Provides standard logging with configurable options.
-
-**Always log everything**
-
-```yaml
-Log: standard:always
-```
-
-**Log only on error, with cache size limit**
-
-```yaml
-# Log on error, limit cache to 20 KB
-Log: standard:on error:20
-
-# Log on error, limit cache to 1 KB
-Log: standard:on error:1
-```
-
-✅ Choose Standard if:
-
-1. [x] You just want basic logging.
-2. [x] You don’t need parameter substitutions, server responses, or deep
-   traces.
-
-## 3. Extended Log
-
-Provides detailed logging with optional flags and conditions.
 
 Minimal configuration
 
@@ -195,6 +142,14 @@ Log: extended:always:substitution,trace
 Log: extended:always:server,trace
 ```
 
+✅ Choose Extended if:
+
+* You need **parameter substitution logs** for debugging dynamic values.
+* You need **server response logs** for diagnosing API/backend issues.
+* You need **trace logs** for in-depth debugging.
+* You’re in **debugging or development mode**, not raw load-testing mode.
+
+
 # Complete Log Combinations Table
 
 | Log Input - Examples                           | Detail Level | Log Options - Send Messages | Limit Log Cache | Parameter Substitution | Data Returned by Server | Advanced Trace |
@@ -234,3 +189,34 @@ Log: extended:always:server,trace
 | extended:on error:50:substitution,trace        | EXTENDED     | On Error                    | 50              | ✅                      | ❌                       | ✅              |
 | extended:on error:50:server,trace              | EXTENDED     | On Error                    | 50              | ❌                      | ✅                       | ✅              |
 | extended:on error:50:substitution,server,trace | EXTENDED     | On Error                    | 50              | ✅                      | ✅                       | ✅              |
+
+## Sample YAML file
+
+```yaml
+MonitorProfileId: 1001, 1002
+Groups:
+  - Name: "SampleGroup"
+    Vusers: 50
+    ScriptName: "e2e/Optional"
+    HostName: "LG1, LG2, cloud1, cloud2, devserver"
+    HostTemplate: "cloud1 : 1, cloud2 : 2"
+    Pacing: "immediately"
+    ThinkTime: "modify:*2"
+    Log: extended:on error:15:trace
+
+  - Name: "SampleGroup2"
+    Vusers: 10
+    ScriptId: 10
+    HostName: "LG1"
+    Pacing: "fixed delay:5/3"
+    ThinkTime: "random:80-120"
+    Log: standard:on error:20
+
+  - Name: "SampleGroup3"
+    Vusers: 15
+    ScriptId: 11
+    HostName: "LG2"
+    Pacing: "random interval: 10 - 15 / 5"
+    ThinkTime: "random: 50 - 150 : 30"
+    Log: ignore
+```
