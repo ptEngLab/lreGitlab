@@ -22,7 +22,7 @@ Use this guide to decide which one fits your needs:
 
     1. [x] **Always** → log everything.
     2. [x] **On Error** → log only if an error occurs.
-    3. [x] Optional **cache size** (limits KB of stored log).
+    3. [x] Optional **cache size** (limits KB of stored log. value should be between **1 and 100**).
 3. [x] **Examples:**
 
     ```yaml
@@ -38,7 +38,7 @@ Use this guide to decide which one fits your needs:
 1. [x] **Use when:** You need detailed logs for deep troubleshooting.
 2. [x] **Options**:
     1. [x] **Always** or **On Error** (like Standard).
-    2. [x] **Cache size** (KB).
+    2. [x] **Cache size** (KB). Value should be between **1 and 100**
     3. [x] **Flags** to control log content:
         1. [x] `substitution` → log parameter substitutions
         2. [x] `server` → log server responses
