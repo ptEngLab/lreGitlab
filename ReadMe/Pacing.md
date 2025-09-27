@@ -86,6 +86,5 @@ Pacing: random interval:20-25
 * Invalid formats will throw a PacingException.
 
 
-# [Sample YAML file](sample-config.yaml.md)
+# [Click here for Sample YAML file](sample-config.yaml.md)
 
-<!-- include: sample-config.yaml -->

@@ -191,6 +191,4 @@ Log: extended:always:server,trace
 | extended:on error:50:substitution,server,trace | EXTENDED     | On Error                    | 50              | ✅                      | ✅                       | ✅              |
 
 
-# [Sample YAML file](sample-config.yaml.md)
-
-<!-- include: sample-config.yaml -->
+# [Click here for Sample YAML file](sample-config.yaml.md)

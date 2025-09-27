@@ -84,8 +84,6 @@ ThinkTime: modify:*2.0
 | random | ThinkTime: random:80-120:15 | 15    | -        | 80    | 120   | Random 80-120% of recorded but limit thinktime to max 15s                  |
 
 
-# [Sample YAML file](sample-config.yaml.md)
+# [Click here for Sample YAML file](sample-config.yaml.md)
 
-## Sample YAML file
 
-<!-- include: sample-config.yaml -->
