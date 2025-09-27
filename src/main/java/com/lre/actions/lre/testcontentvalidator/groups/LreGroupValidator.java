@@ -33,7 +33,7 @@ public class LreGroupValidator {
             cleanUpGroupContentForApi(group);
         }
 
-        log.info("All groups validated successfully.");
+        log.debug("All groups validated successfully.");
     }
 
     private void cleanUpGroupContentForApi(Group group) {

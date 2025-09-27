@@ -190,33 +190,7 @@ Log: extended:always:server,trace
 | extended:on error:50:server,trace              | EXTENDED     | On Error                    | 50              | ❌                      | ✅                       | ✅              |
 | extended:on error:50:substitution,server,trace | EXTENDED     | On Error                    | 50              | ✅                      | ✅                       | ✅              |
 
-## Sample YAML file
 
-```yaml
-MonitorProfileId: 1001, 1002
-Groups:
-  - Name: "SampleGroup"
-    Vusers: 50
-    ScriptName: "e2e/Optional"
-    HostName: "LG1, LG2, cloud1, cloud2, devserver"
-    HostTemplate: "cloud1 : 1, cloud2 : 2"
-    Pacing: "immediately"
-    ThinkTime: "modify:*2"
-    Log: extended:on error:15:trace
+# [Sample YAML file](sample-config.yaml.md)
 
-  - Name: "SampleGroup2"
-    Vusers: 10
-    ScriptId: 10
-    HostName: "LG1"
-    Pacing: "fixed delay:5/3"
-    ThinkTime: "random:80-120"
-    Log: standard:on error:20
-
-  - Name: "SampleGroup3"
-    Vusers: 15
-    ScriptId: 11
-    HostName: "LG2"
-    Pacing: "random interval: 10 - 15 / 5"
-    ThinkTime: "random: 50 - 150 : 30"
-    Log: ignore
-```
+<!-- include: sample-config.yaml -->

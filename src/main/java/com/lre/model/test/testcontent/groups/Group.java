@@ -62,7 +62,7 @@ public class Group {
     @JsonProperty("ScriptName")
     private String yamlScriptName;
 
-    @JsonProperty("HostName")
+    @JsonProperty("HostNames")
     private String yamlHostname;
 
     @JsonProperty("HostTemplate")

@@ -84,3 +84,8 @@ Pacing: random interval:20-25
 * Delays and intervals must be positive integers.
 * Random ranges must satisfy min ≤ max.
 * Invalid formats will throw a PacingException.
+
+
+# [Sample YAML file](sample-config.yaml.md)
+
+<!-- include: sample-config.yaml -->

@@ -1,4 +1,6 @@
-#LgAmount: 10
+## Sample YAML file
+
+```yaml
 MonitorProfileId: 1001, 1002
 Groups:
   - Name: "SampleGroup"
@@ -7,7 +9,7 @@ Groups:
     HostNames: "LG1, LG2, cloud1, cloud2, devserver"
     HostTemplate: "cloud1 : 1, cloud2 : 2"
     Pacing: "immediately"
-    ThinkTime: "modify:*2.0"
+    ThinkTime: "modify:*2"
     Log: extended:on error:15:trace
 
   - Name: "SampleGroup2"
@@ -25,6 +27,4 @@ Groups:
     Pacing: "random interval: 10 - 15 / 5"
     ThinkTime: "random: 50 - 150 : 30"
     Log: ignore
-
-
-#
+```
