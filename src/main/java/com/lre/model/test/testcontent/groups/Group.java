@@ -80,4 +80,9 @@ public class Group {
     @JsonProperty("JMeter")
     private String yamlJMeter;
 
+    @JsonProperty("Selenium")
+    private String yamlSelenium;
+
+    @JsonProperty("JavaVM")
+    private String yamlJavaVM;
 }

@@ -8,7 +8,8 @@ Groups:
     HostTemplate: "cloud1 : 1, cloud2 : 2"
     Pacing: "immediately"
     ThinkTime: "modify:*2.0"
-    Log: extended:on error:15:trace
+    Log: "extended:on error:15:trace"
+    JavaVM: "JavaEnvClassPaths=lib\\junit.jar;lib\\hamcrest.jar;user_binaries\\myapp.jar,UserSpecifiedJdk=true,JdkHome=/usr/lib/jvm/java-17,UseXboot=false,EnableClassLoaderPerVuser=true,JavaVmParameters=-Xms128m -Xmx512m -Dspring.profiles.active=test"
 
   - Name: "SampleGroup2"
     Vusers: 10
@@ -16,8 +17,8 @@ Groups:
     HostNames: "LG1"
     Pacing: "fixed delay:5/3"
     ThinkTime: "random:80-120"
-    Log: standard:on error:20
-    JMeter: "StartMeasurements=true"
+    Log: "standard:on error:20"
+    JMeter: "StartMeasurements=true,JMeterUseDefaultPort=false,JMeterHomePath=c:\\jmeter,JREPath=c:\\jre,AdditionalParameters=-Xmx1024m,-Xms512m"
 
   - Name: "SampleGroup3"
     Vusers: 15
@@ -26,5 +27,6 @@ Groups:
     Pacing: "random interval: 10 - 15 / 5"
     ThinkTime: "random: 50 - 150 : 30"
     Log: ignore
-    JMeter: "StartMeasurements=true,JMeterUseDefaultPort=false,JMeterHomePath=c:/jmeter,JREPath=c:/jre,AdditionalParameters=-Xmx1024m,-Xms512m"
+    Selenium: "JREPath=C:\\java\\jdk,ClassPath=myclasspath.jar,TestNgFiles=testng.xml"
+
 

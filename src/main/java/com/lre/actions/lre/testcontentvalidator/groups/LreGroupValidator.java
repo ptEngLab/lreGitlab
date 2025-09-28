@@ -23,6 +23,8 @@ public record LreGroupValidator(LreRestApis restApis, TestContent content) {
             new LreRtsThinkTimeValidator().validateThinkTimeForGroup(group);
             new LreRtsLogValidator().validateLogForGroup(group);
             new LreRtsJMeterValidator().validateJMeterForGroup(group);
+            new LreRtsSeleniumValidator().validateSeleniumForGroup(group);
+            new LreRtsJavaVmValidator().validateJavaVmForGroup(group);
 
             cleanUpGroupContentForApi(group);
         }
@@ -41,6 +43,8 @@ public record LreGroupValidator(LreRestApis restApis, TestContent content) {
         group.setYamlThinkTime(null);
         group.setYamlLog(null);
         group.setYamlJMeter(null);
+        group.setYamlSelenium(null);
+        group.setYamlJavaVM(null);
     }
 
 

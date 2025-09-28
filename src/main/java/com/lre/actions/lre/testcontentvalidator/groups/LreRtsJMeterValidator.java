@@ -47,13 +47,15 @@ public class LreRtsJMeterValidator {
     }
 
     private void attachJMeterToGroup(Group group, JMeter jMeter) {
+        if (jMeter == null) return; // don’t attach anything
+
         RTS rts = group.getRts();
         if (rts == null) group.setRts(rts = new RTS());
         rts.setJmeterSettings(jMeter);
     }
 
     private JMeter parseJMeter(String input) {
-        if (StringUtils.isBlank(input)) return new JMeter();
+        if (StringUtils.isBlank(input)) return null;
 
         Map<String, String> configMap = parseKeyValuePairs(input);
 

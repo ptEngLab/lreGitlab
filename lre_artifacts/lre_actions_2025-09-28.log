@@ -1,5 +1,5 @@
-2025-09-27 20:36:44 INFO  c.l.m.Main:41                            - Starting operation: RUN_LRE_TEST
-2025-09-27 20:36:46 INFO  c.l.a.l.t.LreTestContentValidator:45     - <?xml version='1.0' encoding='UTF-8'?>
+2025-09-28 09:51:31 INFO  c.l.m.Main:41                            - Starting operation: RUN_LRE_TEST
+2025-09-28 09:51:33 INFO  c.l.a.l.t.LreTestContentValidator:45     - <?xml version='1.0' encoding='UTF-8'?>
 <Content xmlns="http://www.hp.com/PC/REST/API">
   <WorkloadType>
     <Type>basic</Type>
@@ -65,8 +65,18 @@
           <DataReturnedByServer>false</DataReturnedByServer>
           <AdvanceTrace>true</AdvanceTrace>
         </Log>
-        <JMeter/>
-        <Selenium/>
+        <JavaVM>
+          <JavaEnvClassPaths>
+            <JavaEnvClassPath>lib\junit.jar</JavaEnvClassPath>
+            <JavaEnvClassPath>lib\hamcrest.jar</JavaEnvClassPath>
+            <JavaEnvClassPath>user_binaries\myapp.jar</JavaEnvClassPath>
+          </JavaEnvClassPaths>
+          <UserSpecifiedJdk>true</UserSpecifiedJdk>
+          <JdkHome>/usr/lib/jvm/java-17</JdkHome>
+          <JavaVmParameters>-Xms128m -Xmx512m -Dspring.profiles.active=test</JavaVmParameters>
+          <UseXboot>false</UseXboot>
+          <EnableClassLoaderPerVuser>true</EnableClassLoaderPerVuser>
+        </JavaVM>
       </RTS>
     </Group>
     <Group>
@@ -105,7 +115,6 @@
           <JMeterHomePath>c:\jmeter</JMeterHomePath>
           <JMeterUseDefaultPort>false</JMeterUseDefaultPort>
         </JMeter>
-        <Selenium/>
       </RTS>
     </Group>
     <Group>
@@ -135,7 +144,6 @@
           <LimitThinkTimeSeconds>30</LimitThinkTimeSeconds>
         </ThinkTime>
         <Log Type="ignore"/>
-        <JMeter/>
         <Selenium>
           <JREPath>C:\java\jdk</JREPath>
           <ClassPath>myclasspath.jar</ClassPath>
@@ -146,6 +154,6 @@
   </Groups>
 </Content>
 
-2025-09-27 20:36:46 INFO  c.l.a.l.t.LreTestContentValidator:46     - {"WorkloadType":{"Type":"basic","SubType":"by test","VusersDistributionMode":"by number"},"LGDistribution":{"Type":"manual"},"MonitorProfile":[{"ID":1001},{"ID":1002}],"Groups":[{"Name":"SampleGroup","Vusers":50,"Script":{"ID":200,"ProtocolType":"Web - HTTP/HTML"},"Hosts":[{"Name":"LG1","Type":"automatch"},{"Name":"LG2","Type":"automatch"},{"Name":"cloud1","Type":"cloud","HostTemplateId":"1"},{"Name":"cloud2","Type":"cloud","HostTemplateId":"2"},{"Name":"devserver","Type":"specific"}],"RTS":{"Pacing":{"NumberOfIterations":1,"StartNewIteration":{"Type":"immediately"}},"ThinkTime":{"Type":"modify","MultiplyFactor":2.0},"Log":{"Type":"extended","LogOptions":{"Type":"on error","CacheSize":15},"ParametersSubstitution":false,"DataReturnedByServer":false,"AdvanceTrace":true},"JMeter":{},"Selenium":{}}},{"Name":"SampleGroup2","Vusers":10,"Script":{"ID":10,"ProtocolType":"Web - HTTP/HTML"},"Hosts":[{"Name":"LG1","Type":"automatch"}],"RTS":{"Pacing":{"NumberOfIterations":3,"StartNewIteration":{"Type":"fixed delay","DelayOfSeconds":5}},"ThinkTime":{"Type":"random","MinPercentage":80,"MaxPercentage":120},"Log":{"Type":"standard","LogOptions":{"Type":"on error","CacheSize":20}},"JMeter":{"JREPath":"c:\\jre","AdditionalParameters":"-Xmx1024m,-Xms512m","StartMeasurements":true,"JMeterHomePath":"c:\\jmeter","JMeterUseDefaultPort":false},"Selenium":{}}},{"Name":"SampleGroup3","Vusers":15,"Script":{"ID":11,"ProtocolType":"Web - HTTP/HTML"},"Hosts":[{"Name":"LG2","Type":"automatch"}],"RTS":{"Pacing":{"NumberOfIterations":5,"StartNewIteration":{"Type":"random interval","DelayAtRangeOfSeconds":10,"DelayAtRangeToSeconds":15}},"ThinkTime":{"Type":"random","MinPercentage":50,"MaxPercentage":150,"LimitThinkTimeSeconds":30},"Log":{"Type":"ignore"},"JMeter":{},"Selenium":{"JREPath":"C:\\java\\jdk","ClassPath":"myclasspath.jar","TestNgFiles":"testng.xml"}}}]}
-2025-09-27 20:36:46 INFO  c.l.a.l.LreTestManager:140               - Creating new test: 'CreateTestFromYaml' in folder: 'Subject\yamlTest'
-2025-09-27 20:36:46 INFO  c.l.a.r.LreRunClient:27                  - Run completed successfully for test: yamlTest/CreateTestFromYaml.yaml
+2025-09-28 09:51:33 INFO  c.l.a.l.t.LreTestContentValidator:46     - {"WorkloadType":{"Type":"basic","SubType":"by test","VusersDistributionMode":"by number"},"LGDistribution":{"Type":"manual"},"MonitorProfile":[{"ID":1001},{"ID":1002}],"Groups":[{"Name":"SampleGroup","Vusers":50,"Script":{"ID":200,"ProtocolType":"Web - HTTP/HTML"},"Hosts":[{"Name":"LG1","Type":"automatch"},{"Name":"LG2","Type":"automatch"},{"Name":"cloud1","Type":"cloud","HostTemplateId":"1"},{"Name":"cloud2","Type":"cloud","HostTemplateId":"2"},{"Name":"devserver","Type":"specific"}],"RTS":{"Pacing":{"NumberOfIterations":1,"StartNewIteration":{"Type":"immediately"}},"ThinkTime":{"Type":"modify","MultiplyFactor":2.0},"Log":{"Type":"extended","LogOptions":{"Type":"on error","CacheSize":15},"ParametersSubstitution":false,"DataReturnedByServer":false,"AdvanceTrace":true},"JavaVM":{"JavaEnvClassPaths":["lib\\junit.jar","lib\\hamcrest.jar","user_binaries\\myapp.jar"],"UserSpecifiedJdk":true,"JdkHome":"/usr/lib/jvm/java-17","JavaVmParameters":"-Xms128m -Xmx512m -Dspring.profiles.active=test","UseXboot":false,"EnableClassLoaderPerVuser":true}}},{"Name":"SampleGroup2","Vusers":10,"Script":{"ID":10,"ProtocolType":"Web - HTTP/HTML"},"Hosts":[{"Name":"LG1","Type":"automatch"}],"RTS":{"Pacing":{"NumberOfIterations":3,"StartNewIteration":{"Type":"fixed delay","DelayOfSeconds":5}},"ThinkTime":{"Type":"random","MinPercentage":80,"MaxPercentage":120},"Log":{"Type":"standard","LogOptions":{"Type":"on error","CacheSize":20}},"JMeter":{"JREPath":"c:\\jre","AdditionalParameters":"-Xmx1024m,-Xms512m","StartMeasurements":true,"JMeterHomePath":"c:\\jmeter","JMeterUseDefaultPort":false}}},{"Name":"SampleGroup3","Vusers":15,"Script":{"ID":11,"ProtocolType":"Web - HTTP/HTML"},"Hosts":[{"Name":"LG2","Type":"automatch"}],"RTS":{"Pacing":{"NumberOfIterations":5,"StartNewIteration":{"Type":"random interval","DelayAtRangeOfSeconds":10,"DelayAtRangeToSeconds":15}},"ThinkTime":{"Type":"random","MinPercentage":50,"MaxPercentage":150,"LimitThinkTimeSeconds":30},"Log":{"Type":"ignore"},"Selenium":{"JREPath":"C:\\java\\jdk","ClassPath":"myclasspath.jar","TestNgFiles":"testng.xml"}}}]}
+2025-09-28 09:51:33 INFO  c.l.a.l.LreTestManager:140               - Creating new test: 'CreateTestFromYaml' in folder: 'Subject\yamlTest'
+2025-09-28 09:51:33 INFO  c.l.a.r.LreRunClient:27                  - Run completed successfully for test: yamlTest/CreateTestFromYaml.yaml
