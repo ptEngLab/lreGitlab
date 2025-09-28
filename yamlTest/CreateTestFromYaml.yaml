@@ -1,4 +1,5 @@
 #LgAmount: 10
+Controller: "devserver"
 MonitorProfileId: 1001, 1002
 GlobalRTS:
   - GlobalName: RTS1
@@ -15,8 +16,9 @@ Groups:
     ScriptName: "e2e/Optional"
     HostNames: "LG1, cloud1"
     HostTemplate: "cloud1 : 1"
-#    Pacing: "immediately"
-#    ThinkTime: "modify:*2.0"
+    Pacing: fixed delay:5/3
+
+    #    ThinkTime: "modify:*2.0"
 #    Log: "extended:on error:15:trace"
 #    JavaVM: "JavaEnvClassPaths=lib\\junit.jar;lib\\hamcrest.jar;user_binaries\\myapp.jar,UserSpecifiedJdk=true,JdkHome=/usr/lib/jvm/java-17,UseXboot=false,EnableClassLoaderPerVuser=true,JavaVmParameters=-Xms128m -Xmx512m -Dspring.profiles.active=test"
     GlobalRTS: "RTS1"
@@ -25,7 +27,7 @@ Groups:
   - Name: "SampleGroup2"
     Vusers: 10
     ScriptId: 10
-    HostNames: "LG1"
+    HostNames: "LG1, MyLocalLG"
     GlobalRTS: "RTS1"
 
   - Name: "SampleGroup3"

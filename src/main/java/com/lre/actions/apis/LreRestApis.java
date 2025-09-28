@@ -1,21 +1,24 @@
 package com.lre.actions.apis;
 
+import com.lre.actions.httpclient.HttpClientUtils;
+import com.lre.actions.runmodel.LreTestRunModel;
 import com.lre.model.run.LreRunResponse;
 import com.lre.model.run.LreRunStatus;
+import com.lre.model.test.Test;
 import com.lre.model.test.testcontent.groups.hosts.CloudTemplate;
+import com.lre.model.test.testcontent.groups.hosts.HostResponse;
 import com.lre.model.test.testcontent.groups.script.Script;
 import com.lre.model.testSet.LreTestSet;
 import com.lre.model.testSet.LreTestSetFolder;
 import com.lre.model.testinstance.LreTestInstance;
 import com.lre.model.testplan.LreTestPlan;
 import com.lre.model.timeslot.TimeslotCheckResponse;
-import com.lre.actions.httpclient.HttpClientUtils;
-import com.lre.model.test.Test;
-import com.lre.actions.runmodel.LreTestRunModel;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -26,145 +29,145 @@ public class LreRestApis implements AutoCloseable {
 
     private final CloseableHttpClient httpClient;
     private final ApiUrlBuilder urlBuilder;
-    private final ApiRequestExecutor requestExecutor;
+    private final ApiRequestExecutor executor;
     private final AuthenticationService authService;
 
     public LreRestApis(LreTestRunModel model) {
         this.httpClient = HttpClientUtils.createClient();
         this.urlBuilder = new ApiUrlBuilder(model);
-        this.requestExecutor = new ApiRequestExecutor(httpClient);
+        this.executor = new ApiRequestExecutor(httpClient);
         this.authService = new AuthenticationService(httpClient, urlBuilder);
     }
 
     @Override
     public void close() throws Exception {
-        if (httpClient != null) {
-            httpClient.close();
-        }
+        if (httpClient != null) httpClient.close();
     }
 
-    // Authentication methods
-    public boolean login(String username, String password, boolean authenticateWithToken) {
-        return authService.login(username, password, authenticateWithToken);
+    // Authentication
+    public boolean login(String username, String password, boolean useToken) {
+        return authService.login(username, password, useToken);
     }
 
     public void logout() {
         authService.logout();
     }
 
-    // Test operations
-    public Test getTest(int testId) {
-        return requestExecutor.getResourceById(urlBuilder.getTestByIdUrl(testId),
-                Test.class, "test by id");
+    // Test
+    public Test fetchTest(int testId) {
+        return executor.fetchById(urlBuilder.getTestByIdUrl(testId), Test.class, "Test");
     }
 
-    public List<Test> getAllTests() {
-        return requestExecutor.getResourceList(urlBuilder.getTestsUrl(),
-                Test.class, "tests");
+    public List<Test> fetchAllTests() {
+        return executor.fetchList(urlBuilder.getTestsUrl(), Test.class, "Tests");
     }
 
-    public Test createNewTest(String payload) {
-        return requestExecutor.createResource(urlBuilder.getTestsUrl(), payload,
-                Test.class, "create new test");
+    public Test createTest(String payload) {
+        return executor.create(urlBuilder.getTestsUrl(), payload, Test.class, "Test");
     }
 
     public void updateTest(int testId, String payload) {
-        requestExecutor.updateResource(urlBuilder.getTestByIdUrl(testId), payload, ContentType.APPLICATION_XML);
+        executor.update(urlBuilder.getTestByIdUrl(testId), payload, ContentType.APPLICATION_XML);
     }
 
-    // Test Plan operations
-    public List<LreTestPlan> getAllTestPlans() {
-        return requestExecutor.getResourceList(urlBuilder.getTestPlansUrl(),
-                LreTestPlan.class, "test plans");
+    // Test Plan
+    public List<LreTestPlan> fetchAllTestPlans() {
+        return executor.fetchList(urlBuilder.getTestPlansUrl(), LreTestPlan.class, "Test Plans");
     }
 
-    public LreTestPlan createNewTestPlan(String payload) {
-        return requestExecutor.createResource(urlBuilder.getTestPlansUrl(), payload,
-                LreTestPlan.class, "test plan");
+    public LreTestPlan createTestPlan(String payload) {
+        return executor.create(urlBuilder.getTestPlansUrl(), payload, LreTestPlan.class, "Test Plan");
     }
 
-    // Test Set operations
-    public List<LreTestSet> getAllTestSets() {
-        return requestExecutor.getResourceList(urlBuilder.getTestSetsUrl(),
-                LreTestSet.class, "test sets");
+    // Test Set
+    public List<LreTestSet> fetchAllTestSets() {
+        return executor.fetchList(urlBuilder.getTestSetsUrl(), LreTestSet.class, "Test Sets");
     }
 
     public LreTestSet createTestSet(String payload) {
-        return requestExecutor.createResource(urlBuilder.getTestSetsUrl(), payload,
-                LreTestSet.class, "test set");
+        return executor.create(urlBuilder.getTestSetsUrl(), payload, LreTestSet.class, "Test Set");
     }
 
-    // Test Set Folder operations
-    public List<LreTestSetFolder> getAllTestSetFolders() {
-        return requestExecutor.getResourceList(urlBuilder.getTestSetFoldersUrl(),
-                LreTestSetFolder.class, "test set folders");
+    // Test Set Folder
+    public List<LreTestSetFolder> fetchAllTestSetFolders() {
+        return executor.fetchList(urlBuilder.getTestSetFoldersUrl(), LreTestSetFolder.class, "Test Set Folders");
     }
 
     public LreTestSetFolder createTestSetFolder(String payload) {
-        return requestExecutor.createResource(urlBuilder.getTestSetFoldersUrl(), payload,
-                LreTestSetFolder.class, "test set folder");
+        return executor.create(urlBuilder.getTestSetFoldersUrl(), payload, LreTestSetFolder.class, "Test Set Folder");
     }
 
-    // Test Instance operations
-    public List<LreTestInstance> getTestInstancesForTestId(int testId) {
-        return requestExecutor.getResourceByQuery(
+    // Test Instance
+    public List<LreTestInstance> fetchTestInstances(int testId) {
+        return executor.fetchByQuery(
                 urlBuilder.getTestInstancesUrl(),
                 Map.of(QUERY_PARAM, String.format(TEST_INSTANCE_QUERY, testId)),
                 LreTestInstance.class,
-                "test instances"
+                "Test Instances"
         );
     }
 
-    public List<Script> getAllScripts() {
-        return requestExecutor.getResourceList(urlBuilder.getScriptsUrl(),
-                Script.class, "scripts");
-    }
-
-    public Script getScriptById(int testId) {
-        return requestExecutor.getResourceById(urlBuilder.getScriptByIdUrl(testId),
-                Script.class, "scripts");
-    }
-
     public LreTestInstance createTestInstance(String payload) {
-        return requestExecutor.createResource(urlBuilder.getTestInstancesUrl(), payload,
-                LreTestInstance.class, "test instance");
+        return executor.create(urlBuilder.getTestInstancesUrl(), payload, LreTestInstance.class, "Test Instance");
     }
 
-    // Run operations
-    public LreRunStatus getRunStatus(int runId) {
-        return requestExecutor.getResourceById(urlBuilder.getRunStatusUrl(runId),
-                LreRunStatus.class, "run status");
+    // Script
+    public List<Script> fetchAllScripts() {
+        return executor.fetchList(urlBuilder.getScriptsUrl(), Script.class, "Scripts");
+    }
+
+    public Script fetchScriptById(int scriptId) {
+        return executor.fetchById(urlBuilder.getScriptByIdUrl(scriptId), Script.class, "Script");
+    }
+
+    // Run
+    public LreRunStatus fetchRunStatus(int runId) {
+        return executor.fetchById(urlBuilder.getRunStatusUrl(runId), LreRunStatus.class, "Run Status");
     }
 
     public LreRunResponse startRun(int testId, String payload) {
-        return requestExecutor.postWithQueryParams(
+        return executor.postWithQuery(
                 urlBuilder.getStartRunUrl(),
                 Map.of("testId", String.valueOf(testId)),
                 payload,
                 LreRunResponse.class,
-                "start run"
+                "Start Run"
         );
     }
 
-    // Timeslot operations
+    // Timeslot
     public TimeslotCheckResponse calculateTimeslotAvailability(int testId, String payload) {
-        return requestExecutor.postWithQueryParams(
+        return executor.postWithQuery(
                 urlBuilder.getTimeslotCheckUrl(),
                 Map.of("testId", String.valueOf(testId)),
                 payload,
                 TimeslotCheckResponse.class,
-                "timeslot check"
+                "Timeslot Check"
         );
     }
 
-    public List<CloudTemplate> getAllCloudTemplates() {
-        return requestExecutor.getResourceList(urlBuilder.getCloudTemplateUrl(),
-                CloudTemplate.class, "cloud templates");
+    // Cloud Templates
+    public List<CloudTemplate> fetchAllCloudTemplates() {
+        return executor.fetchList(urlBuilder.getCloudTemplateUrl(), CloudTemplate.class, "Cloud Templates");
     }
 
-    public CloudTemplate getCloudTemplateById(int id){
-        return requestExecutor.getResourceById(urlBuilder.getCloudTemplateByIdUrl(id),
-                CloudTemplate.class, "cloud template by id");
+    public CloudTemplate fetchCloudTemplateById(int id) {
+        return executor.fetchById(urlBuilder.getCloudTemplateByIdUrl(id), CloudTemplate.class, "Cloud Template");
     }
 
+    // Hosts
+    public List<HostResponse> fetchControllers() {
+        String url = urlBuilder.getHostsUrl();
+        String queryValue = "{Purpose['*Controller*'];State['Operational']}";
+        String fullUrl = url + "?query=" + URLEncoder.encode(queryValue, StandardCharsets.UTF_8);
+        return executor.fetchList(fullUrl, HostResponse.class, "Controllers list");
+    }
+
+
+    public List<HostResponse> fetchLoadGenerators() {
+        String url = urlBuilder.getHostsUrl();
+        String queryValue = "{Purpose['*Load Generator*'];State['Operational']}";
+        String fullUrl = url + "?query=" + URLEncoder.encode(queryValue, StandardCharsets.UTF_8);
+        return executor.fetchList(fullUrl, HostResponse.class, "Load Generators list");
+    }
 }

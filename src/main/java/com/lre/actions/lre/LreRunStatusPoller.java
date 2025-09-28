@@ -41,7 +41,7 @@ public class LreRunStatusPoller {
 
         while (!Thread.currentThread().isInterrupted()) {
             try {
-                LreRunStatus currentStatus = apiClient.getRunStatus(runId);
+                LreRunStatus currentStatus = apiClient.fetchRunStatus(runId);
                 RunState currentState = RunState.fromValue(currentStatus.getRunState());
                 lastKnownStatus = currentStatus; // store last known status
 

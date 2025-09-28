@@ -49,7 +49,7 @@ public class LreTestManager {
 
     private void findTestById(int testId) {
         log.info("Using existing test with ID: {}", testId);
-        Test test = restApis.getTest(testId);
+        Test test = restApis.fetchTest(testId);
         if (test == null) throw new LreException(String.format(TEST_NOT_FOUND_BY_ID, testId));
         model.setTestName(test.getName());
         model.setTestFolderPath(test.getTestFolderPath());
@@ -117,16 +117,16 @@ public class LreTestManager {
 
     private LreTestPlan createNewTestPlanPath(String parentPath, String name) {
         LreTestPlanCreationRequest request = new LreTestPlanCreationRequest(parentPath, name);
-        return restApis.createNewTestPlan(JsonUtils.toJson(request));
+        return restApis.createTestPlan(JsonUtils.toJson(request));
     }
 
     private List<Test> getAllTestsCached() {
-        if (testsCache == null) testsCache = restApis.getAllTests();
+        if (testsCache == null) testsCache = restApis.fetchAllTests();
         return testsCache;
     }
 
     private List<LreTestPlan> getAllTestPlansCached() {
-        if (testPlansCache == null) testPlansCache = restApis.getAllTestPlans();
+        if (testPlansCache == null) testPlansCache = restApis.fetchAllTestPlans();
         return testPlansCache;
     }
 
@@ -140,7 +140,7 @@ public class LreTestManager {
         log.info("Creating new test: '{}' in folder: '{}'", testName, testFolderPath);
         Test test = new Test(testName, testFolderPath, testContent);
         test.normalizeAfterDeserialization();
-        Test createdTest = restApis.createNewTest(XmlUtils.toXml(test));
+        Test createdTest = restApis.createTest(XmlUtils.toXml(test));
         model.setTestId(createdTest.getId());
     }
 

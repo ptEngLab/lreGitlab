@@ -39,6 +39,7 @@ public class ConfigConstants {
     public static final String START_RUN_API = "designLoadTest/StartRun";
     public static final String RUN_STATUS_API = "Runs";
     public static final String CLOUD_TEMPLATE_RESOURCE_NAME = "cloud/templates";
+    public static final String HOST_RESOURCE_API = "Hosts";
 
     // Query Parameters
     public static final String TEST_INSTANCE_QUERY = "{test-id[\"%d\"]}";

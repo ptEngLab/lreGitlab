@@ -26,6 +26,10 @@ import static com.lre.actions.helpers.ConfigConstants.LRE_API_XMLNS;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TestContent {
 
+    @JsonProperty("Controller")
+    @JacksonXmlProperty(localName = "Controller", namespace = LRE_API_XMLNS)
+    private String controller;
+
     @JsonProperty("WorkloadType")
     @JacksonXmlProperty(localName = "WorkloadType", namespace = LRE_API_XMLNS)
     private WorkloadType workloadType;
@@ -48,7 +52,6 @@ public class TestContent {
     @JacksonXmlElementWrapper(localName = "GlobalCommandLine", namespace = LRE_API_XMLNS)
     @JacksonXmlProperty(localName = "CommandLine", namespace = LRE_API_XMLNS)
     private List<CommandLine> globalCommandLines;
-
 
     @JsonProperty("Groups")
     @JacksonXmlElementWrapper(localName = "Groups", namespace = LRE_API_XMLNS)

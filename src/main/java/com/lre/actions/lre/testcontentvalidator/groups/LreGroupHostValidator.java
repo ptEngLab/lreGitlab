@@ -8,7 +8,9 @@ import com.lre.model.test.testcontent.TestContent;
 import com.lre.model.test.testcontent.groups.Group;
 import com.lre.model.test.testcontent.groups.hosts.CloudTemplate;
 import com.lre.model.test.testcontent.groups.hosts.Host;
+import com.lre.model.test.testcontent.groups.hosts.HostResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 import java.util.regex.Pattern;
@@ -20,6 +22,7 @@ public class LreGroupHostValidator {
     private final LreRestApis restApis;
     private final TestContent content;
     private List<CloudTemplate> cloudTemplatesCache;
+    private List<HostResponse> specificLGsCache;
 
     private static final Pattern AUTOMATCH_PATTERN = Pattern.compile("^LG\\d+$", Pattern.CASE_INSENSITIVE);
     private static final Pattern CLOUD_PATTERN = Pattern.compile("^cloud\\d+$", Pattern.CASE_INSENSITIVE);
@@ -29,11 +32,17 @@ public class LreGroupHostValidator {
         this.restApis = restApis;
         this.content = content;
         this.cloudTemplatesCache = getAllCloudTemplatesCache();
+        this.specificLGsCache = getAllOnPremLGsCache();
     }
 
     private List<CloudTemplate> getAllCloudTemplatesCache() {
-        if (cloudTemplatesCache == null) cloudTemplatesCache = restApis.getAllCloudTemplates();
+        if (cloudTemplatesCache == null) cloudTemplatesCache = restApis.fetchAllCloudTemplates();
         return cloudTemplatesCache;
+    }
+
+    private List<HostResponse> getAllOnPremLGsCache() {
+        if (specificLGsCache == null) specificLGsCache = restApis.fetchLoadGenerators();
+        return specificLGsCache;
     }
 
     /**
@@ -48,7 +57,6 @@ public class LreGroupHostValidator {
         if (group.getYamlHostname() == null || group.getYamlHostname().isEmpty()) {
             throw new LreException("Group '" + group.getName() + "' has no hosts defined, " +
                     "but manual LG distribution requires explicit hostnames.");
-
         }
 
 
@@ -110,9 +118,22 @@ public class LreGroupHostValidator {
         } else {
             host.setType(HostType.SPECIFIC);
             validateNonCloudHostWithTemplate(hostname, hostTemplateMap, groupName, "SPECIFIC");
+            validateOnPremLGs(hostname);
         }
 
         return host;
+    }
+
+    private void validateOnPremLGs(String lgName) {
+        if (StringUtils.isNotEmpty(lgName)) {
+            List<HostResponse> hosts = getAllOnPremLGsCache();
+            boolean exists = hosts.stream().anyMatch(lg -> lgName.equalsIgnoreCase(lg.getName()));
+            if (exists) log.debug("LG '{}' is available in LRE server", lgName);
+            else {
+                String availableHosts = hosts.stream().map(HostResponse::getName).collect(Collectors.joining(", "));
+                throw new LreException(String.format("Given LG '%s' is not available on LRE. Expected one of: [%s]", lgName, availableHosts));
+            }
+        }
     }
 
     private String assignTemplateToCloudHost(String hostname, String templateKey, String groupName) {
@@ -158,7 +179,7 @@ public class LreGroupHostValidator {
         // Numeric ID
         if (templateKey.matches("\\d+")) {
             int templateId = Integer.parseInt(templateKey);
-            CloudTemplate template = restApis.getCloudTemplateById(templateId);
+            CloudTemplate template = restApis.fetchCloudTemplateById(templateId);
             if (template == null) {
                 throw new LreException("No cloud template found with ID=" + templateId +
                         " for host: " + hostname + " in group: " + groupName);

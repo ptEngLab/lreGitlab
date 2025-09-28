@@ -83,4 +83,7 @@ public class ApiUrlBuilder {
         return lreApiUrl + "/" + CLOUD_TEMPLATE_RESOURCE_NAME + "/" + id;
     }
 
+    public String getHostsUrl(){
+        return lreApiUrl + "/" + HOST_RESOURCE_API;
+    }
 }

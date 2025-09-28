@@ -11,6 +11,7 @@ import com.lre.actions.runmodel.LreTestRunModel;
 import com.lre.actions.utils.JsonUtils;
 import com.lre.actions.utils.XmlUtils;
 import com.lre.model.enums.LGDistributionType;
+import com.lre.model.test.testcontent.groups.hosts.HostResponse;
 import com.lre.model.test.testcontent.monitorprofile.MonitorProfile;
 import com.lre.model.test.testcontent.TestContent;
 import com.lre.model.test.testcontent.lgdistribution.LGDistribution;
@@ -20,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class LreTestContentValidator {
@@ -36,6 +38,7 @@ public class LreTestContentValidator {
 
 
     public TestContent validateAndGetTestContent() {
+        validateController();
         validateWorkloadType();
         validateLGDistribution();
         validateMonitorProfiles();
@@ -57,10 +60,25 @@ public class LreTestContentValidator {
         }
     }
 
-    private void validateGlobalRts(){
+    private void validateController() {
+        String controller = content.getController();
+        if (StringUtils.isNotEmpty(controller)) {
+            List<HostResponse> hosts = restApis.fetchControllers();
+            boolean exists = hosts.stream().anyMatch(host -> controller.equalsIgnoreCase(host.getName()));
+            if (exists) log.debug("Controller '{}' is available in LRE server", controller);
+            else {
+                String availableHosts = hosts.stream().map(HostResponse::getName).collect(Collectors.joining(", "));
+                throw new LreException(String.format("Given Controller '%s' is not available on LRE. Expected one of: [%s]", controller, availableHosts));
+            }
+        }
+    }
+
+
+    private void validateGlobalRts() {
         new LreGlobalRtsValidator(content).validateGlobalRts();
     }
-    private void validateGroups(){
+
+    private void validateGroups() {
         new LreGroupValidator(restApis, content).validateGroups();
     }
 
@@ -96,7 +114,7 @@ public class LreTestContentValidator {
         }
     }
 
-    private void cleanUpContentForApi(){
+    private void cleanUpContentForApi() {
         // clear all the custom variables used as part of YAML parsing to null, so that they are not sent for LRE API.
         content.setLgAmount(null);
         content.setWorkloadTypeCode(null);

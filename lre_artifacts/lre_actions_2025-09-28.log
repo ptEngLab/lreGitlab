@@ -1,6 +1,7 @@
-2025-09-28 15:37:09 INFO  c.l.m.Main:41                            - Starting operation: RUN_LRE_TEST
-2025-09-28 15:37:11 INFO  c.l.a.l.t.LreTestContentValidator:47     - <?xml version='1.0' encoding='UTF-8'?>
+2025-09-28 22:52:48 INFO  c.l.m.Main:41                            - Starting operation: RUN_LRE_TEST
+2025-09-28 22:52:50 INFO  c.l.a.l.t.LreTestContentValidator:50     - <?xml version='1.0' encoding='UTF-8'?>
 <Content xmlns="http://www.hp.com/PC/REST/API">
+  <Controller>devserver</Controller>
   <WorkloadType>
     <Type>basic</Type>
     <SubType>by test</SubType>
@@ -61,18 +62,6 @@
           <HostTemplateId>1</HostTemplateId>
         </Host>
       </Hosts>
-      <RTS>
-        <Pacing>
-          <NumberOfIterations>1</NumberOfIterations>
-          <StartNewIteration Type="immediately"/>
-        </Pacing>
-        <ThinkTime Type="ignore"/>
-        <Log Type="standard">
-          <LogOptions Type="on error">
-            <CacheSize>1</CacheSize>
-          </LogOptions>
-        </Log>
-      </RTS>
     </Group>
     <Group>
       <Name>SampleGroup2</Name>
@@ -87,19 +76,11 @@
           <Name>LG1</Name>
           <Type>automatch</Type>
         </Host>
+        <Host>
+          <Name>MyLocalLG</Name>
+          <Type>specific</Type>
+        </Host>
       </Hosts>
-      <RTS>
-        <Pacing>
-          <NumberOfIterations>1</NumberOfIterations>
-          <StartNewIteration Type="immediately"/>
-        </Pacing>
-        <ThinkTime Type="ignore"/>
-        <Log Type="standard">
-          <LogOptions Type="on error">
-            <CacheSize>1</CacheSize>
-          </LogOptions>
-        </Log>
-      </RTS>
     </Group>
     <Group>
       <Name>SampleGroup3</Name>
@@ -138,6 +119,6 @@
   </Groups>
 </Content>
 
-2025-09-28 15:37:11 INFO  c.l.a.l.t.LreTestContentValidator:48     - {"WorkloadType":{"Type":"basic","SubType":"by test","VusersDistributionMode":"by number"},"LGDistribution":{"Type":"manual"},"MonitorProfile":[{"ID":1001},{"ID":1002}],"GlobalRTS":[{"Name":"RTS1","Pacing":{"NumberOfIterations":1,"StartNewIteration":{"Type":"immediately"}},"ThinkTime":{"Type":"modify","MultiplyFactor":2.0},"Log":{"Type":"standard","LogOptions":{"Type":"on error","CacheSize":1}}}],"GlobalCommandLine":[{"Name":"cmd1","Value":"command line 1"}],"Groups":[{"Name":"SampleGroup","Vusers":50,"GlobalRTS":"RTS1","GlobalCommandLine":"cmd1","Script":{"ID":200,"ProtocolType":"Web - HTTP/HTML"},"Hosts":[{"Name":"LG1","Type":"automatch"},{"Name":"cloud1","Type":"cloud","HostTemplateId":"1"}],"RTS":{"Pacing":{"NumberOfIterations":1,"StartNewIteration":{"Type":"immediately"}},"ThinkTime":{"Type":"ignore"},"Log":{"Type":"standard","LogOptions":{"Type":"on error","CacheSize":1}}}},{"Name":"SampleGroup2","Vusers":10,"GlobalRTS":"RTS1","Script":{"ID":10,"ProtocolType":"Web - HTTP/HTML"},"Hosts":[{"Name":"LG1","Type":"automatch"}],"RTS":{"Pacing":{"NumberOfIterations":1,"StartNewIteration":{"Type":"immediately"}},"ThinkTime":{"Type":"ignore"},"Log":{"Type":"standard","LogOptions":{"Type":"on error","CacheSize":1}}}},{"Name":"SampleGroup3","Vusers":15,"Script":{"ID":11,"ProtocolType":"Web - HTTP/HTML"},"Hosts":[{"Name":"LG2","Type":"automatch"}],"RTS":{"Pacing":{"NumberOfIterations":5,"StartNewIteration":{"Type":"random interval","DelayAtRangeOfSeconds":10,"DelayAtRangeToSeconds":15}},"ThinkTime":{"Type":"random","MinPercentage":50,"MaxPercentage":150,"LimitThinkTimeSeconds":30},"Log":{"Type":"ignore"},"Selenium":{"JREPath":"C:\\java\\jdk","ClassPath":"myclasspath.jar","TestNgFiles":"testng.xml"}}}]}
-2025-09-28 15:37:11 INFO  c.l.a.l.LreTestManager:140               - Creating new test: 'CreateTestFromYaml' in folder: 'Subject\yamlTest'
-2025-09-28 15:37:11 INFO  c.l.a.r.LreRunClient:27                  - Run completed successfully for test: yamlTest/CreateTestFromYaml.yaml
+2025-09-28 22:52:50 INFO  c.l.a.l.t.LreTestContentValidator:51     - {"Controller":"devserver","WorkloadType":{"Type":"basic","SubType":"by test","VusersDistributionMode":"by number"},"LGDistribution":{"Type":"manual"},"MonitorProfile":[{"ID":1001},{"ID":1002}],"GlobalRTS":[{"Name":"RTS1","Pacing":{"NumberOfIterations":1,"StartNewIteration":{"Type":"immediately"}},"ThinkTime":{"Type":"modify","MultiplyFactor":2.0},"Log":{"Type":"standard","LogOptions":{"Type":"on error","CacheSize":1}}}],"GlobalCommandLine":[{"Name":"cmd1","Value":"command line 1"}],"Groups":[{"Name":"SampleGroup","Vusers":50,"GlobalRTS":"RTS1","GlobalCommandLine":"cmd1","Script":{"ID":200,"ProtocolType":"Web - HTTP/HTML"},"Hosts":[{"Name":"LG1","Type":"automatch"},{"Name":"cloud1","Type":"cloud","HostTemplateId":"1"}]},{"Name":"SampleGroup2","Vusers":10,"GlobalRTS":"RTS1","Script":{"ID":10,"ProtocolType":"Web - HTTP/HTML"},"Hosts":[{"Name":"LG1","Type":"automatch"},{"Name":"MyLocalLG","Type":"specific"}]},{"Name":"SampleGroup3","Vusers":15,"Script":{"ID":11,"ProtocolType":"Web - HTTP/HTML"},"Hosts":[{"Name":"LG2","Type":"automatch"}],"RTS":{"Pacing":{"NumberOfIterations":5,"StartNewIteration":{"Type":"random interval","DelayAtRangeOfSeconds":10,"DelayAtRangeToSeconds":15}},"ThinkTime":{"Type":"random","MinPercentage":50,"MaxPercentage":150,"LimitThinkTimeSeconds":30},"Log":{"Type":"ignore"},"Selenium":{"JREPath":"C:\\java\\jdk","ClassPath":"myclasspath.jar","TestNgFiles":"testng.xml"}}}]}
+2025-09-28 22:52:50 INFO  c.l.a.l.LreTestManager:140               - Creating new test: 'CreateTestFromYaml' in folder: 'Subject\yamlTest'
+2025-09-28 22:52:50 INFO  c.l.a.r.LreRunClient:27                  - Run completed successfully for test: yamlTest/CreateTestFromYaml.yaml

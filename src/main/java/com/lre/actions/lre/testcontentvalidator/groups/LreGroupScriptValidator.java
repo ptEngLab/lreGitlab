@@ -20,11 +20,11 @@ public class LreGroupScriptValidator {
 
     public LreGroupScriptValidator(LreRestApis restApis) {
         this.restApis = restApis;
-        this.scriptCache = restApis.getAllScripts(); // initialize cache
+        this.scriptCache = getAllScriptsCache(); // initialize cache
     }
 
     private List<Script> getAllScriptsCache() {
-        if (scriptCache == null) scriptCache = restApis.getAllScripts();
+        if (scriptCache == null) scriptCache = restApis.fetchAllScripts();
         return scriptCache;
     }
 
@@ -53,7 +53,7 @@ public class LreGroupScriptValidator {
     }
 
     private Script fetchScriptById(int scriptId, String groupName) {
-        Script script = restApis.getScriptById(scriptId);
+        Script script = restApis.fetchScriptById(scriptId);
         log.debug("Fetched script by ID {} for group {}", scriptId, groupName);
         return script;
     }

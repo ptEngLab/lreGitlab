@@ -9,7 +9,6 @@ import com.lre.model.testSet.LreTestSet;
 import com.lre.model.testSet.LreTestSetFolderCreateRequest;
 import com.lre.actions.runmodel.LreTestRunModel;
 import com.lre.actions.utils.JsonUtils;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -18,12 +17,8 @@ import java.util.Optional;
 import static com.lre.actions.helpers.ConfigConstants.DEFAULT_TEST_SET_FOLDER_NAME;
 import static com.lre.actions.helpers.ConfigConstants.DEFAULT_TEST_SET_NAME;
 
-@AllArgsConstructor
 @Slf4j
-public class LreTestInstanceManager {
-    private final LreRestApis restApis;
-    private final LreTestRunModel model;
-
+public record LreTestInstanceManager(LreRestApis restApis, LreTestRunModel model) {
     public void resolveTestInstance() {
         List<LreTestInstance> testInstances = fetchTestInstancesForTestId();
         int testInstanceId = testInstances.isEmpty() ? createNewTestInstance() : useExistingTestInstance(testInstances);
@@ -33,7 +28,7 @@ public class LreTestInstanceManager {
     private List<LreTestInstance> fetchTestInstancesForTestId() {
         int testId = model.getTestId();
         log.info("Fetching test instances for test id: {}", testId);
-        List<LreTestInstance> instances = restApis.getTestInstancesForTestId(testId);
+        List<LreTestInstance> instances = restApis.fetchTestInstances(testId);
         log.debug("Retrieved {} test instances for test id: {}", instances.size(), testId);
         return instances;
     }
@@ -61,7 +56,7 @@ public class LreTestInstanceManager {
     }
 
     private LreTestSet findOrCreateTestSet() {
-        List<LreTestSet> testSets = restApis.getAllTestSets();
+        List<LreTestSet> testSets = restApis.fetchAllTestSets();
 
         if (testSets.isEmpty()) {
             log.info("No test sets found. Creating default test set '{}'", DEFAULT_TEST_SET_NAME);
@@ -77,7 +72,7 @@ public class LreTestInstanceManager {
     }
 
     private int getOrCreateDefaultTestSetFolder() {
-        List<LreTestSetFolder> testSetFolders = restApis.getAllTestSetFolders();
+        List<LreTestSetFolder> testSetFolders = restApis.fetchAllTestSetFolders();
         Optional<LreTestSetFolder> existingFolder = testSetFolders.stream()
                 .filter(f -> DEFAULT_TEST_SET_FOLDER_NAME.equalsIgnoreCase(f.getTestSetFolderName()))
                 .findFirst();
