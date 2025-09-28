@@ -1,6 +1,5 @@
 package com.lre.actions.lre.testcontentvalidator.groups;
 
-import com.lre.model.test.testcontent.groups.Group;
 import com.lre.model.test.testcontent.groups.rts.RTS;
 import com.lre.model.test.testcontent.groups.rts.jmeter.JMeter;
 import lombok.extern.slf4j.Slf4j;
@@ -25,17 +24,22 @@ public class LreRtsJMeterValidator {
 
     private static final String VALID_EXAMPLES = """
             Valid examples:
+            
             JMeter: "StartMeasurements=true"
+            
             JMeter: "StartMeasurements=false"
+            
             JMeter: "StartMeasurements=true,JMeterUseDefaultPort=true,JMeterMinPort=60000,JMeterMaxPort=60010"
+            
             JMeter: "StartMeasurements=true,JMeterUseDefaultPort=false,JMeterHomePath=c:/downloads/jmeterhome,JREPath=c:/jre/jrehome,AdditionalParameters=-Xmx1024m,-Xms512m"
             """;
 
-    public void validateJMeterForGroup(Group group) {
-        String input = group.getYamlJMeter();
+    public void validateJMeterAndAttach(RTS rts, String input) {
         try {
             JMeter jmeter = parseJMeter(input);
-            attachJMeterToGroup(group, jmeter);
+            if (jmeter == null) return; // don’t attach anything
+            if (rts == null) throw new IllegalArgumentException("RTS cannot be null");
+            rts.setJmeterSettings(jmeter);
             log.debug("JMeter configuration applied: {}", jmeter);
         } catch (JMeterException e) {
             log.debug("Invalid JMeter config '{}' -> {}", input, e.getMessage());
@@ -44,14 +48,6 @@ public class LreRtsJMeterValidator {
             log.error("Unexpected error parsing JMeter '{}'", input, e);
             throw new JMeterException("Unexpected error parsing JMeter: " + e.getMessage());
         }
-    }
-
-    private void attachJMeterToGroup(Group group, JMeter jMeter) {
-        if (jMeter == null) return; // don’t attach anything
-
-        RTS rts = group.getRts();
-        if (rts == null) group.setRts(rts = new RTS());
-        rts.setJmeterSettings(jMeter);
     }
 
     private JMeter parseJMeter(String input) {

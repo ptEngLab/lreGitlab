@@ -1,6 +1,5 @@
 package com.lre.actions.lre.testcontentvalidator.groups;
 
-import com.lre.model.test.testcontent.groups.Group;
 import com.lre.model.test.testcontent.groups.rts.RTS;
 import com.lre.model.test.testcontent.groups.rts.javavm.JavaVM;
 import lombok.extern.slf4j.Slf4j;
@@ -42,11 +41,12 @@ public class LreRtsJavaVmValidator {
             JavaVM: "UseXboot=false,EnableClassLoaderPerVuser=true,JavaVmParameters=-Xms128m -Xmx512m -Dspring.profiles.active=test"
             """;
 
-    public void validateJavaVmForGroup(Group group) {
-        String input = group.getYamlJavaVM();
+    public void validateJavaVmAndAttach(RTS rts, String input) {
         try {
             JavaVM javaVm = parseJavaVm(input);
-            attachJavaVmToGroup(group, javaVm);
+            if (javaVm == null) return; // don’t attach anything
+            if (rts == null) throw new IllegalArgumentException("RTS cannot be null");
+            rts.setJavaVM(javaVm);
             log.debug("JavaVm configuration applied: {}", javaVm);
         } catch (JavaVmException e) {
             log.warn("Invalid JavaVm config '{}': {}", input, e.getMessage());
@@ -57,17 +57,6 @@ public class LreRtsJavaVmValidator {
         }
     }
 
-    private void attachJavaVmToGroup(Group group, JavaVM javaVm) {
-        if (javaVm == null) return; // don’t attach anything
-
-        RTS rts = group.getRts();
-        if (rts == null) {
-            rts = new RTS();
-            group.setRts(rts);
-        }
-        rts.setJavaVM(javaVm);
-    }
-
     private JavaVM parseJavaVm(String input) {
         if (StringUtils.isBlank(input)) {
             return null;
@@ -76,7 +65,9 @@ public class LreRtsJavaVmValidator {
         Map<String, String> configMap = parseKeyValuePairs(input);
         JavaVM javaVm = new JavaVM();
 
-        // Parse JavaEnvClassPaths - handle multiple classpaths separated by semicolon
+        boolean hasConfig = false;
+
+        // Parse JavaEnvClassPaths
         if (configMap.containsKey("javaenvclasspaths")) {
             String classPaths = configMap.get("javaenvclasspaths");
             if (StringUtils.isNotBlank(classPaths)) {
@@ -87,52 +78,59 @@ public class LreRtsJavaVmValidator {
                         pathsList.add(normalized);
                     }
                 }
-                javaVm.setJavaEnvClassPaths(pathsList);
+                if (!pathsList.isEmpty()) {
+                    javaVm.setJavaEnvClassPaths(pathsList);
+                    hasConfig = true;
+                }
             }
         }
 
-        // Parse UserSpecifiedJdk
+        // UserSpecifiedJdk
         if (configMap.containsKey("userspecifiedjdk")) {
             String value = configMap.get("userspecifiedjdk");
             boolean userSpecifiedJdk = parseBooleanStrict(value, "UserSpecifiedJdk");
             javaVm.setUserSpecifiedJdk(userSpecifiedJdk);
+            hasConfig = true;
 
-            // Validate that JdkHome is provided when UserSpecifiedJdk is true
             if (userSpecifiedJdk && !configMap.containsKey("jdkhome")) {
                 throw new JavaVmException("JdkHome must be specified when UserSpecifiedJdk is true");
             }
         }
 
-        // Parse JdkHome
+        // JdkHome
         if (configMap.containsKey("jdkhome")) {
             String jdkHome = configMap.get("jdkhome");
             if (StringUtils.isBlank(jdkHome)) {
                 throw new JavaVmException("JdkHome cannot be empty");
             }
             javaVm.setJdkHome(jdkHome);
+            hasConfig = true;
         }
 
-        // Parse JavaVmParameters
+        // JavaVmParameters
         if (configMap.containsKey("javavmparameters")) {
             String params = configMap.get("javavmparameters");
             if (StringUtils.isNotBlank(params)) {
                 javaVm.setJavaVmParameters(params.trim());
+                hasConfig = true;
             }
         }
 
-        // Parse UseXboot
+        // UseXboot
         if (configMap.containsKey("usexboot")) {
             String value = configMap.get("usexboot");
             javaVm.setUseXboot(parseBooleanStrict(value, "UseXboot"));
+            hasConfig = true;
         }
 
-        // Parse EnableClassLoaderPerVuser
+        // EnableClassLoaderPerVuser
         if (configMap.containsKey("enableclassloaderpervuser")) {
             String value = configMap.get("enableclassloaderpervuser");
             javaVm.setEnableClassLoaderPerVuser(parseBooleanStrict(value, "EnableClassLoaderPerVuser"));
+            hasConfig = true;
         }
 
-        return javaVm;
+        return hasConfig ? javaVm : null;
     }
 
     /**

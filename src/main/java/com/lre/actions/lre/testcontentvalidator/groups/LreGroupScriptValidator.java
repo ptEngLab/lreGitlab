@@ -23,6 +23,11 @@ public class LreGroupScriptValidator {
         this.scriptCache = restApis.getAllScripts(); // initialize cache
     }
 
+    private List<Script> getAllScriptsCache() {
+        if (scriptCache == null) scriptCache = restApis.getAllScripts();
+        return scriptCache;
+    }
+
     public void validateAndSetScript(Group group) {
         Script script = fetchScript(group);
         group.setScript(new Script(script.getId(), script.getProtocol()));      // return only id and protocol type
@@ -41,8 +46,6 @@ public class LreGroupScriptValidator {
         if (StringUtils.isNotEmpty(group.getYamlScriptName())) {
             return fetchScriptByName(group.getYamlScriptName(), group.getName());
         }
-
-        clearScriptCache();
 
         throw new LreException("No valid Script found for group: " + group.getName()
                 + ". Script ID: " + group.getYamlScriptId()
@@ -70,7 +73,7 @@ public class LreGroupScriptValidator {
 
     private Script getScriptByName(String testFolderPath, String scriptName) {
         log.debug("Searching for script - Folder: {}, Name: {}", testFolderPath, scriptName);
-        for (Script script : scriptCache) {
+        for (Script script : getAllScriptsCache()) {
             if (testFolderPath.equalsIgnoreCase(script.getTestFolderPath()) &&
                     scriptName.equalsIgnoreCase(script.getName())) {
                 return script;
@@ -81,7 +84,4 @@ public class LreGroupScriptValidator {
         throw new LreException(msg);
     }
 
-    private void clearScriptCache() {
-        scriptCache = null;
-    }
 }

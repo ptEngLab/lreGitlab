@@ -1,5 +1,6 @@
 package com.lre.model.test.testcontent.groups.rts;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.lre.model.test.testcontent.groups.rts.javavm.JavaVM;
@@ -19,6 +20,7 @@ import static com.lre.actions.helpers.ConfigConstants.LRE_API_XMLNS;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class RTS {
 
     @JsonProperty("Name")
@@ -48,5 +50,30 @@ public class RTS {
     @JsonProperty("Selenium")
     @JacksonXmlProperty(localName = "Selenium", namespace = LRE_API_XMLNS)
     private Selenium seleniumSettings;
+
+
+    /* for reading input from yaml file */
+
+    @JsonProperty("GlobalName")
+    private String yamlGlobalRtsName;
+
+    @JsonProperty("GlobalPacing")
+    private String yamlGlobalRtsPacing;
+
+    @JsonProperty("GlobalThinkTime")
+    private String yamlGlobalRtsThinkTime;
+
+    @JsonProperty("GlobalLog")
+    private String yamlGlobalRtsLog;
+
+    @JsonProperty("GlobalJMeter")
+    private String yamlGlobalRtsJmeter;
+
+    @JsonProperty("GlobalSelenium")
+    private String yamlGlobalRtsSelenium;
+
+    @JsonProperty("GlobalJavaVM")
+    private String yamlGlobalRtsJavaVM;
+
 
 }

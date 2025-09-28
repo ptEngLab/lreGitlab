@@ -1,6 +1,5 @@
 package com.lre.actions.lre.testcontentvalidator.groups;
 
-import com.lre.model.test.testcontent.groups.Group;
 import com.lre.model.test.testcontent.groups.rts.RTS;
 import com.lre.model.test.testcontent.groups.rts.selenium.Selenium;
 import lombok.extern.slf4j.Slf4j;
@@ -30,11 +29,12 @@ public class LreRtsSeleniumValidator {
             Selenium: "TestNgFiles=testng.xml"
             """;
 
-    public void validateSeleniumForGroup(Group group) {
-        String input = group.getYamlSelenium();
+    public void validateSeleniumAndAttach(RTS rts, String input) {
         try {
             Selenium selenium = parseSelenium(input);
-            attachSeleniumToGroup(group, selenium);
+            if (selenium == null) return; // don’t attach anything
+            if (rts == null) throw new IllegalArgumentException("RTS cannot be null");
+            rts.setSeleniumSettings(selenium);
             log.debug("Selenium configuration applied: {}", selenium);
         } catch (SeleniumException e) {
             log.debug("Invalid Selenium config '{}' -> {}", input, e.getMessage());
@@ -43,14 +43,6 @@ public class LreRtsSeleniumValidator {
             log.error("Unexpected error parsing Selenium '{}'", input, e);
             throw new SeleniumException("Unexpected error parsing Selenium: " + e.getMessage());
         }
-    }
-
-    private void attachSeleniumToGroup(Group group, Selenium selenium) {
-        if (selenium == null) return; // don’t attach anything
-
-        RTS rts = group.getRts();
-        if (rts == null) group.setRts(rts = new RTS());
-        rts.setSeleniumSettings(selenium);
     }
 
     private Selenium parseSelenium(String input) {

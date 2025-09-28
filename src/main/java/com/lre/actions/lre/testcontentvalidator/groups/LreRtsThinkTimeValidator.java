@@ -1,7 +1,6 @@
 package com.lre.actions.lre.testcontentvalidator.groups;
 
 import com.lre.model.enums.ThinkTimeType;
-import com.lre.model.test.testcontent.groups.Group;
 import com.lre.model.test.testcontent.groups.rts.RTS;
 import com.lre.model.test.testcontent.groups.rts.thinktime.ThinkTime;
 import lombok.NoArgsConstructor;
@@ -43,25 +42,20 @@ public class LreRtsThinkTimeValidator {
             ThinkTime: modify:*2.0
             """;
 
-    public void validateThinkTimeForGroup(Group group) {
-        String input = group.getYamlThinkTime();
+    public void validateThinkTimeAndAttach(RTS rts, String pacingInput) {
         try {
-            ThinkTime tt = parseThinkTime(input);
-            attachThinkTimeToGroup(group, tt);
+            ThinkTime tt = parseThinkTime(pacingInput);
+            if (rts == null) throw new IllegalArgumentException("RTS cannot be null");
+            rts.setThinkTime(tt);
+
             log.debug("ThinkTime set to RTS: {}", tt);
         } catch (ThinkTimeException e) {
-            log.debug("Invalid ThinkTime '{}' -> {}", input, e.getMessage());
+            log.debug("Invalid ThinkTime '{}' -> {}", pacingInput, e.getMessage());
             throw e;
         } catch (Exception e) {
-            log.error("Unexpected error parsing thinkTime '{}'", input, e);
+            log.error("Unexpected error parsing thinkTime '{}'", pacingInput, e);
             throw new ThinkTimeException("Unexpected error parsing thinkTime: " + e.getMessage());
         }
-    }
-
-    private void attachThinkTimeToGroup(Group group, ThinkTime thinkTime) {
-        RTS rts = group.getRts();
-        if (rts == null) group.setRts(rts = new RTS());
-        rts.setThinkTime(thinkTime);
     }
 
     private ThinkTime parseThinkTime(String input) {

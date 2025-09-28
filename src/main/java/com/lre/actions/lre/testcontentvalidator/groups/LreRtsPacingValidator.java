@@ -1,7 +1,6 @@
 package com.lre.actions.lre.testcontentvalidator.groups;
 
 import com.lre.model.enums.PacingStartNewIterationType;
-import com.lre.model.test.testcontent.groups.Group;
 import com.lre.model.test.testcontent.groups.rts.RTS;
 import com.lre.model.test.testcontent.groups.rts.pacing.Pacing;
 import lombok.NoArgsConstructor;
@@ -28,25 +27,19 @@ public class LreRtsPacingValidator {
         Pacing: random interval:10-15/5
         """;
 
-    public void validatePacingForGroup(Group group) {
-        String input = group.getYamlPacing();
+    public void validatePacingAndAttach(RTS rts, String pacingInput) {
         try {
-            Pacing pacing = parsePacing(input);
-            attachPacingToGroup(group, pacing);
+            Pacing pacing = parsePacing(pacingInput);
+            if (rts == null) throw new IllegalArgumentException("RTS cannot be null");
+            rts.setPacing(pacing);
             log.debug("Pacing set to RTS: {}", pacing);
         } catch (PacingException e) {
-            log.debug("Invalid pacing '{}' -> {}", input, e.getMessage());
+            log.debug("Invalid pacing '{}' -> {}", pacingInput, e.getMessage());
             throw e;
         } catch (Exception e) {
-            log.error("Unexpected error parsing pacing '{}'", input, e);
+            log.error("Unexpected error parsing pacing '{}'", pacingInput, e);
             throw new PacingException("Unexpected error parsing pacing: " + e.getMessage());
         }
-    }
-
-    private void attachPacingToGroup(Group group, Pacing pacing) {
-        RTS rts = group.getRts();
-        if (rts == null) group.setRts(rts = new RTS());
-        rts.setPacing(pacing);
     }
 
     private Pacing parsePacing(String input) {

@@ -36,24 +36,21 @@ public class LreGroupHostValidator {
         return cloudTemplatesCache;
     }
 
-    private void clearCache() {
-        cloudTemplatesCache = null;
-    }
-
     /**
      * Validates and populates the hosts for the given group.
      * This method mutates the provided group object directly.
      */
     public void validateAndPopulateHosts(Group group) {
         if (content.getLgDistribution().getType() == LGDistributionType.MANUAL) parseHosts(group);
-        clearCache();
     }
 
     private void parseHosts(Group group) {
         if (group.getYamlHostname() == null || group.getYamlHostname().isEmpty()) {
-            log.debug("No hosts to parse for group: {}", group.getName());
-            return;
+            throw new LreException("Group '" + group.getName() + "' has no hosts defined, " +
+                    "but manual LG distribution requires explicit hostnames.");
+
         }
+
 
         Map<String, String> hostTemplateMap = parseHostTemplates(group.getYamlHostTemplate());
 

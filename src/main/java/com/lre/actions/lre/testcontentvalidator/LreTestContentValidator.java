@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.lre.actions.apis.LreRestApis;
 import com.lre.actions.exceptions.LreException;
+import com.lre.actions.lre.testcontentvalidator.globalrts.LreGlobalRtsValidator;
 import com.lre.actions.lre.testcontentvalidator.groups.LreGroupValidator;
 import com.lre.actions.runmodel.LreTestRunModel;
 import com.lre.actions.utils.JsonUtils;
@@ -38,6 +39,7 @@ public class LreTestContentValidator {
         validateWorkloadType();
         validateLGDistribution();
         validateMonitorProfiles();
+        validateGlobalRts();
         validateGroups();
 
         cleanUpContentForApi();
@@ -55,6 +57,9 @@ public class LreTestContentValidator {
         }
     }
 
+    private void validateGlobalRts(){
+        new LreGlobalRtsValidator(content).validateGlobalRts();
+    }
     private void validateGroups(){
         new LreGroupValidator(restApis, content).validateGroups();
     }
@@ -65,13 +70,13 @@ public class LreTestContentValidator {
     }
 
     private void validateLGDistribution() {
-        Integer lgAmount = content.getAmount();
+        Integer lgAmount = content.getLgAmount();
         if (lgAmount == null) {
             content.setLgDistribution(new LGDistribution(LGDistributionType.MANUAL));
         } else if (lgAmount > 0) {
-            content.setLgDistribution(new LGDistribution(LGDistributionType.ALL_TO_EACH_GROUP, content.getAmount()));
+            content.setLgDistribution(new LGDistribution(LGDistributionType.ALL_TO_EACH_GROUP, content.getLgAmount()));
         } else {
-            throw new LreException("Invalid LG amount: " + content.getAmount());
+            throw new LreException("Invalid LG amount: " + content.getLgAmount());
         }
     }
 
@@ -92,9 +97,8 @@ public class LreTestContentValidator {
     }
 
     private void cleanUpContentForApi(){
-
         // clear all the custom variables used as part of YAML parsing to null, so that they are not sent for LRE API.
-        content.setAmount(null);
+        content.setLgAmount(null);
         content.setWorkloadTypeCode(null);
         content.setMonitorProfileId(null);
     }

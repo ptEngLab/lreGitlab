@@ -2,7 +2,6 @@ package com.lre.actions.lre.testcontentvalidator.groups;
 
 import com.lre.model.enums.LogOptionsType;
 import com.lre.model.enums.LogType;
-import com.lre.model.test.testcontent.groups.Group;
 import com.lre.model.test.testcontent.groups.rts.RTS;
 import com.lre.model.test.testcontent.groups.rts.log.Log;
 import lombok.NoArgsConstructor;
@@ -35,12 +34,12 @@ public class LreRtsLogValidator {
             Log: extended:on error:50:substitution,server,trace
             """;
 
-    public void validateLogForGroup(Group group) {
-        String input = group.getYamlLog();
+    public void validateLogAndAttach(RTS rts, String input) {
         try {
             Log logObj = parseLog(input);
             validateBusinessRules(logObj);
-            attachLogToGroup(group, logObj);
+            if (rts == null) throw new IllegalArgumentException("RTS cannot be null");
+            rts.setLreLog(logObj);
             log.debug("Log set to RTS: {}", logObj);
         } catch (LogException e) {
             log.debug("Invalid Log '{}' -> {}", input, e.getMessage());
@@ -158,8 +157,7 @@ public class LreRtsLogValidator {
 
     private void validateBusinessRules(Log lreLog) {
         switch (lreLog.getType()) {
-            case IGNORE -> clearAllFlags(lreLog);
-            case STANDARD -> clearAllFlags(lreLog);
+            case IGNORE, STANDARD -> clearAllFlags(lreLog);
             case EXTENDED -> setDefaultFlags(lreLog);
         }
 
@@ -191,9 +189,4 @@ public class LreRtsLogValidator {
         if (lreLog.getAdvanceTrace() == null) lreLog.setAdvanceTrace(false);
     }
 
-    private void attachLogToGroup(Group group, Log lreLog) {
-        RTS rts = group.getRts();
-        if (rts == null) group.setRts(rts = new RTS());
-        rts.setLreLog(lreLog);
-    }
 }

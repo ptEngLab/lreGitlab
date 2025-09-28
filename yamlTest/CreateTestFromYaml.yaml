@@ -1,24 +1,32 @@
 #LgAmount: 10
 MonitorProfileId: 1001, 1002
+GlobalRTS:
+  - GlobalName: RTS1
+    GlobalPacing: "immediately"
+    GlobalThinkTime: "modify:*2.0"
+
+GlobalCommandLine:
+  - Name: cmd1
+    Value: command line 1
+
 Groups:
   - Name: "SampleGroup"
     Vusers: 50
     ScriptName: "e2e/Optional"
-    HostNames: "LG1, LG2, cloud1, cloud2, devserver"
-    HostTemplate: "cloud1 : 1, cloud2 : 2"
-    Pacing: "immediately"
-    ThinkTime: "modify:*2.0"
-    Log: "extended:on error:15:trace"
-    JavaVM: "JavaEnvClassPaths=lib\\junit.jar;lib\\hamcrest.jar;user_binaries\\myapp.jar,UserSpecifiedJdk=true,JdkHome=/usr/lib/jvm/java-17,UseXboot=false,EnableClassLoaderPerVuser=true,JavaVmParameters=-Xms128m -Xmx512m -Dspring.profiles.active=test"
+    HostNames: "LG1, cloud1"
+    HostTemplate: "cloud1 : 1"
+#    Pacing: "immediately"
+#    ThinkTime: "modify:*2.0"
+#    Log: "extended:on error:15:trace"
+#    JavaVM: "JavaEnvClassPaths=lib\\junit.jar;lib\\hamcrest.jar;user_binaries\\myapp.jar,UserSpecifiedJdk=true,JdkHome=/usr/lib/jvm/java-17,UseXboot=false,EnableClassLoaderPerVuser=true,JavaVmParameters=-Xms128m -Xmx512m -Dspring.profiles.active=test"
+    GlobalRTS: "RTS1"
+    GlobalCommandLine: "cmd1"
 
   - Name: "SampleGroup2"
     Vusers: 10
     ScriptId: 10
     HostNames: "LG1"
-    Pacing: "fixed delay:5/3"
-    ThinkTime: "random:80-120"
-    Log: "standard:on error:20"
-    JMeter: "StartMeasurements=true,JMeterUseDefaultPort=false,JMeterHomePath=c:\\jmeter,JREPath=c:\\jre,AdditionalParameters=-Xmx1024m,-Xms512m"
+    GlobalRTS: "RTS1"
 
   - Name: "SampleGroup3"
     Vusers: 15
