@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
@@ -91,7 +92,7 @@ public class SchedulerValidator {
 
             if (input.startsWith(START_GROUP)) {
                 String groupInput = input.substring(START_GROUP.length()).trim();
-                StartGroup startGroupAction = new StartGroupValidator(content.getGroups()).validateGroup(groupInput);
+                StartGroup startGroupAction = new StartGroupValidator(content).validateGroup(groupInput);
                 return Action.builder().startGroup(startGroupAction).build();
 
             } else if (input.startsWith(INITIALIZE)) {
@@ -129,12 +130,23 @@ public class SchedulerValidator {
     private void validateAction(List<Action> actions, int vusersCount) {
         if (actions.isEmpty()) return;
 
-        new StartGroupValidator(content.getGroups()).validateStartGroupActions(actions);
+        new StartGroupValidator(content).validateStartGroupActions(actions);
         new InitializeValidator().validateInitializeActions(actions);
         new StartVusersValidator(workloadTypeStr, vusersCount).validateStartVusersActions(actions);
         new DurationValidator(workloadTypeStr).validateDurationActions(actions);
         new StopVusersValidator(workloadTypeStr, vusersCount).validateStopVusersActions(actions);
+        actions.sort(Comparator.comparingInt(this::getActionOrder));
 
     }
+
+    private int getActionOrder(Action a) {
+        if (a.getStartGroup() != null) return 0;
+        if (a.getInitialize() != null) return 1;
+        if (a.getStartVusers() != null) return 2;
+        if (a.getDuration() != null) return 3;
+        if (a.getStopVusers() != null) return 4;
+        return 5;
+    }
+
 
 }

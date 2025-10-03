@@ -117,10 +117,12 @@ public record LreGroupValidator(LreRestApis restApis, TestContent content) {
     }
 
     private void validateGroupScheduler(Group group) {
-        List<String> groupSchedulerData = Optional.ofNullable(group.getSchedulerItems()).orElse(Collections.emptyList());
-        int groupVusers = Optional.ofNullable(group.getVusers()).orElse(0);
-        Scheduler scheduler = new SchedulerValidator(content).validateScheduler(groupSchedulerData, groupVusers);
-        group.setScheduler(scheduler);
+        if(content.getWorkloadType().getWorkloadTypeAsStr().endsWith("group")) {
+            List<String> groupSchedulerData = Optional.ofNullable(group.getSchedulerItems()).orElse(Collections.emptyList());
+            int groupVusers = Optional.ofNullable(group.getVusers()).orElse(0);
+            Scheduler scheduler = new SchedulerValidator(content).validateScheduler(groupSchedulerData, groupVusers);
+            group.setScheduler(scheduler);
+        }
     }
 
     private void cleanUpGroupContentForApi(Group group) {

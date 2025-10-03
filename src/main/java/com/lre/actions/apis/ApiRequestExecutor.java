@@ -36,8 +36,8 @@ public record ApiRequestExecutor(CloseableHttpClient httpClient) {
         return executeList(url, clazz, resourceName + " by query");
     }
 
-    public <T> T create(String url, String payload, Class<T> clazz, String resourceName) {
-        return execute(HttpMethod.POST, url, payload, ContentType.APPLICATION_JSON, clazz, "Create " + resourceName);
+    public <T> T create(String url, String payload, ContentType contentType, Class<T> clazz, String resourceName) {
+        return execute(HttpMethod.POST, url, payload, contentType, clazz, "Create " + resourceName);
     }
 
     public <T> T postWithQuery(String baseUrl, Map<String, String> params, String payload,

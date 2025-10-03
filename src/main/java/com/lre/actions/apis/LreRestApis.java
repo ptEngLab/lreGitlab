@@ -63,7 +63,7 @@ public class LreRestApis implements AutoCloseable {
     }
 
     public Test createTest(String payload) {
-        return executor.create(urlBuilder.getTestsUrl(), payload, Test.class, "Test");
+        return executor.create(urlBuilder.getTestsUrl(), payload, ContentType.APPLICATION_XML, Test.class, "Test");
     }
 
     public void updateTest(int testId, String payload) {
@@ -76,7 +76,7 @@ public class LreRestApis implements AutoCloseable {
     }
 
     public LreTestPlan createTestPlan(String payload) {
-        return executor.create(urlBuilder.getTestPlansUrl(), payload, LreTestPlan.class, "Test Plan");
+        return executor.create(urlBuilder.getTestPlansUrl(), payload, ContentType.APPLICATION_JSON, LreTestPlan.class, "Test Plan");
     }
 
     // Test Set
@@ -85,7 +85,7 @@ public class LreRestApis implements AutoCloseable {
     }
 
     public LreTestSet createTestSet(String payload) {
-        return executor.create(urlBuilder.getTestSetsUrl(), payload, LreTestSet.class, "Test Set");
+        return executor.create(urlBuilder.getTestSetsUrl(), payload, ContentType.APPLICATION_JSON, LreTestSet.class, "Test Set");
     }
 
     // Test Set Folder
@@ -94,7 +94,7 @@ public class LreRestApis implements AutoCloseable {
     }
 
     public LreTestSetFolder createTestSetFolder(String payload) {
-        return executor.create(urlBuilder.getTestSetFoldersUrl(), payload, LreTestSetFolder.class, "Test Set Folder");
+        return executor.create(urlBuilder.getTestSetFoldersUrl(), payload, ContentType.APPLICATION_JSON, LreTestSetFolder.class, "Test Set Folder");
     }
 
     // Test Instance
@@ -108,7 +108,7 @@ public class LreRestApis implements AutoCloseable {
     }
 
     public LreTestInstance createTestInstance(String payload) {
-        return executor.create(urlBuilder.getTestInstancesUrl(), payload, LreTestInstance.class, "Test Instance");
+        return executor.create(urlBuilder.getTestInstancesUrl(), payload, ContentType.APPLICATION_JSON, LreTestInstance.class, "Test Instance");
     }
 
     // Script
