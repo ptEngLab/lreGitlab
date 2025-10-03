@@ -1,6 +1,7 @@
 package com.lre.actions.helpers;
 
 import java.io.File;
+import java.util.regex.Pattern;
 
 public class ConfigConstants {
 
@@ -54,4 +55,41 @@ public class ConfigConstants {
 
 
     public static final String LRE_RUN_ID_FILE = "lre_run_id.txt";
+
+    public static final String basicByTest = "basic by test";
+    public static final String basicByGroup = "basic by group";
+    public static final String realWorldByTest = "real-world by test";
+    public static final String realWorldByGroup = "real-world by group";
+
+
+    // Simultaneously: "50vu:simultaneously+wait:30s" or "simultaneously" or "simultaneously:wait:1m"
+    public static final Pattern SIMULTANEOUSLY_PATTERN =
+            Pattern.compile("(?:(?<vusersCount>\\d+)vu:)?simultaneously(?:[:+]?wait:(?<wait>(\\d+[dhms])+))?$",
+                    Pattern.CASE_INSENSITIVE);
+
+    // Gradually: "gradually:10u@30s" or "gradually:25u@1m+wait:10s" or "50vu:gradually:10u@30s"
+    public static final Pattern GRADUALLY_PATTERN =
+            Pattern.compile("(?:(?<vusersCount>\\d+)vu:)?gradually:(?<users>\\d+)u@(?<interval>(\\d+[dhms])+)(?:\\+?wait:(?<wait>(\\d+[dhms])+))?$",
+                    Pattern.CASE_INSENSITIVE);
+
+    // Just before: "just before"
+    public static final Pattern JUST_BEFORE_PATTERN =
+            Pattern.compile("^just[ _-]?before$", Pattern.CASE_INSENSITIVE); // Allow "just-before", "just_before"
+
+    // Run until complete: "until complete"
+    public static final Pattern RUN_UNTIL_COMPLETE_PATTERN =
+            Pattern.compile("^until[ _-]?complete$", Pattern.CASE_INSENSITIVE); // Allow "until-complete"
+
+    // Run for duration: "1h30m" or "30s" or "2d"
+    public static final Pattern RUN_FOR_PATTERN =
+            Pattern.compile("^(?<interval>(\\d+[dhms])+)$", Pattern.CASE_INSENSITIVE);
+
+    // Start group delay: "delay:30s" or "delay:1h"
+    public static final Pattern START_GROUP_DELAY_PATTERN =
+            Pattern.compile("^delay:(?<interval>(\\d+[dhms])+)$", Pattern.CASE_INSENSITIVE);
+
+    // Start group finish: "Group1" or "API_Users"
+    public static final Pattern START_GROUP_FINISH_PATTERN =
+            Pattern.compile("^(?<groupName>[a-zA-Z0-9_-]+)$", Pattern.CASE_INSENSITIVE);
+
 }

@@ -1,6 +1,7 @@
 package com.lre.model.test.testcontent;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
@@ -10,11 +11,13 @@ import com.lre.model.test.testcontent.groups.commandline.CommandLine;
 import com.lre.model.test.testcontent.groups.rts.RTS;
 import com.lre.model.test.testcontent.lgdistribution.LGDistribution;
 import com.lre.model.test.testcontent.monitorprofile.MonitorProfile;
+import com.lre.model.test.testcontent.scheduler.Scheduler;
 import com.lre.model.test.testcontent.workloadtype.WorkloadType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.lre.actions.helpers.ConfigConstants.LRE_API_XMLNS;
@@ -24,6 +27,7 @@ import static com.lre.actions.helpers.ConfigConstants.LRE_API_XMLNS;
 @AllArgsConstructor
 @JacksonXmlRootElement(localName = "Content", namespace = LRE_API_XMLNS)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_EMPTY) // skip null or empty lists in XML
 public class TestContent {
 
     @JsonProperty("Controller")
@@ -41,7 +45,7 @@ public class TestContent {
     @JsonProperty("MonitorProfile")
     @JacksonXmlElementWrapper(localName = "MonitorProfiles", namespace = LRE_API_XMLNS)
     @JacksonXmlProperty(localName = "MonitorProfile", namespace = LRE_API_XMLNS)
-    private List<MonitorProfile> monitorProfiles;
+    private List<MonitorProfile> monitorProfiles = new ArrayList<>();
 
     @JsonProperty("GlobalRTS")
     @JacksonXmlElementWrapper(localName = "GlobalRTS", namespace = LRE_API_XMLNS)
@@ -56,7 +60,11 @@ public class TestContent {
     @JsonProperty("Groups")
     @JacksonXmlElementWrapper(localName = "Groups", namespace = LRE_API_XMLNS)
     @JacksonXmlProperty(localName = "Group", namespace = LRE_API_XMLNS)
-    private List<Group> groups;
+    private List<Group> groups = new ArrayList<>();
+
+    @JsonProperty("Scheduler")
+    @JacksonXmlProperty(localName = "Scheduler", namespace = LRE_API_XMLNS)
+    private Scheduler scheduler;
 
 
     // YAML file specific fields
@@ -70,5 +78,7 @@ public class TestContent {
     @JsonProperty("MonitorProfileId")
     private String monitorProfileId;
 
+    @JsonProperty("SchedulerData")
+    private List<String> schedulerItems;
 
 }

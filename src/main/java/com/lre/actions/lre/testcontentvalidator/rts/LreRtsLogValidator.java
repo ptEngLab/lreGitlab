@@ -1,4 +1,4 @@
-package com.lre.actions.lre.testcontentvalidator.groups;
+package com.lre.actions.lre.testcontentvalidator.rts;
 
 import com.lre.model.enums.LogOptionsType;
 import com.lre.model.enums.LogType;

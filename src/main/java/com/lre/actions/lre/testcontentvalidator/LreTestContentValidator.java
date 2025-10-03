@@ -7,20 +7,24 @@ import com.lre.actions.apis.LreRestApis;
 import com.lre.actions.exceptions.LreException;
 import com.lre.actions.lre.testcontentvalidator.globalrts.LreGlobalRtsValidator;
 import com.lre.actions.lre.testcontentvalidator.groups.LreGroupValidator;
+import com.lre.actions.lre.testcontentvalidator.scheduler.SchedulerValidator;
 import com.lre.actions.runmodel.LreTestRunModel;
 import com.lre.actions.utils.JsonUtils;
 import com.lre.actions.utils.XmlUtils;
 import com.lre.model.enums.LGDistributionType;
-import com.lre.model.test.testcontent.groups.hosts.HostResponse;
-import com.lre.model.test.testcontent.monitorprofile.MonitorProfile;
 import com.lre.model.test.testcontent.TestContent;
+import com.lre.model.test.testcontent.groups.Group;
+import com.lre.model.test.testcontent.groups.hosts.HostResponse;
 import com.lre.model.test.testcontent.lgdistribution.LGDistribution;
+import com.lre.model.test.testcontent.monitorprofile.MonitorProfile;
+import com.lre.model.test.testcontent.scheduler.Scheduler;
 import com.lre.model.test.testcontent.workloadtype.WorkloadType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.Arrays;
-import java.util.List;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -43,11 +47,17 @@ public class LreTestContentValidator {
         validateLGDistribution();
         validateMonitorProfiles();
         validateGlobalRts();
+        validateScheduler();
         validateGroups();
 
         cleanUpContentForApi();
 
-        log.info(XmlUtils.toXml(content));
+        try (FileWriter writer = new FileWriter("Test.xml")) {
+            writer.write(XmlUtils.toXml(content));
+        } catch (IOException e) {
+            log.error("Failed to write run id: {}", e.getMessage());
+        }
+
         log.info(JsonUtils.toJson(content));
         return content;
     }
@@ -82,9 +92,26 @@ public class LreTestContentValidator {
         new LreGroupValidator(restApis, content).validateGroups();
     }
 
+    private void validateScheduler() {
+        List<String> schedulerItems = Optional.ofNullable(content.getSchedulerItems()).orElse(Collections.emptyList());
+        Scheduler scheduler = new SchedulerValidator(content).validateScheduler(schedulerItems, getScenarioTotalVusers());
+        content.setScheduler(scheduler);
+    }
+
     private void validateWorkloadType() {
         WorkloadType workloadType = WorkloadType.fromUserInput(content.getWorkloadTypeCode());
         content.setWorkloadType(workloadType);
+    }
+
+    private int getScenarioTotalVusers() {
+        return Optional.ofNullable(content.getGroups())
+                .orElse(Collections.emptyList())
+                .stream()
+                .filter(Objects::nonNull)
+                .map(Group::getVusers)
+                .filter(Objects::nonNull)
+                .mapToInt(Integer::intValue)
+                .sum();
     }
 
     private void validateLGDistribution() {
@@ -119,6 +146,7 @@ public class LreTestContentValidator {
         content.setLgAmount(null);
         content.setWorkloadTypeCode(null);
         content.setMonitorProfileId(null);
+        content.setSchedulerItems(null);
     }
 
 

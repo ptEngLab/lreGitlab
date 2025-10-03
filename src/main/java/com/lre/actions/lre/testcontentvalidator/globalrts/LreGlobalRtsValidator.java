@@ -1,6 +1,6 @@
 package com.lre.actions.lre.testcontentvalidator.globalrts;
 
-import com.lre.actions.lre.testcontentvalidator.groups.*;
+import com.lre.actions.lre.testcontentvalidator.rts.*;
 import com.lre.model.test.testcontent.TestContent;
 import com.lre.model.test.testcontent.groups.rts.RTS;
 import lombok.extern.slf4j.Slf4j;

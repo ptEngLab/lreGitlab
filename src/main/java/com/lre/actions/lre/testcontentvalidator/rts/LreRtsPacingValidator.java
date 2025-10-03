@@ -1,4 +1,4 @@
-package com.lre.actions.lre.testcontentvalidator.groups;
+package com.lre.actions.lre.testcontentvalidator.rts;
 
 import com.lre.model.enums.PacingStartNewIterationType;
 import com.lre.model.test.testcontent.groups.rts.RTS;

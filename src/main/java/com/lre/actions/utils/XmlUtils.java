@@ -16,6 +16,8 @@ public class XmlUtils {
         MAPPER.enable(com.fasterxml.jackson.databind.SerializationFeature.INDENT_OUTPUT);
         MAPPER.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true);
         MAPPER.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        MAPPER.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+
     }
 
     public static <T> T fromXml(String xml, Class<T> valueType) {

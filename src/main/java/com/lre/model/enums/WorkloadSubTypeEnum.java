@@ -1,6 +1,7 @@
 package com.lre.model.enums;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum WorkloadSubTypeEnum {
     @JsonProperty("by test")
@@ -10,6 +11,12 @@ public enum WorkloadSubTypeEnum {
     BY_GROUP("by group");
 
     private final String value;
+
+
+    @JsonValue
+    public String getValue() {
+        return value;
+    }
 
     WorkloadSubTypeEnum(String value) {
         this.value = value;

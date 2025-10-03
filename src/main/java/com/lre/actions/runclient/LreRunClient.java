@@ -33,10 +33,10 @@ public class LreRunClient implements AutoCloseable {
 
     private void executeRunWorkflow() {
         fetchTestDetails();
-/*        resolveTestInstance();
+        resolveTestInstance();
         LreTimeslotManager timeslotManager = checkTimeslotAvailability();
         initiateTestRun(timeslotManager);
-        monitorRunCompletion(timeslotManager);*/
+        monitorRunCompletion(timeslotManager);
     }
 
     private void fetchTestDetails() {

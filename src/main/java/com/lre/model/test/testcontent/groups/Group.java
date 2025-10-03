@@ -7,6 +7,7 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.lre.model.test.testcontent.groups.hosts.Host;
 import com.lre.model.test.testcontent.groups.rts.RTS;
 import com.lre.model.test.testcontent.groups.script.Script;
+import com.lre.model.test.testcontent.scheduler.Scheduler;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -50,10 +51,14 @@ public class Group {
     @JacksonXmlProperty(localName = "Host", namespace = LRE_API_XMLNS)
     private List<Host> hosts;
 
-
     @JsonProperty("RTS")
     @JacksonXmlProperty(localName = "RTS", namespace = LRE_API_XMLNS)
     private RTS rts;
+
+    @JsonProperty("Scheduler")
+    @JacksonXmlProperty(localName = "Scheduler", namespace = LRE_API_XMLNS)
+    private Scheduler scheduler;
+
 
     // For YAML mapping
     @JsonProperty("ScriptId")
@@ -85,4 +90,7 @@ public class Group {
 
     @JsonProperty("JavaVM")
     private String yamlJavaVM;
+
+    @JsonProperty("SchedulerData")
+    private List<String> schedulerItems;
 }

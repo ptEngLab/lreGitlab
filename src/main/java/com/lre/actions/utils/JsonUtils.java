@@ -3,7 +3,6 @@ package com.lre.actions.utils;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +16,7 @@ public class JsonUtils {
         MAPPER.registerModule(new JavaTimeModule());
         MAPPER.disable(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         MAPPER.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        MAPPER.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
     }
 
     public static <T> T fromJson(String json, Class<T> valueType) {
@@ -47,17 +47,4 @@ public class JsonUtils {
         }
     }
 
-    public static JsonNode parseField(String json, String fieldName) {
-        try {
-            JsonNode rootNode = MAPPER.readTree(json);
-            JsonNode fieldNode = rootNode.path(fieldName);
-            if (fieldNode.isMissingNode()) {
-                log.warn("Field '{}' not found in JSON", fieldName);
-            }
-            return fieldNode;
-        } catch (JsonProcessingException e) {
-            log.error("Failed to parse field '{}' from JSON: {}", fieldName, e.getMessage());
-            throw new RuntimeException("JSON field parsing error", e);
-        }
-    }
 }

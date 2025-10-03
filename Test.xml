@@ -1,0 +1,69 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<Content xmlns="http://www.hp.com/PC/REST/API">
+  <WorkloadType>
+    <Type>real-world</Type>
+    <SubType>by group</SubType>
+    <VusersDistributionMode>by number</VusersDistributionMode>
+  </WorkloadType>
+  <LGDistribution>
+    <Type>all to each group</Type>
+    <Amount>10</Amount>
+  </LGDistribution>
+  <Groups>
+    <Group>
+      <Name>SampleGroup</Name>
+      <Vusers>50</Vusers>
+      <Script>
+        <ID>200</ID>
+        <ProtocolType>Web - HTTP/HTML</ProtocolType>
+      </Script>
+      <RTS>
+        <Pacing>
+          <NumberOfIterations>3</NumberOfIterations>
+          <StartNewIteration Type="fixed delay">
+            <DelayOfSeconds>5</DelayOfSeconds>
+          </StartNewIteration>
+        </Pacing>
+        <ThinkTime Type="ignore"/>
+        <Log Type="standard">
+          <LogOptions Type="on error">
+            <CacheSize>1</CacheSize>
+          </LogOptions>
+        </Log>
+      </RTS>
+      <Scheduler>
+        <Actions>
+          <Action>
+            <StartGroup Type="immediately"/>
+          </Action>
+          <Action>
+            <Initialize Type="gradually">
+              <TimeInterval>
+                <Seconds>30</Seconds>
+              </TimeInterval>
+              <Vusers>10</Vusers>
+              <WaitAfterInit/>
+            </Initialize>
+          </Action>
+          <Action>
+            <Duration Type="run for">
+              <TimeInterval>
+                <Seconds>30</Seconds>
+              </TimeInterval>
+            </Duration>
+          </Action>
+          <Action>
+            <StopVusers Type="simultaneously">
+              <Vusers>50</Vusers>
+            </StopVusers>
+          </Action>
+          <Action>
+            <StartVusers Type="simultaneously">
+              <Vusers>50</Vusers>
+            </StartVusers>
+          </Action>
+        </Actions>
+      </Scheduler>
+    </Group>
+  </Groups>
+</Content>
