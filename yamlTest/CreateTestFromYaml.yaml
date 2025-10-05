@@ -1,4 +1,5 @@
-LgAmount: 10
+LgAmount: 12
+AnalysisTemplateId: 10
 WorkloadTypeCode: 6
 #Controller: "devserver"
 #MonitorProfileId: 1001, 1002

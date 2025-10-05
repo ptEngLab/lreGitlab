@@ -3,11 +3,10 @@
   <WorkloadType>
     <Type>real-world</Type>
     <SubType>by group</SubType>
-    <VusersDistributionMode>by number</VusersDistributionMode>
   </WorkloadType>
   <LGDistribution>
     <Type>all to each group</Type>
-    <Amount>10</Amount>
+    <Amount>12</Amount>
   </LGDistribution>
   <Groups>
     <Group>
@@ -66,4 +65,7 @@
       </Scheduler>
     </Group>
   </Groups>
+  <AnalysisTemplate>
+    <ID>10</ID>
+  </AnalysisTemplate>
 </Content>

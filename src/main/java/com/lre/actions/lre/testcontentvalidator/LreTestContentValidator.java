@@ -12,6 +12,7 @@ import com.lre.actions.runmodel.LreTestRunModel;
 import com.lre.actions.utils.XmlUtils;
 import com.lre.model.enums.LGDistributionType;
 import com.lre.model.test.testcontent.TestContent;
+import com.lre.model.test.testcontent.analysistemplate.AnalysisTemplate;
 import com.lre.model.test.testcontent.groups.Group;
 import com.lre.model.test.testcontent.groups.hosts.HostResponse;
 import com.lre.model.test.testcontent.lgdistribution.LGDistribution;
@@ -50,6 +51,7 @@ public class LreTestContentValidator {
         validateGlobalRts();
         validateScheduler();
         validateGroups();
+        validateAnalysisTemplate();
 
         cleanUpContentForApi();
 
@@ -157,6 +159,13 @@ public class LreTestContentValidator {
         }
     }
 
+    private void validateAnalysisTemplate(){
+        String analysisTemplateId = content.getAnalysisTemplateId();
+        AnalysisTemplate analysisTemplate = new AnalysisTemplate();
+        if(StringUtils.isNotBlank(analysisTemplateId)) analysisTemplate.setId(Integer.parseInt(analysisTemplateId));
+        content.setAnalysisTemplate(analysisTemplate);
+    }
+
     private void cleanUpContentForApi() {
         // clear all the custom variables used as part of YAML parsing to null, so that they are not sent for LRE API.
         content.setLgAmount(null);
@@ -164,5 +173,6 @@ public class LreTestContentValidator {
         content.setMonitorProfileId(null);
         content.setMonitorOFWId(null);
         content.setSchedulerItems(null);
+        content.setAnalysisTemplateId(null);
     }
 }

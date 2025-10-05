@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+import com.lre.model.test.testcontent.analysistemplate.AnalysisTemplate;
 import com.lre.model.test.testcontent.groups.Group;
 import com.lre.model.test.testcontent.groups.commandline.CommandLine;
 import com.lre.model.test.testcontent.groups.rts.RTS;
@@ -71,6 +72,10 @@ public class TestContent {
     @JacksonXmlProperty(localName = "Scheduler", namespace = LRE_API_XMLNS)
     private Scheduler scheduler;
 
+    @JsonProperty("AnalysisTemplate")
+    @JacksonXmlProperty(localName = "AnalysisTemplate", namespace = LRE_API_XMLNS)
+    private AnalysisTemplate analysisTemplate;
+
 
     // YAML file specific fields
 
@@ -85,6 +90,9 @@ public class TestContent {
 
     @JsonProperty("MonitorOFWId")
     private String monitorOFWId;
+
+    @JsonProperty("AnalysisTemplateId")
+    private String analysisTemplateId;
 
     @JsonProperty("SchedulerData")
     private List<String> schedulerItems;
