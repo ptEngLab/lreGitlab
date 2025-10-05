@@ -15,6 +15,7 @@ import com.lre.model.test.testcontent.TestContent;
 import com.lre.model.test.testcontent.groups.Group;
 import com.lre.model.test.testcontent.groups.hosts.HostResponse;
 import com.lre.model.test.testcontent.lgdistribution.LGDistribution;
+import com.lre.model.test.testcontent.monitorofw.MonitorOFW;
 import com.lre.model.test.testcontent.monitorprofile.MonitorProfile;
 import com.lre.model.test.testcontent.scheduler.Scheduler;
 import com.lre.model.test.testcontent.workloadtype.WorkloadType;
@@ -45,6 +46,7 @@ public class LreTestContentValidator {
         validateWorkloadType();
         validateLGDistribution();
         validateMonitorProfiles();
+        validateMonitorsOverFirewall();
         validateGlobalRts();
         validateScheduler();
         validateGroups();
@@ -139,13 +141,28 @@ public class LreTestContentValidator {
         }
     }
 
+    private void validateMonitorsOverFirewall() {
+        String ids = content.getMonitorOFWId();
+
+        if (StringUtils.isNotBlank(ids)) {
+            List<MonitorOFW> profiles =
+                    Arrays.stream(ids.split(","))
+                            .map(String::trim)
+                            .filter(StringUtils::isNumeric)
+                            .map(Integer::valueOf)
+                            .map(MonitorOFW::new)
+                            .toList();
+
+            content.setMonitorOFWIds(profiles);
+        }
+    }
+
     private void cleanUpContentForApi() {
         // clear all the custom variables used as part of YAML parsing to null, so that they are not sent for LRE API.
         content.setLgAmount(null);
         content.setWorkloadTypeCode(null);
         content.setMonitorProfileId(null);
+        content.setMonitorOFWId(null);
         content.setSchedulerItems(null);
     }
-
-
 }

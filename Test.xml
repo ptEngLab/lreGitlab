@@ -46,6 +46,11 @@
             </Initialize>
           </Action>
           <Action>
+            <StartVusers Type="simultaneously">
+              <Vusers>50</Vusers>
+            </StartVusers>
+          </Action>
+          <Action>
             <Duration Type="run for">
               <TimeInterval>
                 <Seconds>30</Seconds>
@@ -56,11 +61,6 @@
             <StopVusers Type="simultaneously">
               <Vusers>50</Vusers>
             </StopVusers>
-          </Action>
-          <Action>
-            <StartVusers Type="simultaneously">
-              <Vusers>50</Vusers>
-            </StartVusers>
           </Action>
         </Actions>
       </Scheduler>
