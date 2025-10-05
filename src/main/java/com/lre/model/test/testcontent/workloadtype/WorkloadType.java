@@ -31,6 +31,15 @@ public class WorkloadType {
     @JacksonXmlProperty(localName = "VusersDistributionMode", namespace = LRE_API_XMLNS)
     private WorkloadVusersDistributionModeEnum vusersDistributionMode;
 
+    public WorkloadType(WorkloadTypeEnum type, WorkloadSubTypeEnum subType) {
+        this.type = type;
+        this.subType = subType;
+    }
+
+    public WorkloadType(WorkloadTypeEnum type) {
+        this.type = type;
+    }
+
     /**
      * Map numeric user input to valid WorkloadType combinations.
      * If userInput is null, defaults are applied.
@@ -46,15 +55,13 @@ public class WorkloadType {
                     WorkloadVusersDistributionModeEnum.BY_NUMBER);
             case 2 -> new WorkloadType(WorkloadTypeEnum.BASIC, WorkloadSubTypeEnum.BY_TEST,
                     WorkloadVusersDistributionModeEnum.BY_PERCENTAGE);
-            case 3 -> new WorkloadType(WorkloadTypeEnum.BASIC, WorkloadSubTypeEnum.BY_GROUP,
-                    WorkloadVusersDistributionModeEnum.BY_NUMBER);
+            case 3 -> new WorkloadType(WorkloadTypeEnum.BASIC, WorkloadSubTypeEnum.BY_GROUP);
             case 4 -> new WorkloadType(WorkloadTypeEnum.REAL_WORLD, WorkloadSubTypeEnum.BY_TEST,
                     WorkloadVusersDistributionModeEnum.BY_NUMBER);
             case 5 -> new WorkloadType(WorkloadTypeEnum.REAL_WORLD, WorkloadSubTypeEnum.BY_TEST,
                     WorkloadVusersDistributionModeEnum.BY_PERCENTAGE);
-            case 6 -> new WorkloadType(WorkloadTypeEnum.REAL_WORLD, WorkloadSubTypeEnum.BY_GROUP,
-                    WorkloadVusersDistributionModeEnum.BY_NUMBER);
-            case 7 -> new WorkloadType(WorkloadTypeEnum.GOAL_ORIENTED, null, null);
+            case 6 -> new WorkloadType(WorkloadTypeEnum.REAL_WORLD, WorkloadSubTypeEnum.BY_GROUP);
+            case 7 -> new WorkloadType(WorkloadTypeEnum.GOAL_ORIENTED);
             default -> throw new IllegalArgumentException("Invalid WorkloadType code: " + userInput);
         };
     }
@@ -65,6 +72,5 @@ public class WorkloadType {
         return String.format("%s %s", this.getType().getValue(), this.getSubType().getValue()).toLowerCase(Locale.ROOT);
 
     }
-
 
 }
