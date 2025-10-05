@@ -3,7 +3,7 @@ package com.lre.model.enums;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum WorkloadSubTypeEnum {
+public enum WorkloadSubType {
     @JsonProperty("by test")
     BY_TEST("by test"),
 
@@ -18,7 +18,7 @@ public enum WorkloadSubTypeEnum {
         return value;
     }
 
-    WorkloadSubTypeEnum(String value) {
+    WorkloadSubType(String value) {
         this.value = value;
     }
 

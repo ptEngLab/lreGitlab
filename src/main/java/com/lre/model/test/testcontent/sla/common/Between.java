@@ -1,0 +1,24 @@
+package com.lre.model.test.testcontent.sla.common;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import static com.lre.actions.helpers.ConfigConstants.LRE_API_XMLNS;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class Between {
+
+    @JsonProperty("From")
+    @JacksonXmlProperty(localName = "From", namespace = LRE_API_XMLNS)
+    private Integer from;
+
+    @JsonProperty("To")
+    @JacksonXmlProperty(localName = "To", namespace = LRE_API_XMLNS)
+    private Integer to;
+
+}

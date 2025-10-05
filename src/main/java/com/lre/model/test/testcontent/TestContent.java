@@ -13,6 +13,7 @@ import com.lre.model.test.testcontent.lgdistribution.LGDistribution;
 import com.lre.model.test.testcontent.monitorofw.MonitorOFW;
 import com.lre.model.test.testcontent.monitorprofile.MonitorProfile;
 import com.lre.model.test.testcontent.scheduler.Scheduler;
+import com.lre.model.test.testcontent.sla.SLA;
 import com.lre.model.test.testcontent.workloadtype.WorkloadType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -71,6 +72,10 @@ public class TestContent {
     @JsonProperty("Scheduler")
     @JacksonXmlProperty(localName = "Scheduler", namespace = LRE_API_XMLNS)
     private Scheduler scheduler;
+
+    @JsonProperty("SLA")
+    @JacksonXmlProperty(localName = "SLA", namespace = LRE_API_XMLNS)
+    private SLA sla;
 
     @JsonProperty("AnalysisTemplate")
     @JacksonXmlProperty(localName = "AnalysisTemplate", namespace = LRE_API_XMLNS)
