@@ -161,9 +161,10 @@ public class LreTestContentValidator {
 
     private void validateAnalysisTemplate(){
         String analysisTemplateId = content.getAnalysisTemplateId();
-        AnalysisTemplate analysisTemplate = new AnalysisTemplate();
-        if(StringUtils.isNotBlank(analysisTemplateId)) analysisTemplate.setId(Integer.parseInt(analysisTemplateId));
-        content.setAnalysisTemplate(analysisTemplate);
+        if(StringUtils.isNotBlank(analysisTemplateId)) {
+            AnalysisTemplate analysisTemplate = new AnalysisTemplate();
+            content.setAnalysisTemplate(analysisTemplate);
+        }
     }
 
     private void cleanUpContentForApi() {
