@@ -9,7 +9,6 @@ import com.lre.actions.lre.testcontentvalidator.globalrts.LreGlobalRtsValidator;
 import com.lre.actions.lre.testcontentvalidator.groups.LreGroupValidator;
 import com.lre.actions.lre.testcontentvalidator.scheduler.SchedulerValidator;
 import com.lre.actions.runmodel.LreTestRunModel;
-import com.lre.actions.utils.JsonUtils;
 import com.lre.actions.utils.XmlUtils;
 import com.lre.model.enums.LGDistributionType;
 import com.lre.model.test.testcontent.TestContent;
@@ -58,7 +57,6 @@ public class LreTestContentValidator {
             log.error("Failed to write run id: {}", e.getMessage());
         }
 
-        log.info(JsonUtils.toJson(content));
         return content;
     }
 

@@ -20,6 +20,7 @@ public class LreRunStatusPoller {
     private final PostRunAction postRunAction;
     private final long pollIntervalSeconds;
     private final long timeslotDurationMillis;
+    private final long timeslotDurationInMinutes;
     private final LreTestRunModel model;
 
     public LreRunStatusPoller(LreRestApis apiClient, LreTestRunModel model, int timeslotDurationInMinutes) {
@@ -29,6 +30,7 @@ public class LreRunStatusPoller {
         this.runId = model.getRunId();
         this.postRunAction = model.getLrePostRunAction();
         this.pollIntervalSeconds = DEFAULT_POLL_INTERVAL_SECONDS;
+        this.timeslotDurationInMinutes = timeslotDurationInMinutes;
         this.timeslotDurationMillis = TimeUnit.MINUTES.toMillis(timeslotDurationInMinutes);
     }
 
@@ -103,10 +105,11 @@ public class LreRunStatusPoller {
         long remainingMinutes = TimeUnit.MILLISECONDS.toMinutes(Math.max(0, timeslotDurationMillis - (now - startTime)));
 
         String formattedLog = String.format(
-                "| %-10s | %-40s | %-25s | %-14s |",
+                "| %-10s | %-40s | %-25s | %-14s | %-14s |",
                 "RunId: " + runId,
                 "State: " + state.getValue(),
                 "Elapsed: " + elapsedSeconds + " seconds",
+                "Timeslot duration: " + timeslotDurationInMinutes + " minutes",
                 "Time remaining: " + remainingMinutes + " minutes"
         );
 
