@@ -6,6 +6,7 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import com.lre.model.test.testcontent.analysistemplate.AnalysisTemplate;
+import com.lre.model.test.testcontent.automatictrending.AutomaticTrending;
 import com.lre.model.test.testcontent.groups.Group;
 import com.lre.model.test.testcontent.groups.commandline.CommandLine;
 import com.lre.model.test.testcontent.groups.rts.RTS;
@@ -14,6 +15,7 @@ import com.lre.model.test.testcontent.monitorofw.MonitorOFW;
 import com.lre.model.test.testcontent.monitorprofile.MonitorProfile;
 import com.lre.model.test.testcontent.scheduler.Scheduler;
 import com.lre.model.test.testcontent.sla.SLA;
+import com.lre.model.test.testcontent.sla.SLAConfig;
 import com.lre.model.test.testcontent.workloadtype.WorkloadType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,7 +30,6 @@ import static com.lre.actions.helpers.ConfigConstants.LRE_API_XMLNS;
 @NoArgsConstructor
 @AllArgsConstructor
 @JacksonXmlRootElement(localName = "Content", namespace = LRE_API_XMLNS)
-//@JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY) // skip null or empty lists in XML
 public class TestContent {
 
@@ -81,6 +82,10 @@ public class TestContent {
     @JacksonXmlProperty(localName = "AnalysisTemplate", namespace = LRE_API_XMLNS)
     private AnalysisTemplate analysisTemplate;
 
+    @JsonProperty("AutomaticTrending")
+    @JacksonXmlProperty(localName = "AutomaticTrending", namespace = LRE_API_XMLNS)
+    private AutomaticTrending automaticTrending;
+
 
     // YAML file specific fields
 
@@ -102,4 +107,7 @@ public class TestContent {
     @JsonProperty("SchedulerData")
     private List<String> schedulerItems;
 
+
+    @JsonProperty("SLAConfig")
+    private SLAConfig slaConfig;
 }

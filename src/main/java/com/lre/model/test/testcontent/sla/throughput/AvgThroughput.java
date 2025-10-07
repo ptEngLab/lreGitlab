@@ -15,5 +15,5 @@ public class AvgThroughput {
 
     @JsonProperty("Threshold")
     @JacksonXmlProperty(localName = "Threshold", namespace = LRE_API_XMLNS)
-    private Integer threshold;
+    private Float threshold;
 }

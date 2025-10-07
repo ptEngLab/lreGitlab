@@ -1,0 +1,33 @@
+2025-10-07 14:04:27 INFO  c.l.m.Main:41                            - Starting operation: RUN_LRE_TEST
+2025-10-07 14:04:29 WARN  c.l.a.l.t.s.StartGroupValidator:102      - No StartGroup found. Adding default StartGroup.
+2025-10-07 14:04:29 ERROR c.l.a.r.LreRunClient:30                  - Run failed for test: yamlTest/CreateTestFromYaml.yaml
+com.lre.actions.exceptions.LreException: TransactionResponseTimeAverage and TransactionResponseTimePercentile cannot be used together. Please configure only one response time SLA type.
+	at com.lre.actions.lre.testcontentvalidator.sla.SLAValidator.validateMutualExclusivity(SLAValidator.java:82)
+	at com.lre.actions.lre.testcontentvalidator.sla.SLAValidator.validateSLA(SLAValidator.java:37)
+	at com.lre.actions.lre.testcontentvalidator.LreTestContentValidator.validateSLA(LreTestContentValidator.java:104)
+	at com.lre.actions.lre.testcontentvalidator.LreTestContentValidator.validateAndGetTestContent(LreTestContentValidator.java:58)
+	at com.lre.actions.lre.LreTestManager.createOrUpdateTest(LreTestManager.java:104)
+	at com.lre.actions.lre.LreTestManager.createNewTest(LreTestManager.java:73)
+	at com.lre.actions.lre.LreTestManager.fetchTestDetails(LreTestManager.java:47)
+	at com.lre.actions.runclient.LreRunClient.fetchTestDetails(LreRunClient.java:45)
+	at com.lre.actions.runclient.LreRunClient.executeRunWorkflow(LreRunClient.java:36)
+	at com.lre.actions.runclient.LreRunClient.startRun(LreRunClient.java:26)
+	at com.lre.main.Main.runLreTest(Main.java:93)
+	at com.lre.main.Main.main(Main.java:52)
+2025-10-07 14:04:29 ERROR c.l.m.Main:141                           - LRE execution error: Test run execution failed
+com.lre.actions.exceptions.LreException: Test run execution failed
+	at com.lre.actions.runclient.LreRunClient.startRun(LreRunClient.java:31)
+	at com.lre.main.Main.runLreTest(Main.java:93)
+	at com.lre.main.Main.main(Main.java:52)
+Caused by: com.lre.actions.exceptions.LreException: TransactionResponseTimeAverage and TransactionResponseTimePercentile cannot be used together. Please configure only one response time SLA type.
+	at com.lre.actions.lre.testcontentvalidator.sla.SLAValidator.validateMutualExclusivity(SLAValidator.java:82)
+	at com.lre.actions.lre.testcontentvalidator.sla.SLAValidator.validateSLA(SLAValidator.java:37)
+	at com.lre.actions.lre.testcontentvalidator.LreTestContentValidator.validateSLA(LreTestContentValidator.java:104)
+	at com.lre.actions.lre.testcontentvalidator.LreTestContentValidator.validateAndGetTestContent(LreTestContentValidator.java:58)
+	at com.lre.actions.lre.LreTestManager.createOrUpdateTest(LreTestManager.java:104)
+	at com.lre.actions.lre.LreTestManager.createNewTest(LreTestManager.java:73)
+	at com.lre.actions.lre.LreTestManager.fetchTestDetails(LreTestManager.java:47)
+	at com.lre.actions.runclient.LreRunClient.fetchTestDetails(LreRunClient.java:45)
+	at com.lre.actions.runclient.LreRunClient.executeRunWorkflow(LreRunClient.java:36)
+	at com.lre.actions.runclient.LreRunClient.startRun(LreRunClient.java:26)
+	... 2 common frames omitted

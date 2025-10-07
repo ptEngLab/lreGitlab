@@ -65,7 +65,72 @@
       </Scheduler>
     </Group>
   </Groups>
+  <SLA>
+    <TransactionResponseTimePercentile>
+      <Percentile>95</Percentile>
+      <Transactions>
+        <Transaction>
+          <Name>landing_page</Name>
+          <Threshold>5.0</Threshold>
+        </Transaction>
+        <Transaction>
+          <Name>login</Name>
+          <Threshold>8.0</Threshold>
+        </Transaction>
+      </Transactions>
+    </TransactionResponseTimePercentile>
+    <ErrorsPerSecond>
+      <LoadCriterion>hits_per_second</LoadCriterion>
+      <LoadValues>
+        <Betweens>
+          <Between>
+            <From>5.0</From>
+            <To>10.0</To>
+          </Between>
+          <Between>
+            <From>10.0</From>
+            <To>15.0</To>
+          </Between>
+          <Between>
+            <From>15.0</From>
+            <To>20.0</To>
+          </Between>
+        </Betweens>
+        <LessThan>5.0</LessThan>
+        <GreaterThanOrEqual>20.0</GreaterThanOrEqual>
+      </LoadValues>
+      <Thresholds>
+        <LessThanThreshold>2.0</LessThanThreshold>
+        <BetweenThreshold>
+          <Threshold>
+            <Threshold>3.0</Threshold>
+            <Threshold>4.0</Threshold>
+            <Threshold>5.0</Threshold>
+          </Threshold>
+        </BetweenThreshold>
+        <GreaterThanOrEqualThreshold>6.0</GreaterThanOrEqualThreshold>
+      </Thresholds>
+    </ErrorsPerSecond>
+    <TotalHits>
+      <Threshold>20.0</Threshold>
+    </TotalHits>
+    <AverageHitsPerSecond>
+      <Threshold>50.0</Threshold>
+    </AverageHitsPerSecond>
+    <TotalThroughput>
+      <Threshold>80000.0</Threshold>
+    </TotalThroughput>
+    <AverageThroughput>
+      <Threshold>5000.0</Threshold>
+    </AverageThroughput>
+  </SLA>
   <AnalysisTemplate>
     <ID>10</ID>
   </AnalysisTemplate>
+  <AutomaticTrending>
+    <ReportId>5</ReportId>
+    <MaxRunsInReport>20</MaxRunsInReport>
+    <TrendRangeType>CompleteRun</TrendRangeType>
+    <MaxRunsReachedOption>DeleteFirstSetNewBaseline</MaxRunsReachedOption>
+  </AutomaticTrending>
 </Content>

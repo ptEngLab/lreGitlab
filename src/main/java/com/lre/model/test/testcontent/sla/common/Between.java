@@ -15,10 +15,10 @@ public class Between {
 
     @JsonProperty("From")
     @JacksonXmlProperty(localName = "From", namespace = LRE_API_XMLNS)
-    private Integer from;
+    private Float from;
 
     @JsonProperty("To")
     @JacksonXmlProperty(localName = "To", namespace = LRE_API_XMLNS)
-    private Integer to;
+    private Float to;
 
 }

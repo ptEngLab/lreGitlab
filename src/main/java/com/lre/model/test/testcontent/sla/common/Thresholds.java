@@ -15,13 +15,13 @@ public class Thresholds {
 
     @JsonProperty("LessThanThreshold")
     @JacksonXmlProperty(localName = "LessThanThreshold", namespace = LRE_API_XMLNS)
-    private Integer lessThanThreshold;
+    private Float lessThanThreshold;
 
     @JsonProperty("BetweenThreshold")
     @JacksonXmlProperty(localName = "BetweenThreshold", namespace = LRE_API_XMLNS)
-    private BetweenThreshold betweenThreshold;
+    private BetweenThreshold betweenThreshold = new BetweenThreshold();
 
     @JsonProperty("GreaterThanOrEqualThreshold")
     @JacksonXmlProperty(localName = "GreaterThanOrEqualThreshold", namespace = LRE_API_XMLNS)
-    private Integer greaterThanOrEqualThreshold;
+    private Float greaterThanOrEqualThreshold;
 }

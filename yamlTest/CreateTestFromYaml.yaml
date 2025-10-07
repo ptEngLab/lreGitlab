@@ -18,10 +18,10 @@ Groups:
     ScriptName: "e2e/Optional"
     SchedulerData:
       - "Initialize: gradually:10u@30s"
-#      - "Start vusers: 10vu:gradually:2U@10s"
-#      - "Duration: 30 s"
+      #      - "Start vusers: 10vu:gradually:2U@10s"
+      #      - "Duration: 30 s"
       - "Duration: 30 s"
-#      - "Start vusers: 15vu:gradually:2U@10s"
+      #      - "Start vusers: 15vu:gradually:2U@10s"
       - "Stop vusers: 50vu:simultaneously"
     HostNames: "LG1, cloud1"
     HostTemplate: "cloud1 : 1"
@@ -50,6 +50,30 @@ Groups:
 #
 #
 
+AutomaticTrending:
+  ReportId: 5
 
+SLAConfig:
+  # Average Response Time Configuration
+  AvgResponseTimeLoadCriteria: "Hits per Second"
+  AvgResponseTimeLoadRanges: [ 5, 10, 15 , 20 ]
+  AvgResponseTimeThresholds:
+    landing_page: [ 5, 10, 15, 20 , 25 ]
+    login: [ 5, 10, 15, 20 , 25 ]
+    logout: [ 2, 5, 12 , 25, 30 ]
 
+  # Errors Per Second Configuration
+  ErrorLoadCriteriaType: "Hits per Second"
+  ErrorLoadRanges: [ 5,10,15,20 ]
+  ErrorThreshold: [2, 3, 4, 5, 6]
 
+  # Percentile Response Time Configuration
+  PercentileResponseTimeThreshold: 95
+  PercentileResponseTimeTransactions:
+    landing_page: 5
+    login: 8
+
+  TotalHits: 20
+  AverageHitsPerSecond: 50
+  TotalThroughput: 80000
+  AverageThroughput: 5000

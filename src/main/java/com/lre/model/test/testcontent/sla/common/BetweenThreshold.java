@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 import static com.lre.actions.helpers.ConfigConstants.LRE_API_XMLNS;
 
 @Data
@@ -15,6 +17,6 @@ public class BetweenThreshold {
 
     @JsonProperty("Threshold")
     @JacksonXmlProperty(localName = "Threshold", namespace = LRE_API_XMLNS)
-    private Integer threshold;
+    private List<Float> threshold;
 
 }

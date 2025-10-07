@@ -3,9 +3,9 @@ package com.lre.model.test.testcontent.sla;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.lre.model.test.testcontent.sla.errors.ErrorsPerSecond;
-import com.lre.model.test.testcontent.sla.throughput.AvgThroughput;
 import com.lre.model.test.testcontent.sla.hits.AvgHitsPerSecond;
 import com.lre.model.test.testcontent.sla.hits.TotalHits;
+import com.lre.model.test.testcontent.sla.throughput.AvgThroughput;
 import com.lre.model.test.testcontent.sla.throughput.TotalThroughput;
 import com.lre.model.test.testcontent.sla.trt.TxnResTimeAverage;
 import com.lre.model.test.testcontent.sla.trt.TxnResTimePercentile;
@@ -47,5 +47,14 @@ public class SLA {
     @JsonProperty("AverageThroughput")
     @JacksonXmlProperty(localName = "AverageThroughput", namespace = LRE_API_XMLNS)
     private AvgThroughput avgThroughput;
+
+
+/*    // yaml data
+
+    @JsonProperty("ResTimePercentile")
+    private String yamlPercentile;
+
+    @JsonProperty("Transactions")
+    private List<Transaction> txns;*/
 
 }

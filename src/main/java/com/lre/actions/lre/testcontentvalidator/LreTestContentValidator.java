@@ -8,11 +8,13 @@ import com.lre.actions.exceptions.LreException;
 import com.lre.actions.lre.testcontentvalidator.globalrts.LreGlobalRtsValidator;
 import com.lre.actions.lre.testcontentvalidator.groups.LreGroupValidator;
 import com.lre.actions.lre.testcontentvalidator.scheduler.SchedulerValidator;
+import com.lre.actions.lre.testcontentvalidator.sla.SLAValidator;
 import com.lre.actions.runmodel.LreTestRunModel;
 import com.lre.actions.utils.XmlUtils;
 import com.lre.model.enums.LGDistributionType;
 import com.lre.model.test.testcontent.TestContent;
 import com.lre.model.test.testcontent.analysistemplate.AnalysisTemplate;
+import com.lre.model.test.testcontent.automatictrending.AutomaticTrending;
 import com.lre.model.test.testcontent.groups.Group;
 import com.lre.model.test.testcontent.groups.hosts.HostResponse;
 import com.lre.model.test.testcontent.lgdistribution.LGDistribution;
@@ -52,6 +54,9 @@ public class LreTestContentValidator {
         validateScheduler();
         validateGroups();
         validateAnalysisTemplate();
+        validateAutomaticTrendReportData();
+        validateSLA();
+
 
         cleanUpContentForApi();
 
@@ -63,6 +68,7 @@ public class LreTestContentValidator {
 
         return content;
     }
+
 
     private TestContent getTestContentFromYaml() {
         try {
@@ -94,6 +100,10 @@ public class LreTestContentValidator {
         new LreGroupValidator(restApis, content).validateGroups();
     }
 
+    private void validateSLA() {
+        new SLAValidator(content).validateSLA();
+    }
+
     private void validateScheduler() {
         List<String> schedulerItems = Optional.ofNullable(content.getSchedulerItems()).orElse(Collections.emptyList());
         Scheduler scheduler = new SchedulerValidator(content).validateScheduler(schedulerItems, getScenarioTotalVusers());
@@ -103,6 +113,14 @@ public class LreTestContentValidator {
     private void validateWorkloadType() {
         WorkloadType workloadType = WorkloadType.fromUserInput(content.getWorkloadTypeCode());
         content.setWorkloadType(workloadType);
+    }
+
+    private void validateAutomaticTrendReportData() {
+        AutomaticTrending at = content.getAutomaticTrending();
+        if (AutomaticTrending.TrendRangeType.CompleteRun.equals(at.getTrendRange())) {
+            at.setStartTime(null);
+            at.setEndTime(null);
+        }
     }
 
     private int getScenarioTotalVusers() {
@@ -159,10 +177,11 @@ public class LreTestContentValidator {
         }
     }
 
-    private void validateAnalysisTemplate(){
+    private void validateAnalysisTemplate() {
         String analysisTemplateId = content.getAnalysisTemplateId();
-        if(StringUtils.isNotBlank(analysisTemplateId)) {
+        if (StringUtils.isNotBlank(analysisTemplateId)) {
             AnalysisTemplate analysisTemplate = new AnalysisTemplate();
+            analysisTemplate.setId(Integer.parseInt(analysisTemplateId));
             content.setAnalysisTemplate(analysisTemplate);
         }
     }
@@ -175,5 +194,6 @@ public class LreTestContentValidator {
         content.setMonitorOFWId(null);
         content.setSchedulerItems(null);
         content.setAnalysisTemplateId(null);
+        content.setSlaConfig(null);
     }
 }

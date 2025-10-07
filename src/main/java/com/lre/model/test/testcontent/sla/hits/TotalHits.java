@@ -14,5 +14,5 @@ import static com.lre.actions.helpers.ConfigConstants.LRE_API_XMLNS;
 public class TotalHits {
     @JsonProperty("Threshold")
     @JacksonXmlProperty(localName = "Threshold", namespace = LRE_API_XMLNS)
-    private Integer threshold;
+    private Float threshold;
 }

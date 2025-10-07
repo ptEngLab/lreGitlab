@@ -20,7 +20,7 @@ public class Transaction {
 
     @JsonProperty("Threshold")
     @JacksonXmlProperty(localName = "Threshold", namespace = LRE_API_XMLNS)
-    private Integer threshold;
+    private Float threshold;
 
     @JsonProperty("Thresholds")
     @JacksonXmlProperty(localName = "Thresholds", namespace = LRE_API_XMLNS)
