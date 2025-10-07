@@ -16,16 +16,16 @@ throughput.
 SLAConfig:
   # Average Response Time Configuration
   AvgResponseTimeLoadCriteria: "Hits per Second"
-  AvgResponseTimeLoadRanges: [ 5, 10, 15, 20 ]
+  AvgResponseTimeLoadRanges: [ 5, 10, 15 ]
   AvgResponseTimeThresholds:
-    landing_page: [ 5, 10, 15, 20, 25 ]
-    login: [ 5, 10, 15, 20, 25 ]
-    logout: [ 2, 5, 12, 25, 30 ]
+    landing_page: [ 5, 10, 15, 20]
+    login: [ 5, 10, 15, 20 ]
+    logout: [ 2, 5, 12, 25 ]
 
   # Errors Per Second Configuration
   ErrorLoadCriteriaType: "Hits per Second"
-  ErrorLoadRanges: [ 5, 10, 15, 20 ]
-  ErrorThreshold: [ 2, 3, 4, 5, 6 ]
+  ErrorLoadRanges: [ 5, 10, 15 ]
+  ErrorThreshold: [ 2, 3, 4, 5 ]
 
   # Percentile Response Time Configuration
   PercentileResponseTimeThreshold: 95
@@ -38,9 +38,13 @@ SLAConfig:
   TotalThroughput: 80000
   AverageThroughput: 5000
 ```
+⚠️ **Mutual Exclusivity Rule**
+Only one of the following can be defined:
+- Average Response Time SLA
+- Percentile Response Time SLA  
 
-> ⚠️ Important: 
-> Provide either **Average Response Time SLA** or **Percentile Response Time SLA**. Both cannot be configured together. 
+If both are present, the configuration will fail validation.
+
 
 ### Fields Description
 
@@ -58,7 +62,7 @@ SLAConfig:
 
 #### Percentile Response Time SLA
 
-* `PercentileResponseTimeThreshold`: Percentile (e.g., 95).
+* `PercentileResponseTimeThreshold`: Response time Percentile (e.g., 95).
 * `PercentileResponseTimeTransactions`: Map of transaction names to maximum allowed response time for the specified
   percentile.
 
@@ -228,3 +232,39 @@ AverageThroughput: 5000
 
 ---
 
+
+## Range and Threshold Rules
+
+To make configuration flexible, users can define **as few as 1 load ranges** and **2 thresholds per transaction or metric.**
+
+Maximum of 4 load ranges and 5 thresholds are allowed.
+
+### Example 1: Two Load Ranges
+```yaml
+AvgResponseTimeLoadRanges: [100, 200]
+AvgResponseTimeThresholds:
+  home_page: [2, 3, 4]
+```
+Defines three traffic zones:
+- when `hits/sec` is less than 100, the average response time should not be more than 2s
+- when `hits/sec` is between 100 - 200, the average response time should not be more than 3s
+- when `hits/sec` is more than or equal to 200, the average response time should not be more than 4s
+
+### Example 2: Three Load Ranges
+```yaml
+AvgResponseTimeLoadRanges: [100, 200, 300]
+AvgResponseTimeThresholds:
+  home_page: [2, 3, 4, 5]
+```
+Defines four traffic zones:
+- when `hits/sec` is less than `100`, the average response time should not be more than 2s
+- when `hits/sec` is between `100 - 200`, the average response time should not be more than 3s
+- when `hits/sec` is between `200 - 300`, the average response time should not be more than 4s
+- when `hits/sec` is more than or equal to `300`, the average response time should not be more than 5s
+
+
+## Best Practices
+- Keep SLA thresholds realistic and based on baseline runs.
+- Avoid mixing percentile and average SLAs in the same config.
+- Always align transaction names in SLA with your test scripts.
+- Start with wider thresholds and tighten them as your system stabilizes.
