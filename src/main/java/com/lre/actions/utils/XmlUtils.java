@@ -20,15 +20,6 @@ public class XmlUtils {
 
     }
 
-    public static <T> T fromXml(String xml, Class<T> valueType) {
-        try {
-            return MAPPER.readValue(xml, valueType);
-        } catch (JsonProcessingException e) {
-            log.error("Failed to deserialize XML to {}: {}", valueType.getSimpleName(), e.getMessage());
-            throw new RuntimeException("XML deserialization error", e);
-        }
-    }
-
     public static String toXml(Object object) {
         try {
             return MAPPER.writeValueAsString(object);

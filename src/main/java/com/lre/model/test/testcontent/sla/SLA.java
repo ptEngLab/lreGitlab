@@ -13,7 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import static com.lre.actions.helpers.ConfigConstants.LRE_API_XMLNS;
+import static com.lre.actions.utils.ConfigConstants.LRE_API_XMLNS;
 
 @Data
 @NoArgsConstructor
@@ -48,13 +48,5 @@ public class SLA {
     @JacksonXmlProperty(localName = "AverageThroughput", namespace = LRE_API_XMLNS)
     private AvgThroughput avgThroughput;
 
-
-/*    // yaml data
-
-    @JsonProperty("ResTimePercentile")
-    private String yamlPercentile;
-
-    @JsonProperty("Transactions")
-    private List<Transaction> txns;*/
 
 }

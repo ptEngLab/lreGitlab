@@ -7,7 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import static com.lre.actions.helpers.ConfigConstants.LRE_API_XMLNS;
+import static com.lre.actions.utils.ConfigConstants.LRE_API_XMLNS;
 
 @Data
 @NoArgsConstructor

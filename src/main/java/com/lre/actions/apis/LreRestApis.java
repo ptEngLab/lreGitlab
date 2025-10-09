@@ -1,6 +1,6 @@
 package com.lre.actions.apis;
 
-import com.lre.actions.httpclient.HttpClientUtils;
+import com.lre.core.http.HttpClientUtils;
 import com.lre.actions.runmodel.LreTestRunModel;
 import com.lre.model.run.LreRunResponse;
 import com.lre.model.run.LreRunStatus;
@@ -22,7 +22,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
-import static com.lre.actions.helpers.ConfigConstants.*;
+import static com.lre.actions.utils.ConfigConstants.QUERY_PARAM;
+import static com.lre.actions.utils.ConfigConstants.TEST_INSTANCE_QUERY;
 
 @Slf4j
 public class LreRestApis implements AutoCloseable {

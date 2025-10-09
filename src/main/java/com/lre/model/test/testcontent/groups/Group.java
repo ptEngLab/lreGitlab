@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-import static com.lre.actions.helpers.ConfigConstants.LRE_API_XMLNS;
+import static com.lre.actions.utils.ConfigConstants.LRE_API_XMLNS;
 
 @Data
 @NoArgsConstructor
@@ -59,38 +59,4 @@ public class Group {
     @JacksonXmlProperty(localName = "Scheduler", namespace = LRE_API_XMLNS)
     private Scheduler scheduler;
 
-
-    // For YAML mapping
-    @JsonProperty("ScriptId")
-    private Integer yamlScriptId = 0;
-
-    @JsonProperty("ScriptName")
-    private String yamlScriptName;
-
-    @JsonProperty("HostNames")
-    private String yamlHostname;
-
-    @JsonProperty("HostTemplate")
-    private String yamlHostTemplate;
-
-    @JsonProperty("Pacing")
-    private String yamlPacing;
-
-    @JsonProperty("ThinkTime")
-    private String yamlThinkTime;
-
-    @JsonProperty("Log")
-    private String yamlLog;
-
-    @JsonProperty("JMeter")
-    private String yamlJMeter;
-
-    @JsonProperty("Selenium")
-    private String yamlSelenium;
-
-    @JsonProperty("JavaVM")
-    private String yamlJavaVM;
-
-    @JsonProperty("SchedulerData")
-    private List<String> schedulerItems;
 }

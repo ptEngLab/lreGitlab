@@ -1,7 +1,7 @@
 package com.lre.actions.runmodel;
 
 
-import com.lre.model.run.PostRunAction;
+import com.lre.model.enums.PostRunAction;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;

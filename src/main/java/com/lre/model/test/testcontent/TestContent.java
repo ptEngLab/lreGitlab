@@ -15,7 +15,6 @@ import com.lre.model.test.testcontent.monitorofw.MonitorOFW;
 import com.lre.model.test.testcontent.monitorprofile.MonitorProfile;
 import com.lre.model.test.testcontent.scheduler.Scheduler;
 import com.lre.model.test.testcontent.sla.SLA;
-import com.lre.model.test.testcontent.sla.SLAConfig;
 import com.lre.model.test.testcontent.workloadtype.WorkloadType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,7 +23,7 @@ import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.lre.actions.helpers.ConfigConstants.LRE_API_XMLNS;
+import static com.lre.actions.utils.ConfigConstants.LRE_API_XMLNS;
 
 @Data
 @NoArgsConstructor
@@ -86,28 +85,4 @@ public class TestContent {
     @JacksonXmlProperty(localName = "AutomaticTrending", namespace = LRE_API_XMLNS)
     private AutomaticTrending automaticTrending;
 
-
-    // YAML file specific fields
-
-    @JsonProperty("LgAmount")
-    private Integer lgAmount;
-
-    @JsonProperty("WorkloadTypeCode")
-    private Integer workloadTypeCode;
-
-    @JsonProperty("MonitorProfileId")
-    private String monitorProfileId;
-
-    @JsonProperty("MonitorOFWId")
-    private String monitorOFWId;
-
-    @JsonProperty("AnalysisTemplateId")
-    private String analysisTemplateId;
-
-    @JsonProperty("SchedulerData")
-    private List<String> schedulerItems;
-
-
-    @JsonProperty("SLAConfig")
-    private SLAConfig slaConfig;
 }

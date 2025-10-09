@@ -11,7 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.lre.actions.helpers.ConfigConstants.LRE_API_XMLNS;
+import static com.lre.actions.utils.ConfigConstants.LRE_API_XMLNS;
 
 @Data
 @NoArgsConstructor

@@ -3,7 +3,7 @@ package com.lre.actions.apis;
 import com.lre.actions.runmodel.LreTestRunModel;
 import lombok.Getter;
 
-import static com.lre.actions.helpers.ConfigConstants.*;
+import static com.lre.actions.utils.ConfigConstants.*;
 
 public class ApiUrlBuilder {
     private final String lreApiUrl;

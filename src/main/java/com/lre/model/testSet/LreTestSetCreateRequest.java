@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import static com.lre.actions.helpers.ConfigConstants.DEFAULT_TEST_SET_NAME;
+import static com.lre.actions.utils.ConfigConstants.DEFAULT_TEST_SET_NAME;
 
 @Data
 @AllArgsConstructor

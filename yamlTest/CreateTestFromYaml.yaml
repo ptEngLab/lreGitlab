@@ -1,79 +1,135 @@
-LgAmount: 12
-AnalysisTemplateId: 10
-WorkloadTypeCode: 6
-#Controller: "devserver"
-#MonitorProfileId: 1001, 1002
-#GlobalRTS:
-#  - GlobalName: RTS1
-#    GlobalPacing: "immediately"
-#    GlobalThinkTime: "modify:*2.0"
+#LgAmount: 12
+#AnalysisTemplateId: 10
+#WorkloadTypeCode: 6
+##Controller: "devserver"
+##MonitorProfileId: 1001, 1002
+##GlobalRTS:
+##  - GlobalName: RTS1
+##    GlobalPacing: "immediately"
+##    GlobalThinkTime: "modify:*2.0"
+##
 #
-#GlobalCommandLine:
-#  - Name: cmd1
-#    Value: command line 1
+#Groups:
+#  - Name: "SampleGroup"
+#    Vusers: 50
+#    ScriptName: "e2e/Optional"
+#    SchedulerData:
+#      - "Initialize: gradually:10u@30s"
+#      #      - "Start vusers: 10vu:gradually:2U@10s"
+#      #      - "Duration: 30 s"
+#      - "Duration: 30 s"
+#      #      - "Start vusers: 15vu:gradually:2U@10s"
+#      - "Stop vusers: 50vu:simultaneously"
+#    HostNames: "LG1, cloud1"
+#    HostTemplate: "cloud1 : 1"
+#    Pacing: fixed delay:5/3
+#
+#    #    ThinkTime: "modify:*2.0"
+##    Log: "extended:on error:15:trace"
+##    JavaVM: "JavaEnvClassPaths=lib\\junit.jar;lib\\hamcrest.jar;user_binaries\\myapp.jar,UserSpecifiedJdk=true,JdkHome=/usr/lib/jvm/java-17,UseXboot=false,EnableClassLoaderPerVuser=true,JavaVmParameters=-Xms128m -Xmx512m -Dspring.profiles.active=test"
+##    GlobalRTS: "RTS1"
+##    GlobalCommandLine: "cmd1"
+##
+##  - Name: "SampleGroup2"
+##    Vusers: 10
+##    ScriptId: 10
+##    HostNames: "LG1, MyLocalLG"
+##    GlobalRTS: "RTS1"
+##
+##  - Name: "SampleGroup3"
+##    Vusers: 15
+##    ScriptId: 11
+##    HostNames: "LG2"
+##    Pacing: "random interval: 10 - 15 / 5"
+##    ThinkTime: "random: 50 - 150 : 30"
+##    Log: ignore
+##    Selenium: "JREPath=C:\\java\\jdk,ClassPath=myclasspath.jar,TestNgFiles=testng.xml"
+##
+##
+#
+#AutomaticTrending:
+#  ReportId: 5
 
-Groups:
-  - Name: "SampleGroup"
-    Vusers: 50
-    ScriptName: "e2e/Optional"
-    SchedulerData:
-      - "Initialize: gradually:10u@30s"
-      #      - "Start vusers: 10vu:gradually:2U@10s"
-      #      - "Duration: 30 s"
-      - "Duration: 30 s"
-      #      - "Start vusers: 15vu:gradually:2U@10s"
-      - "Stop vusers: 50vu:simultaneously"
-    HostNames: "LG1, cloud1"
-    HostTemplate: "cloud1 : 1"
-    Pacing: fixed delay:5/3
+lgAmount: 4
+controller: "devserver"
+monitorProfileIds: "1001, 1002"
+automaticTrending:
+  reportId: 5
 
-    #    ThinkTime: "modify:*2.0"
-#    Log: "extended:on error:15:trace"
-#    JavaVM: "JavaEnvClassPaths=lib\\junit.jar;lib\\hamcrest.jar;user_binaries\\myapp.jar,UserSpecifiedJdk=true,JdkHome=/usr/lib/jvm/java-17,UseXboot=false,EnableClassLoaderPerVuser=true,JavaVmParameters=-Xms128m -Xmx512m -Dspring.profiles.active=test"
-#    GlobalRTS: "RTS1"
-#    GlobalCommandLine: "cmd1"
-#
-#  - Name: "SampleGroup2"
-#    Vusers: 10
-#    ScriptId: 10
-#    HostNames: "LG1, MyLocalLG"
-#    GlobalRTS: "RTS1"
-#
-#  - Name: "SampleGroup3"
-#    Vusers: 15
-#    ScriptId: 11
-#    HostNames: "LG2"
-#    Pacing: "random interval: 10 - 15 / 5"
-#    ThinkTime: "random: 50 - 150 : 30"
-#    Log: ignore
-#    Selenium: "JREPath=C:\\java\\jdk,ClassPath=myclasspath.jar,TestNgFiles=testng.xml"
-#
-#
-
-AutomaticTrending:
-  ReportId: 5
-
-SLAConfig:
+sla:
   # Average Response Time Configuration
-  AvgResponseTimeLoadCriteria: "Hits per Second"
-  AvgResponseTimeLoadRanges: [ 5, 10, 15 , 20 ]
-  AvgResponseTimeThresholds:
+  avgResponseTimeLoadCriteria: "Hits per Second"
+  avgResponseTimeLoadRanges: [ 5, 10, 15 , 20 ]
+  avgResponseTimeThresholds:
     landing_page: [ 5, 10, 15, 20 , 25 ]
     login: [ 5, 10, 15, 20 , 25 ]
     logout: [ 2, 5, 12 , 25, 30 ]
 
   # Errors Per Second Configuration
-  ErrorLoadCriteriaType: "Hits per Second"
-  ErrorLoadRanges: [ 5,10,15,20 ]
-  ErrorThreshold: [2, 3, 4, 5, 6]
+  errorLoadCriteriaType: "Hits per Second"
+  errorLoadRanges: [ 5,10,15,20 ]
+  errorThreshold: [2, 3, 4, 5, 6]
 
   # Percentile Response Time Configuration
-  PercentileResponseTimeThreshold: 95
-  PercentileResponseTimeTransactions:
-    landing_page: 5
-    login: 8
+#  percentileResponseTimeThreshold: 95
+#  percentileResponseTimeTransactions:
+#    landing_page: 5
+#    login: 8
 
-  TotalHits: 20
-  AverageHitsPerSecond: 50
-  TotalThroughput: 80000
-  AverageThroughput: 5000
+  totalHits: 20
+  avgHitsPerSecond: 50
+  totalThroughput: 80000
+  avgThroughput: 5000
+
+
+groups:
+  - name: "SampleGroup"
+    vusers: 50
+    script: "e2e/Optional"
+    scheduler:
+      - "Initialize: gradually:10u@30s"
+      - "Start vusers: 10vu:gradually:2U@10s"
+      - "Duration: 30 s"
+      - "Duration: 30 s"
+      - "Start vusers: 15vu:gradually:2U@10s"
+      - "Stop vusers: 50vu:simultaneously"
+    hostnames: "LG1, cloud1"
+    hostTemplate: "cloud1 : 1"
+    pacing: "fixed delay:5/3"
+    thinkTime: "modify:*2.0"
+    log: "extended:on error:15:trace"
+    javaVM: "JavaEnvClassPaths=lib\\junit.jar;lib\\hamcrest.jar;user_binaries\\myapp.jar,UserSpecifiedJdk=true,JdkHome=/usr/lib/jvm/java-17,UseXboot=false,EnableClassLoaderPerVuser=true,JavaVmParameters=-Xms128m -Xmx512m -Dspring.profiles.active=test"
+    globalRTS: "RTS1"
+    globalCommandLine: "cmd1"
+
+  - name: "SampleGroup2"
+    vusers: 10
+    script: "10"
+    hostnames: "LG1, MyLocalLG"
+    globalRTS: "RTS1"
+
+  - name: "SampleGroup3"
+    vusers: 15
+    script: "11"
+    hostnames: "LG2"
+    pacing: "random interval: 10 - 15 / 5"
+    thinkTime: "random: 50 - 150 : 30"
+    log: ignore
+    selenium: "JREPath=C:\\java\\jdk,ClassPath=myclasspath.jar,TestNgFiles=testng.xml"
+
+scheduler:
+  - "Initialize: gradually:10u@30s"
+  - "Start vusers: 10vu:gradually:2U@10s"
+  - "Duration: 30 s"
+  - "Duration: 30 s"
+  - "Start vusers: 15vu:gradually:2U@10s"
+  - "Stop vusers: 50vu:simultaneously"
+
+globalCommandLines:
+  - name: "cmd1"
+    value: "command line 1"
+
+globalRts:
+  - name: "RTS1"
+    pacing: "immediately"
+    thinkTime: "modify:*2.0"

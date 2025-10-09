@@ -1,6 +1,6 @@
 package com.lre.actions.apis;
 
-import com.lre.actions.httpclient.HttpRequestExecutor;
+import com.lre.core.http.HttpRequestExecutor;
 import com.lre.actions.utils.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.core5.http.ContentType;

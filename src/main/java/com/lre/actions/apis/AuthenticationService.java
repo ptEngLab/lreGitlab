@@ -1,30 +1,25 @@
 package com.lre.actions.apis;
 
-import com.lre.model.auth.AuthenticationClient;
-import com.lre.actions.httpclient.HttpRequestExecutor;
 import com.lre.actions.utils.JsonUtils;
-import lombok.AllArgsConstructor;
+import com.lre.core.http.HttpRequestExecutor;
+import com.lre.model.auth.AuthenticationClient;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
 import org.apache.hc.core5.net.URIBuilder;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
-import static com.lre.actions.helpers.ConfigConstants.*;
+import static com.lre.actions.utils.ConfigConstants.*;
 
 @Slf4j
-@AllArgsConstructor
-public class AuthenticationService {
-    private final CloseableHttpClient httpClient;
-    private final ApiUrlBuilder urlBuilder;
-
+public record AuthenticationService(CloseableHttpClient httpClient, ApiUrlBuilder urlBuilder) {
     public boolean login(String username, String password, boolean authenticateWithToken) {
         return authenticateWithToken
                 ? loginWithToken(username, password)

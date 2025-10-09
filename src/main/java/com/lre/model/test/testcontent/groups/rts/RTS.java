@@ -14,7 +14,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import static com.lre.actions.helpers.ConfigConstants.LRE_API_XMLNS;
+import static com.lre.actions.utils.ConfigConstants.LRE_API_XMLNS;
 
 @Slf4j
 @AllArgsConstructor
@@ -50,30 +50,5 @@ public class RTS {
     @JsonProperty("Selenium")
     @JacksonXmlProperty(localName = "Selenium", namespace = LRE_API_XMLNS)
     private Selenium seleniumSettings;
-
-
-    /* for reading input from yaml file */
-
-    @JsonProperty("GlobalName")
-    private String yamlGlobalRtsName;
-
-    @JsonProperty("GlobalPacing")
-    private String yamlGlobalRtsPacing;
-
-    @JsonProperty("GlobalThinkTime")
-    private String yamlGlobalRtsThinkTime;
-
-    @JsonProperty("GlobalLog")
-    private String yamlGlobalRtsLog;
-
-    @JsonProperty("GlobalJMeter")
-    private String yamlGlobalRtsJmeter;
-
-    @JsonProperty("GlobalSelenium")
-    private String yamlGlobalRtsSelenium;
-
-    @JsonProperty("GlobalJavaVM")
-    private String yamlGlobalRtsJavaVM;
-
 
 }

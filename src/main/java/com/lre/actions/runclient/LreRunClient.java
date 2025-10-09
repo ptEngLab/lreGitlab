@@ -3,8 +3,8 @@ package com.lre.actions.runclient;
 import com.lre.actions.apis.LreRestApis;
 import com.lre.model.run.LreRunStatus;
 import com.lre.actions.exceptions.LreException;
-import com.lre.actions.lre.*;
 import com.lre.actions.runmodel.LreTestRunModel;
+import com.lre.services.*;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

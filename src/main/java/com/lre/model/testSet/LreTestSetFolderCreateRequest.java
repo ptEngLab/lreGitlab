@@ -3,7 +3,7 @@ package com.lre.model.testSet;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
-import static com.lre.actions.helpers.ConfigConstants.DEFAULT_TEST_SET_FOLDER_NAME;
+import static com.lre.actions.utils.ConfigConstants.DEFAULT_TEST_SET_FOLDER_NAME;
 
 @Data
 public class LreTestSetFolderCreateRequest {

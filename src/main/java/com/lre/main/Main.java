@@ -1,7 +1,7 @@
 package com.lre.main;
 
-import com.lre.actions.config.ReadConfigFile;
-import com.lre.actions.helpers.LogHelper;
+import com.lre.core.config.ReadConfigFile;
+import com.lre.actions.utils.LogHelper;
 import com.lre.actions.runclient.LreRunClient;
 import com.lre.actions.runmodel.GitTestRunModel;
 import com.lre.actions.runmodel.LreTestRunModel;
