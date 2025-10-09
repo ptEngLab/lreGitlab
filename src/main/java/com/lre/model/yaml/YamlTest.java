@@ -11,7 +11,7 @@ public class YamlTest {
     private String controller;
     private Integer lgAmount;
     private Integer workloadTypeCode;
-    private String monitorProfileIds;
+    private List<Integer> monitorProfileIds;
     private String monitorOFWId;
     private String analysisTemplateId;
     private List<String> scheduler;

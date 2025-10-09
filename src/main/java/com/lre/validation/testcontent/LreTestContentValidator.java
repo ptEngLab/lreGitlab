@@ -170,20 +170,18 @@ public class LreTestContentValidator {
     }
 
     private void validateMonitorProfiles() {
-        String ids = yamlTest.getMonitorProfileIds();
+        List<Integer> ids = yamlTest.getMonitorProfileIds();
 
-        if (StringUtils.isNotBlank(ids)) {
-            List<MonitorProfile> profiles =
-                    Arrays.stream(ids.split(","))
-                            .map(String::trim)
-                            .filter(StringUtils::isNumeric)
-                            .map(Integer::valueOf)
-                            .map(MonitorProfile::new)
-                            .toList();
+        if (ids != null && !ids.isEmpty()) {
+            List<MonitorProfile> profiles = ids.stream()
+                    .filter(Objects::nonNull)
+                    .map(MonitorProfile::new)
+                    .toList();
 
             content.setMonitorProfiles(profiles);
         }
     }
+
 
     private void validateMonitorsOverFirewall() {
         String ids = yamlTest.getMonitorOFWId();

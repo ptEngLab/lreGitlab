@@ -4,7 +4,7 @@
   <WorkloadType>
     <Type>basic</Type>
     <SubType>by test</SubType>
-    <VusersDistributionMode>by number</VusersDistributionMode>
+    <VusersDistributionMode>by percentage</VusersDistributionMode>
   </WorkloadType>
   <LGDistribution>
     <Type>all to each group</Type>

@@ -1,61 +1,9 @@
-#LgAmount: 12
-#AnalysisTemplateId: 10
-#WorkloadTypeCode: 6
-##Controller: "devserver"
-##MonitorProfileId: 1001, 1002
-##GlobalRTS:
-##  - GlobalName: RTS1
-##    GlobalPacing: "immediately"
-##    GlobalThinkTime: "modify:*2.0"
-##
-#
-#Groups:
-#  - Name: "SampleGroup"
-#    Vusers: 50
-#    ScriptName: "e2e/Optional"
-#    SchedulerData:
-#      - "Initialize: gradually:10u@30s"
-#      #      - "Start vusers: 10vu:gradually:2U@10s"
-#      #      - "Duration: 30 s"
-#      - "Duration: 30 s"
-#      #      - "Start vusers: 15vu:gradually:2U@10s"
-#      - "Stop vusers: 50vu:simultaneously"
-#    HostNames: "LG1, cloud1"
-#    HostTemplate: "cloud1 : 1"
-#    Pacing: fixed delay:5/3
-#
-#    #    ThinkTime: "modify:*2.0"
-##    Log: "extended:on error:15:trace"
-##    JavaVM: "JavaEnvClassPaths=lib\\junit.jar;lib\\hamcrest.jar;user_binaries\\myapp.jar,UserSpecifiedJdk=true,JdkHome=/usr/lib/jvm/java-17,UseXboot=false,EnableClassLoaderPerVuser=true,JavaVmParameters=-Xms128m -Xmx512m -Dspring.profiles.active=test"
-##    GlobalRTS: "RTS1"
-##    GlobalCommandLine: "cmd1"
-##
-##  - Name: "SampleGroup2"
-##    Vusers: 10
-##    ScriptId: 10
-##    HostNames: "LG1, MyLocalLG"
-##    GlobalRTS: "RTS1"
-##
-##  - Name: "SampleGroup3"
-##    Vusers: 15
-##    ScriptId: 11
-##    HostNames: "LG2"
-##    Pacing: "random interval: 10 - 15 / 5"
-##    ThinkTime: "random: 50 - 150 : 30"
-##    Log: ignore
-##    Selenium: "JREPath=C:\\java\\jdk,ClassPath=myclasspath.jar,TestNgFiles=testng.xml"
-##
-##
-#
-#AutomaticTrending:
-#  ReportId: 5
-
 lgAmount: 4
 controller: "devserver"
-monitorProfileIds: "1001, 1002"
+workloadTypeCode: 2
+monitorProfileIds: [1001, 1002]
 automaticTrending:
   reportId: 5
-
 sla:
   # Average Response Time Configuration
   avgResponseTimeLoadCriteria: "Hits per Second"
@@ -80,8 +28,6 @@ sla:
   avgHitsPerSecond: 50
   totalThroughput: 80000
   avgThroughput: 5000
-
-
 groups:
   - name: "SampleGroup"
     vusers: 50
@@ -116,7 +62,6 @@ groups:
     thinkTime: "random: 50 - 150 : 30"
     log: ignore
     selenium: "JREPath=C:\\java\\jdk,ClassPath=myclasspath.jar,TestNgFiles=testng.xml"
-
 scheduler:
   - "Initialize: gradually:10u@30s"
   - "Start vusers: 10vu:gradually:2U@10s"
@@ -124,11 +69,9 @@ scheduler:
   - "Duration: 30 s"
   - "Start vusers: 15vu:gradually:2U@10s"
   - "Stop vusers: 50vu:simultaneously"
-
 globalCommandLines:
   - name: "cmd1"
     value: "command line 1"
-
 globalRts:
   - name: "RTS1"
     pacing: "immediately"
