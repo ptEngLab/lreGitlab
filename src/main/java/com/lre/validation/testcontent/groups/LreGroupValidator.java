@@ -14,10 +14,7 @@ import com.lre.model.yaml.YamlTest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -132,8 +129,9 @@ public record LreGroupValidator(LreRestApis restApis, TestContent content, YamlT
 
     private Scheduler validateGroupScheduler(YamlGroup group) {
         if (content.getWorkloadType().getWorkloadTypeAsStr().endsWith("group")) {
-            List<String> groupSchedulerData = Optional.ofNullable(group.getScheduler()).orElse(Collections.emptyList());
-            int groupVusers = Optional.ofNullable(group.getVusers()).orElse(0);
+            List<Map<String, String>> groupSchedulerData = Optional.ofNullable(group.getScheduler())
+                    .orElse(Collections.emptyList());
+             int groupVusers = Optional.ofNullable(group.getVusers()).orElse(0);
             return new SchedulerValidator(content).validateScheduler(groupSchedulerData, groupVusers);
         }
         return null;

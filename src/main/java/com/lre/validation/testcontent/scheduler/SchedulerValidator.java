@@ -3,18 +3,9 @@ package com.lre.validation.testcontent.scheduler;
 import com.lre.model.test.testcontent.TestContent;
 import com.lre.model.test.testcontent.scheduler.Scheduler;
 import com.lre.model.test.testcontent.scheduler.action.Action;
-import com.lre.model.test.testcontent.scheduler.action.duration.Duration;
-import com.lre.model.test.testcontent.scheduler.action.initialize.Initialize;
-import com.lre.model.test.testcontent.scheduler.action.startgroup.StartGroup;
-import com.lre.model.test.testcontent.scheduler.action.startvusers.StartVusers;
-import com.lre.model.test.testcontent.scheduler.action.stopvusers.StopVusers;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 import static com.lre.actions.utils.ConfigConstants.*;
 
@@ -24,11 +15,17 @@ public class SchedulerValidator {
     private final TestContent content;
     private final String workloadTypeStr;
 
-    private static final String START_GROUP = "startgroup:";
-    private static final String INITIALIZE = "initialize:";
-    private static final String START_VUSERS = "startvusers:";
-    private static final String DURATION = "duration:";
-    private static final String STOP_VUSERS = "stopvusers:";
+    private static final Set<String> SUPPORTED_ACTIONS = Set.of(
+            "startgroup", "initialize", "startvusers", "duration", "stopvusers"
+    );
+
+    // Action execution order constants
+    private static final int ORDER_START_GROUP = 0;
+    private static final int ORDER_INITIALIZE = 1;
+    private static final int ORDER_START_VUSERS = 2;
+    private static final int ORDER_DURATION = 3;
+    private static final int ORDER_STOP_VUSERS = 4;
+    private static final int ORDER_UNKNOWN = Integer.MAX_VALUE;
 
 
     public SchedulerValidator(TestContent content) {
@@ -36,50 +33,28 @@ public class SchedulerValidator {
         this.workloadTypeStr = content.getWorkloadType().getWorkloadTypeAsStr();
     }
 
-    public Scheduler validateScheduler(List<String> schedulerItems, int vusersCount) {
-        Scheduler scheduler;
-        switch (workloadTypeStr) {
-
-            case basicByTest -> {
-                return schedulerItems.isEmpty()
-                        ? Scheduler.getDefaultSchedulerForBasicByTest()
-                        : parseSchedulerItems(schedulerItems, vusersCount);
-            }
-
-            case realWorldByTest -> {
-                if (schedulerItems.isEmpty()) scheduler = Scheduler.getDefaultSchedulerForRBTest(vusersCount);
-                else scheduler = parseSchedulerItems(schedulerItems, vusersCount);
-                return scheduler;
-            }
-
-            case basicByGroup -> {
-                content.setScheduler(null); // Scheduler is per group. so root level scheduler will be null
-                if (schedulerItems.isEmpty()) scheduler = Scheduler.getDefaultSchedulerForBasicByGroup();
-                else scheduler = parseSchedulerItems(schedulerItems, vusersCount);
-                return scheduler;
-            }
-
-            case realWorldByGroup -> {
-                content.setScheduler(null); // Scheduler is per group, clear root scheduler
-                if (schedulerItems.isEmpty()) scheduler = Scheduler.getDefaultSchedulerForRBGrp(vusersCount);
-                else scheduler = parseSchedulerItems(schedulerItems, vusersCount);
-                return scheduler;
-            }
-
-            default -> {
-                log.info("No scheduler generated for workload type: {}", workloadTypeStr);
-                return new Scheduler();
-            }
+    /**
+     * Validates and parses the scheduler YAML provided as a list of maps.
+     * Falls back to default scheduler if input is null or empty.
+     */
+    public Scheduler validateScheduler(List<Map<String, String>> schedulerItems, int vusersCount) {
+        if (schedulerItems == null || schedulerItems.isEmpty()) {
+            log.info("No scheduler items provided, using default scheduler for workload type: {}", workloadTypeStr);
+            return getDefaultSchedulerForWorkload(vusersCount);
         }
-    }
 
-    private Scheduler parseSchedulerItems(List<String> schedulerItems, int vusersCount) {
         List<Action> parsedActions = new ArrayList<>();
-
-        for (String item : schedulerItems) {
-            String input = StringUtils.deleteWhitespace(item).toLowerCase(Locale.ROOT);
-            Action action = parseSchedulerItem(input, vusersCount);
-            if (action != null) parsedActions.add(action);
+        for (Map<String, String> item : schedulerItems) {
+            for (Map.Entry<String, String> entry : item.entrySet()) {
+                String key = entry.getKey().toLowerCase(Locale.ROOT).trim();
+                if (!SUPPORTED_ACTIONS.contains(key)) {
+                    log.error("Unsupported scheduler key: '{}'. Supported keys: {}", key, SUPPORTED_ACTIONS);
+                    return null;
+                }
+                String value = entry.getValue() == null ? "" : entry.getValue().trim();
+                Action action = parseSchedulerItemFromKeyValue(key, value, vusersCount);
+                if (action != null) parsedActions.add(action);
+            }
         }
 
         validateAction(parsedActions, vusersCount);
@@ -87,46 +62,66 @@ public class SchedulerValidator {
         return new Scheduler(parsedActions);
     }
 
-    private Action parseSchedulerItem(String input, int vusersCount) {
-        try {
-
-            if (input.startsWith(START_GROUP)) {
-                String groupInput = input.substring(START_GROUP.length()).trim();
-                StartGroup startGroupAction = new StartGroupValidator(content).validateGroup(groupInput);
-                return Action.builder().startGroup(startGroupAction).build();
-
-            } else if (input.startsWith(INITIALIZE)) {
-                String initInput = input.substring(INITIALIZE.length()).trim();
-                Initialize init = new InitializeValidator().validateInitialize(initInput);
-                return Action.builder().initialize(init).build();
-
-            } else if (input.startsWith(START_VUSERS)) {
-                String startInput = input.substring(START_VUSERS.length()).trim();
-                StartVusers startVusersAction = new StartVusersValidator(workloadTypeStr, vusersCount).validateStart(startInput);
-                return Action.builder().startVusers(startVusersAction).build();
-
-            } else if (input.startsWith(DURATION)) {
-                String durationInput = input.substring(DURATION.length()).trim();
-                Duration durationAction = new DurationValidator(workloadTypeStr).validateDuration(durationInput);
-                return Action.builder().duration(durationAction).build();
-
-            } else if (input.startsWith(STOP_VUSERS)) {
-                String stopInput = input.substring(STOP_VUSERS.length()).trim();
-                StopVusers stopVusersAction = new StopVusersValidator(workloadTypeStr, vusersCount).validateStop(stopInput);
-                return Action.builder().stopVusers(stopVusersAction).build();
-
-            } else {
-                log.error("Unsupported scheduler item: {}", input);
-                return null;
+    /**
+     * Returns a default scheduler based on workload type.
+     */
+    private Scheduler getDefaultSchedulerForWorkload(int vusersCount) {
+        return switch (workloadTypeStr) {
+            case basicByTest -> Scheduler.getDefaultSchedulerForBasicByTest();
+            case realWorldByTest -> Scheduler.getDefaultSchedulerForRBTest(vusersCount);
+            case basicByGroup -> {
+                content.setScheduler(null);
+                yield Scheduler.getDefaultSchedulerForBasicByGroup();
             }
+            case realWorldByGroup -> {
+                content.setScheduler(null);
+                yield Scheduler.getDefaultSchedulerForRBGrp(vusersCount);
+            }
+            default -> {
+                log.info("No default scheduler for workload type: {}", workloadTypeStr);
+                yield new Scheduler();
+            }
+        };
+    }
 
+    /**
+     * Parses a single scheduler key-value pair into an Action object.
+     */
+    private Action parseSchedulerItemFromKeyValue(String key, String value, int vusersCount) {
+        try {
+            return switch (key) {
+                case "startgroup" -> Action.builder()
+                        .startGroup(new StartGroupValidator(content).validateGroup(value))
+                        .build();
+                case "initialize" -> Action.builder()
+                        .initialize(new InitializeValidator().validateInitialize(value))
+                        .build();
+                case "startvusers" -> Action.builder()
+                        .startVusers(new StartVusersValidator(workloadTypeStr, vusersCount).validateStart(value))
+                        .build();
+                case "duration" -> Action.builder()
+                        .duration(new DurationValidator(workloadTypeStr).validateDuration(value))
+                        .build();
+                case "stopvusers" -> Action.builder()
+                        .stopVusers(new StopVusersValidator(workloadTypeStr, vusersCount).validateStop(value))
+                        .build();
+                default -> {
+                    log.error("Unsupported scheduler key: {}", key);
+                    yield null;
+                }
+            };
+        } catch (IllegalArgumentException e) {
+            log.error("Validation error for scheduler item '{}:{}': {}", key, value, e.getMessage());
+            return null;
         } catch (Exception e) {
-            log.error("Error parsing scheduler item '{}': {}", input, e.getMessage());
+            log.error("Unexpected error parsing scheduler item '{}:{}': {}", key, value, e.getMessage(), e);
             return null;
         }
     }
 
-
+    /**
+     * Validates actions, sorts them in execution order.
+     */
     private void validateAction(List<Action> actions, int vusersCount) {
         if (actions.isEmpty()) return;
 
@@ -135,18 +130,20 @@ public class SchedulerValidator {
         new StartVusersValidator(workloadTypeStr, vusersCount).validateStartVusersActions(actions);
         new DurationValidator(workloadTypeStr).validateDurationActions(actions);
         new StopVusersValidator(workloadTypeStr, vusersCount).validateStopVusersActions(actions);
+
         actions.sort(Comparator.comparingInt(this::getActionOrder));
-
     }
 
-    private int getActionOrder(Action a) {
-        if (a.getStartGroup() != null) return 0;
-        if (a.getInitialize() != null) return 1;
-        if (a.getStartVusers() != null) return 2;
-        if (a.getDuration() != null) return 3;
-        if (a.getStopVusers() != null) return 4;
-        return 5;
+    /**
+     * Determines execution order of actions.
+     */
+    private int getActionOrder(Action action) {
+        if (action.getStartGroup() != null) return ORDER_START_GROUP;
+        if (action.getInitialize() != null) return ORDER_INITIALIZE;
+        if (action.getStartVusers() != null) return ORDER_START_VUSERS;
+        if (action.getDuration() != null) return ORDER_DURATION;
+        if (action.getStopVusers() != null) return ORDER_STOP_VUSERS;
+        return ORDER_UNKNOWN;
     }
-
 
 }

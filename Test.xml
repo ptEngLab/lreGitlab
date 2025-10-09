@@ -2,9 +2,8 @@
 <Content xmlns="http://www.hp.com/PC/REST/API">
   <Controller>devserver</Controller>
   <WorkloadType>
-    <Type>basic</Type>
-    <SubType>by test</SubType>
-    <VusersDistributionMode>by percentage</VusersDistributionMode>
+    <Type>real-world</Type>
+    <SubType>by group</SubType>
   </WorkloadType>
   <LGDistribution>
     <Type>all to each group</Type>
@@ -44,7 +43,7 @@
   <Groups>
     <Group>
       <Name>SampleGroup</Name>
-      <Vusers>50</Vusers>
+      <Vusers>35</Vusers>
       <CommandLine>cmd1</CommandLine>
       <Script>
         <ID>200</ID>
@@ -65,6 +64,55 @@
           </LogOptions>
         </Log>
       </RTS>
+      <Scheduler>
+        <Actions>
+          <Action>
+            <StartGroup Type="immediately"/>
+          </Action>
+          <Action>
+            <Initialize Type="gradually">
+              <TimeInterval>
+                <Seconds>30</Seconds>
+              </TimeInterval>
+              <Vusers>10</Vusers>
+              <WaitAfterInit/>
+            </Initialize>
+          </Action>
+          <Action>
+            <StartVusers Type="gradually">
+              <Vusers>10</Vusers>
+              <Ramp>
+                <Vusers>2</Vusers>
+                <TimeInterval>
+                  <Seconds>10</Seconds>
+                </TimeInterval>
+              </Ramp>
+            </StartVusers>
+          </Action>
+          <Action>
+            <StartVusers Type="gradually">
+              <Vusers>15</Vusers>
+              <Ramp>
+                <Vusers>2</Vusers>
+                <TimeInterval>
+                  <Seconds>10</Seconds>
+                </TimeInterval>
+              </Ramp>
+            </StartVusers>
+          </Action>
+          <Action>
+            <Duration Type="until completion"/>
+          </Action>
+          <Action>
+            <Duration Type="until completion"/>
+          </Action>
+          <Action>
+            <StopVusers Type="simultaneously">
+              <Vusers>35</Vusers>
+            </StopVusers>
+          </Action>
+        </Actions>
+      </Scheduler>
     </Group>
     <Group>
       <Name>SampleGroup2</Name>
@@ -88,6 +136,33 @@
           </LogOptions>
         </Log>
       </RTS>
+      <Scheduler>
+        <Actions>
+          <Action>
+            <StartGroup Type="immediately"/>
+          </Action>
+          <Action>
+            <Initialize Type="just before vuser runs"/>
+          </Action>
+          <Action>
+            <StartVusers Type="simultaneously">
+              <Vusers>10</Vusers>
+            </StartVusers>
+          </Action>
+          <Action>
+            <Duration Type="run for">
+              <TimeInterval>
+                <Minutes>5</Minutes>
+              </TimeInterval>
+            </Duration>
+          </Action>
+          <Action>
+            <StopVusers Type="simultaneously">
+              <Vusers>10</Vusers>
+            </StopVusers>
+          </Action>
+        </Actions>
+      </Scheduler>
     </Group>
     <Group>
       <Name>SampleGroup3</Name>
@@ -111,53 +186,40 @@
         </ThinkTime>
         <Log Type="ignore"/>
         <Selenium>
-          <JREPath>C:\java\jdk</JREPath>
+          <JREPath>C:\\java\\jdk</JREPath>
           <ClassPath>myclasspath.jar</ClassPath>
-          <TestNgFiles>testng.xml</TestNgFiles>
+          <TestNgFiles>testng.xml                 # Selenium-specific JVM config</TestNgFiles>
         </Selenium>
       </RTS>
+      <Scheduler>
+        <Actions>
+          <Action>
+            <StartGroup Type="immediately"/>
+          </Action>
+          <Action>
+            <Initialize Type="just before vuser runs"/>
+          </Action>
+          <Action>
+            <StartVusers Type="simultaneously">
+              <Vusers>15</Vusers>
+            </StartVusers>
+          </Action>
+          <Action>
+            <Duration Type="run for">
+              <TimeInterval>
+                <Minutes>5</Minutes>
+              </TimeInterval>
+            </Duration>
+          </Action>
+          <Action>
+            <StopVusers Type="simultaneously">
+              <Vusers>15</Vusers>
+            </StopVusers>
+          </Action>
+        </Actions>
+      </Scheduler>
     </Group>
   </Groups>
-  <Scheduler>
-    <Actions>
-      <Action>
-        <Initialize Type="gradually">
-          <TimeInterval>
-            <Seconds>30</Seconds>
-          </TimeInterval>
-          <Vusers>10</Vusers>
-          <WaitAfterInit/>
-        </Initialize>
-      </Action>
-      <Action>
-        <StartVusers Type="gradually">
-          <Ramp>
-            <Vusers>2</Vusers>
-            <TimeInterval>
-              <Seconds>10</Seconds>
-            </TimeInterval>
-          </Ramp>
-        </StartVusers>
-      </Action>
-      <Action>
-        <Duration Type="run for">
-          <TimeInterval>
-            <Seconds>30</Seconds>
-          </TimeInterval>
-        </Duration>
-      </Action>
-      <Action>
-        <Duration Type="run for">
-          <TimeInterval>
-            <Seconds>30</Seconds>
-          </TimeInterval>
-        </Duration>
-      </Action>
-      <Action>
-        <StopVusers Type="simultaneously"/>
-      </Action>
-    </Actions>
-  </Scheduler>
   <SLA>
     <TransactionResponseTimeAverage>
       <LoadCriterion>hits_per_second</LoadCriterion>

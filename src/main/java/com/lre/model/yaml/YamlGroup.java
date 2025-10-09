@@ -3,6 +3,7 @@ package com.lre.model.yaml;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Map;
 
 @Data
 public class YamlGroup {
@@ -11,7 +12,7 @@ public class YamlGroup {
     private String script;
     private String hostnames;
     private String hostTemplate;
-    private List<String> scheduler;
+    private List<Map<String, String>> scheduler;
     private String globalRTS;
     private String globalCommandLine;
     private String pacing;

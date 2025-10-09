@@ -420,7 +420,7 @@ groups:
 
 1. **Mandatory Fields**
     - `name` Must be non-empty and must be unique per test.
-    - `vusers` Must be a postive integer and should be greater than zero
+    - `vusers` Must be a positive integer and should be greater than zero
     - `script` Must exist in LRE. You can provide either the script id or its path.
 2. Hostnames / LoadGenerators (LGs)
     - If `lgAmount` is not defined at root-level, `hostnames` is required.

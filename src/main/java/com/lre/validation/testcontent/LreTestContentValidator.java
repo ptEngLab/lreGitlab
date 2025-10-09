@@ -132,10 +132,15 @@ public class LreTestContentValidator {
     }
 
     private void validateScheduler() {
-        List<String> schedulerItems = Optional.ofNullable(yamlTest.getScheduler()).orElse(Collections.emptyList());
-        Scheduler scheduler = new SchedulerValidator(content).validateScheduler(schedulerItems, getScenarioTotalVusers());
+        List<Map<String, String>> schedulerItems = Optional.ofNullable(yamlTest.getScheduler())
+                .orElse(Collections.emptyList());
+
+        Scheduler scheduler = new SchedulerValidator(content)
+                .validateScheduler(schedulerItems, getScenarioTotalVusers());
+
         content.setScheduler(scheduler);
     }
+
 
     private void validateWorkloadType() {
         WorkloadType workloadType = WorkloadType.fromUserInput(yamlTest.getWorkloadTypeCode());

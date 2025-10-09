@@ -5,6 +5,7 @@ import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Data
 public class YamlTest {
@@ -14,7 +15,7 @@ public class YamlTest {
     private List<Integer> monitorProfileIds;
     private String monitorOFWId;
     private String analysisTemplateId;
-    private List<String> scheduler;
+    private List<Map<String, String>> scheduler;
     private SLAConfig sla;
     private List<YamlRTS> globalRts;
     private List<YamlCommandLine> globalCommandLines;
