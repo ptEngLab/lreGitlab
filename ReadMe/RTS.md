@@ -95,8 +95,8 @@ log: "extended:always:50:substitution,server,trace"   # Full extended logs (50KB
 
 - **Purpose:** Controls the delay between iterations for virtual users.
 - **Defaults:**
-- `numberOfIterations` = 1
-    - `StartNewIteration.type` = `immediately`
+  - `number of iterations` = 1
+  - `Start new iteration` = `immediately`
 
 **Supported formats:**
 
@@ -203,6 +203,7 @@ pacing: random interval:20-25
 
 - **Purpose:** Controls virtual user waiting time between actions.
 - **Format:** Can be multipliers or percentage ranges.
+- If not specified, defaults to `ignore` (no think time applied).
 - **ThinkTime Types**
 
 | Type     | Description                                                                |  
@@ -270,6 +271,7 @@ thinkTime: modify:*2.0
 
 - **Purpose:** Configures log level, on-error behavior, and trace options.
 - can be configured as **Ignore, Standard,** or **Extended**.
+- If not specified, defaults to `standard: on error: 10` (standard logs on error, 10KB cache).
 
 **5.1 Ignore Mode**
 
@@ -452,17 +454,17 @@ selenium: "JREPath=C:\\java\\jdk,ClassPath=myclasspath.jar,TestNgFiles=testng.xm
 **Example:**
 
 ```yaml  
-JavaVM: "UserSpecifiedJdk=true,JdkHome=C:\Java\jdk-17,JavaEnvClassPaths=lib\junit.jar;lib\hamcrest.jar,UseXboot=false"
+JavaVM: "UserSpecifiedJdk=true,JdkHome=C:\\Java\\jdk-17,JavaEnvClassPaths=lib/junit.jar;lib/hamcrest.jar,UseXboot=false"
 
 ```  
 
-| Example                                                                                                                        | Description                                             |  
-|--------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------|  
-| `JavaVM: "UserSpecifiedJdk=true,JdkHome=/usr/lib/jvm/java-17"`                                                                 | Uses a custom JDK from a specified path.                |  
-| `JavaVM: "JavaVmParameters=-Xmx512m,EnableClassLoaderPerVuser=true"`                                                           | Sets memory options and enables isolated class loaders. |  
-| `JavaVM: "JavaEnvClassPaths=lib/test.jar;lib/utils.jar,UseXboot=false"`                                                        | Defines custom classpaths and disables Xboot.           |  
-| `JavaVM: "UserSpecifiedJdk=false,JavaVmParameters=-Xms256m -Xmx1024m -verbose:gc"`                                             | Uses the default JDK but adds runtime parameters.       |  
-| `JavaVM: "JavaEnvClassPaths=user_binaries\myapp.jar,UserSpecifiedJdk=true,JdkHome=C:\Program Files\Java\jdk-11,UseXboot=true"` | Comprehensive setup for controlled JVM execution.       |  
+| Example                                                                                                                            | Description                                             |  
+|------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------|  
+| `JavaVM: "UserSpecifiedJdk=true,JdkHome=/usr/lib/jvm/java-17"`                                                                     | Uses a custom JDK from a specified path.                |  
+| `JavaVM: "JavaVmParameters=-Xmx512m,EnableClassLoaderPerVuser=true"`                                                               | Sets memory options and enables isolated class loaders. |  
+| `JavaVM: "JavaEnvClassPaths=lib/test.jar;lib/utils.jar,UseXboot=false"`                                                            | Defines custom classpaths and disables Xboot.           |  
+| `JavaVM: "UserSpecifiedJdk=false,JavaVmParameters=-Xms256m -Xmx1024m -verbose:gc"`                                                 | Uses the default JDK but adds runtime parameters.       |  
+| `JavaVM: "JavaEnvClassPaths=user_binaries\\myapp.jar,UserSpecifiedJdk=true,JdkHome=C:\\Program Files\\Java\\jdk-11,UseXboot=true"` | Comprehensive setup for controlled JVM execution.       |  
 
   
 ---
