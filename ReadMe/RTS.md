@@ -117,6 +117,7 @@ log: "extended:always:50:substitution,server,trace"   # Full extended logs (50KB
 # Start new iteration immediately after the previous  
 pacing: immediately  
 ```  
+![rts-pacing-immediate](./images/rts_pacing_immediately.png)
 
 **3.2. Fixed Delay**
 
