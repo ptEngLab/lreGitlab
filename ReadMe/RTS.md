@@ -329,16 +329,20 @@ thinkTime: modify:*2.0
     * You don’t need parameter substitutions, server responses, or deep traces.
 
     * **Examples:**
-
+  
  ```yaml  
   # Always log everything  
   log: standard:always  
  ```  
 
+![rts_log_always](./images/rts_log_always.png)
+
  ```yaml  
   # Log on error, limit cache to 20 KB  
   log: standard:on error:20  
  ```  
+
+![rts_log_on_error_standard.png](./images/rts_log_on_error_standard.png)
 
  ```yaml   
  # Log on error, limit cache to 1 KB  
@@ -369,14 +373,19 @@ thinkTime: modify:*2.0
  ```  
 
  ```yaml  
-  # On error, 50 KB cache, all flags  
-  log: extended:on error:50:substitution,server,trace  
+  # On error, 20 KB cache, all flags  
+  log: extended:on error:20:substitution,server,trace  
  ```  
+
+![rts_log_on_error_extended.png](./images/rts_log_on_error_extended.png)
+
 
  ```yaml  
   # On error, 25 KB cache, only substitutions and traces  
   log: extended:on error:25:substitution,trace  
  ```  
+
+![rts_log_on_error_extended_sub.png](./images/rts_log_on_error_extended_sub.png)
 
 # Complete Log Combinations Table
 
