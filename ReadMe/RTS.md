@@ -126,14 +126,15 @@ pacing: immediately
 * /Y → number of iterations (optional, defaults to 1).
 
 ```yaml  
-# Fixed 5-second delay, 3 iterations  
-pacing: fixed delay:5/3  
-```  
-
-```yaml  
 # Fixed 10-second delay, 1 iteration (default)  
 pacing: fixed delay:10  
 ```  
+
+```yaml  
+# Fixed 5-second delay, 3 iterations  
+pacing: fixed delay:5/3  
+```  
+![rts-pacing-immediate](./images/rts_pacing_fixed_delay.png)
 
 **3.3. Random Delay**
 
@@ -142,14 +143,16 @@ pacing: fixed delay:10
 * /Y → number of iterations (optional, defaults to 1).
 
 ```yaml  
+# Random delay between 5–15 seconds, 1 iteration  
+pacing: random delay:5-15  
+```  
+
+```yaml  
 # Random delay between 10–20 seconds, 2 iterations  
 pacing: random delay:10-20/2  
 ```  
 
-```yaml  
-# Random delay between 5–15 seconds, 1 iteration  
-pacing: random delay:5-15  
-```  
+![rts-pacing-immediate](./images/rts_pacing_random_delay.png)
 
 **3.4. Fixed Interval**
 
@@ -162,8 +165,11 @@ pacing: fixed interval:8
 
 ```yaml  
 # Fixed interval 12 seconds, 4 iterations  
-pacing: fixed interval:12/4  
+pacing: fixed interval:15/4  
 ```  
+
+![rts-pacing-immediate](./images/rts_pacing_fixed_interval.png)
+
 
 **3.5. Random Interval**
 
@@ -172,14 +178,17 @@ pacing: fixed interval:12/4
 * /Y → number of iterations (optional, defaults to 1).
 
 ```yaml  
+# Random interval 20–25 seconds, 1 iteration  
+pacing: random interval:20-25  
+```  
+
+```yaml  
 # Random interval between 10–15 seconds, 5 iterations  
 pacing: random interval:10-15/5  
 ```  
 
-```yaml  
-# Random interval 20–25 seconds, 1 iteration  
-pacing: random interval:20-25  
-```  
+![rts-pacing-immediate](./images/rts_pacing_random_interval.png)
+
 
 **3.6. Summary Table of Examples**
 
@@ -194,6 +203,7 @@ pacing: random interval:20-25
 ### ✅ Key Rules:
 
 * Iterations are optional, defaulting to 1.
+* Iterations are effective only if scheduler is set to run until completion. 
 * Delays and intervals must be positive integers.
 * Random ranges must satisfy min ≤ max.
 * Invalid formats will throw a PacingException.
