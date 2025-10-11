@@ -117,7 +117,7 @@ log: "extended:always:50:substitution,server,trace"   # Full extended logs (50KB
 # Start new iteration immediately after the previous  
 pacing: immediately  
 ```  
-![rts-pacing-immediate](./images/rts_pacing_immediately.png)
+![rts_pacing_immediately](./images/rts_pacing_immediately.png)
 
 **3.2. Fixed Delay**
 
@@ -131,10 +131,10 @@ pacing: fixed delay:10
 ```  
 
 ```yaml  
-# Fixed 5-second delay, 3 iterations  
-pacing: fixed delay:5/3  
+# Fixed 60-second delay, 3 iterations  
+pacing: fixed delay:60/3  
 ```  
-![rts-pacing-immediate](./images/rts_pacing_fixed_delay.png)
+![rts_pacing_fixed_delay](./images/rts_pacing_fixed_delay.png)
 
 **3.3. Random Delay**
 
@@ -152,7 +152,7 @@ pacing: random delay:5-15
 pacing: random delay:10-20/2  
 ```  
 
-![rts-pacing-immediate](./images/rts_pacing_random_delay.png)
+![rts_pacing_random_delay](./images/rts_pacing_random_delay.png)
 
 **3.4. Fixed Interval**
 
@@ -168,7 +168,7 @@ pacing: fixed interval:8
 pacing: fixed interval:15/4  
 ```  
 
-![rts-pacing-immediate](./images/rts_pacing_fixed_interval.png)
+![rts_pacing_fixed_interval](./images/rts_pacing_fixed_interval.png)
 
 
 **3.5. Random Interval**
@@ -187,7 +187,7 @@ pacing: random interval:20-25
 pacing: random interval:10-15/5  
 ```  
 
-![rts-pacing-immediate](./images/rts_pacing_random_interval.png)
+![rts_pacing_random_interval](./images/rts_pacing_random_interval.png)
 
 
 **3.6. Summary Table of Examples**
@@ -231,30 +231,54 @@ pacing: random interval:10-15/5
 thinkTime: ignore  
 ```  
 
+![rts-thinktime-ignore](./images/rts_thinktime_ignore.png)
+
+
+```yaml  
+# Replay recorded think time  
+thinkTime: replay
+```  
+
+![rts-thinktime-ignore](./images/rts_thinktime_replay.png)
+
 ```yaml  
 # Replay recorded think time, limit to 10 seconds max  
 thinkTime: replay:10  
 ```  
+
+![rts_thinktime_replay_limit](./images/rts_thinktime_replay_limit.png)
+
 
 ```yaml  
 # Modify think time: limit to 20 seconds, multiply by 1.5  
 thinkTime: modify:20*1.5  
 ```  
 
+![rts_thinktime_modify_limit](./images/rts_thinktime_modify_limit.png)
+
+
 ```yaml  
 # Random think time: between 50% and 150% of recorded, limit to 30 seconds  
 thinkTime: random:50-150:30  
 ```  
+
+![rts_thinktime_random_limit](./images/rts_thinktime_random_limit.png)
 
 ```yaml  
 # Random think time: between 80% and 120% of recorded (no time limit)  
 thinkTime: random:80-120  
 ```  
 
+![rts_thinktime_random](./images/rts_thinktime_random.png)
+
+
 ```yaml  
 # Modify think time: only multiply by 2.0 (no time limit)  
 thinkTime: modify:*2.0  
 ```  
+
+![rts_thinktime_modify](./images/rts_thinktime_modify.png)
+
 
 **4.2 Validation**
 
