@@ -25,7 +25,7 @@ This guide explains how to create YAML configuration files for defining LoadRunn
 
 **Required**: ✅ (mandatory — at least one group is required)
 
-**8.1 Description**
+### 1.1 Description
 
 The groups section defines the virtual user groups that participate in the test. Each group specifies:
 
@@ -39,7 +39,7 @@ The groups section defines the virtual user groups that participate in the test.
 
 > Note: At least one group must be defined. The test will fail validation if the `groups` array is empty.
 
-**8.2 YAML Structure**
+### 1.2 YAML Structure
 
 ```yaml
 groups:
@@ -96,13 +96,13 @@ groups:
 | `javaVM`            | String       | ❌        | JavaVM configuration string.                                                                              |
 | `scheduler`         | List<Object> | ❌        | Optional scheduler for vUser ramp-up. Each entry can include `rampUp` and `interval`.                     |
 
-**8.3 Validation Rules**
+### 1.3 Validation Rules
 
-1. **Mandatory Fields**
+**1. Mandatory Fields**
     - `name` Must be non-empty and must be unique per test.
     - `vusers` Must be a positive integer and should be greater than zero
     - `script` Must exist in LRE. You can provide either the script id or its path.
-2. Hostnames / LoadGenerators (LGs)
+**2. Hostnames / LoadGenerators (LGs)**
     - If `lgAmount` is not defined at root-level, `hostnames` is required.
     - Multiple hostnames can be assigned using a comma-separated string
     - Automatch LG names can be referred as `LG1`, `LG2` etc.
