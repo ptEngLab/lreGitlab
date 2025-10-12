@@ -16,7 +16,160 @@ This guide explains how to create YAML configuration files for defining LoadRunn
 
 ---
 
-## 1️⃣ Controller
+
+## 1️⃣ Groups
+
+**Field**: `groups`
+
+**Type**: `Array` of `Group` Objects
+
+**Required**: ✅ (mandatory — at least one group is required)
+
+**8.1 Description**
+
+The groups section defines the virtual user groups that participate in the test. Each group specifies:
+
+* Name of the group - unique for each groups in the test
+* Number of virtual users (vusers)
+* Assigned script
+* Load Generators (hostnames)
+* Optional local RTS (runtime settings) or references to global RTS
+* Optional group-level command line or reference to global command lines
+* Optional scheduler settings (for BY_GROUP workload types)
+
+> Note: At least one group must be defined. The test will fail validation if the `groups` array is empty.
+
+**8.2 YAML Structure**
+
+```yaml
+groups:
+  - name: "SampleGroup"                                   # mandatory, unique name for the group
+    vusers: 50                                            # mandatory, number of virtual users in the group
+    script: "e2e/Optional"                                # mandatory, script path or ID assigned to the group
+    hostnames: "LG1, cloud1"                              # if lgAmount is not specified at root level, mandatory
+    hostTemplate: "cloud1 : 1"                            # optional, host template for cloud LGs
+    globalRTS: "RTS1"                                     # optional, reference to a global RTS by name
+    globalCommandLine: "cmd1"                             # optional, reference to a global command line by name
+    scheduler: # optional, required for BY_GROUP workload type
+      - "Initialize: gradually:10u@30s"
+      - "Start vusers: 10vu:gradually:2U@10s"
+      - "Duration: 30 s"
+      - "Duration: 30 s"
+      - "Start vusers: 15vu:gradually:2U@10s"
+      - "Stop vusers: 50vu:simultaneously"
+
+  - name: "SampleGroup2"                                  # mandatory, unique name for the group
+    vusers: 10                                            # mandatory, number of virtual users in the group
+    script: "10"                                          # mandatory, script path or ID assigned to the group
+    hostnames: "LG1, MyLocalLG"                           # hostnames can be specified as mixed automatch and manual
+    globalRTS: "RTS1"                                     # optional, reference to a global RTS by name
+
+    # Global RTS is not used in this group. and no local RTS as well. the test will use default RTS for this group. 
+  - name: "SampleGroup3"
+    vusers: 15
+    script: "11"
+    hostnames: "LG2"
+
+    # Global RTS is not used in this group. defining RTS locally. 
+    pacing: "random interval: 10 - 15 / 5"
+    thinkTime: "random: 50 - 150 : 30"
+    log: ignore
+    selenium: "JREPath=C:\\java\\jdk,ClassPath=myclasspath.jar,TestNgFiles=testng.xml"
+
+```
+
+**Fields:**
+
+| Field               | Type         | Required | Description                                                                                               |
+|---------------------|--------------|----------|-----------------------------------------------------------------------------------------------------------|
+| `name`              | String       | ✅        | Name of the group. Must be unique within the test.                                                        |
+| `vusers`            | Integer      | ✅        | Number of virtual users in the group.                                                                     |
+| `script`            | String       | ✅        | Script ID or name to execute for the group.                                                               |
+| `hostnames`         | String       | ❌        | Comma-separated list of Load Generators (LGs) for this group. Ignored if `lgAmount` is set at root-level. |
+| `globalRTS`         | String       | ❌        | Name of a globally defined RTS from `globalRts`. If provided, local RTS fields are ignored.               |
+| `globalCommandLine` | String       | ❌        | Name of a globally defined Command Line.                                                                  |
+| `pacing`            | String       | ❌        | Local pacing settings for the group (used only if `globalRTS` is not set).                                |
+| `thinkTime`         | String       | ❌        | Local think time settings (used only if `globalRTS` is not set).                                          |
+| `log`               | String       | ❌        | Log configuration for the group.                                                                          |
+| `jmeter`            | String       | ❌        | JMeter configuration string.                                                                              |
+| `selenium`          | String       | ❌        | Selenium configuration string.                                                                            |
+| `javaVM`            | String       | ❌        | JavaVM configuration string.                                                                              |
+| `scheduler`         | List<Object> | ❌        | Optional scheduler for vUser ramp-up. Each entry can include `rampUp` and `interval`.                     |
+
+**8.3 Validation Rules**
+
+1. **Mandatory Fields**
+    - `name` Must be non-empty and must be unique per test.
+    - `vusers` Must be a positive integer and should be greater than zero
+    - `script` Must exist in LRE. You can provide either the script id or its path.
+2. Hostnames / LoadGenerators (LGs)
+    - If `lgAmount` is not defined at root-level, `hostnames` is required.
+    - Multiple hostnames can be assigned using a comma-separated string
+    - Automatch LG names can be referred as `LG1`, `LG2` etc.
+    - On-prem LG names can be referred as its fully qualified name as available in LRE. `localLG1`
+    - cloud LG names (e.g., cloud1) can also be provided. If cloud LGs are used, `hostTemplate` is recommended to be
+      defined.
+    - `hostTemplate` is optional and can be used to specify cloud LG template id or cloud template name.
+
+**3. RTS (Runtime Settings)**
+
+- **If `globalRTS` is defined:**
+    - The group uses the referenced global RTS.
+    - Local RTS settings (`pacing`, `thinkTime`, `log`, `jmeter`, `selenium`, `javaVM`) are not required. if defined,
+      they will be ignored.
+    - Validator throws an error if the referenced `globalRTS` does not exist.
+
+- **If `globalRTS` is omitted:**
+    - Local RTS can be defined using the `pacing`, `thinkTime`, `log`, `jmeter`, `selenium`, and `javaVM` fields.
+    - Validator applies defaults for missing RTS fields.
+
+**4. Command Lines**
+
+- If `globalCommandLine` is defined, validator ensures the reference exists in global command lines.
+- Local command lines (group-specific) can also be applied; otherwise, they are omitted.
+
+**5. Scheduler**
+
+- Required for `BY_GROUP` workload type.
+- Optional for other workload types (`BY_TEST` or `GOAL_ORIENTED`).
+- Scheduler configuration must match the number of Vusers in the group.
+
+### Examples
+
+**Group using Global RTS and Global Command Line:**
+
+```yaml
+groups:
+  - name: "FrontendGroup"
+    vusers: 20
+    script: "frontend_script"
+    hostnames: "LG1, LG2"
+    globalRTS: "RTS1"
+    globalCommandLine: "CmdLine1"
+
+```
+
+**Group with Local RTS and Scheduler (no global references):**
+
+```yaml
+groups:
+  - name: "BackendGroup"
+    vusers: 15
+    script: "backend_script"
+    hostnames: "LG3"
+    pacing: "fixed delay:5/3"
+    thinkTime: "modify:*1.5"
+    log: "extended:on error:10:trace"
+    jmeter: "StartMeasurements=true"
+    javaVM: "UserSpecifiedJdk=true,JdkHome=/usr/lib/jvm/java-17"
+
+
+```
+
+> Using global RTS is recommended when multiple groups share identical runtime settings, simplifying YAML maintenance.
+> Local RTS should only be used when per-group customization is required.
+
+## 2️⃣ Controller
 
 **Field:** `controller`  
 **Type:** `String`  
@@ -49,7 +202,7 @@ controller: "devserver"
 > Otherwise, omit this section to allow LRE to allocate an available controller.
 ---
 
-## 2️⃣ Workload Type
+## 3️⃣ Workload Type
 
 **Field:** `workloadTypeCode`  
 **Type:** `Integer`  
@@ -96,7 +249,7 @@ workloadTypeCode: 2
 
 ---
 
-## 3️⃣ LG assignment
+## 4️⃣ LG assignment
 
 **Field:** `lgAmount`  
 **Type:** `Integer`  
@@ -138,36 +291,6 @@ groups:
 ```
 
 > LGs are defined individually for each group.
-
----
-
-## 4️⃣ Monitor Profiles
-
-**Field:** `monitorProfileIds`  
-**Type:** `List<Integer>`  
-**Required:** ❌ (optional)
-
-**Description:**
-
-- Specifies a list of Monitor Profiles to attach to the test.
-- Each entry corresponds to a valid **Monitor Profile ID** in LRE.
-- Optional — if omitted, no monitor profiles will be attached.
-
-**Validation rules:**
-
-- Only non-null integers are considered.
-- If the list is empty or null, no profiles are attached.
-- Each ID must correspond to a valid Monitor Profile in LRE (validation is done server-side).
-
-**Example:**
-
-```yaml
-lgAmount: 4
-workloadTypeCode: 1
-monitorProfileIds: [ 1001, 1002, 1003 ]
-```
-
-> The test will attach Monitor Profiles with IDs 1001, 1002, and 1003.
 
 ---
 
@@ -337,157 +460,38 @@ sla:
 
 ```
 
-## 8️⃣ Groups
+---
 
-**Field**: `groups`
 
-**Type**: `Array` of `Group` Objects
 
-**Required**: ✅ (mandatory — at least one group is required)
 
-**8.1 Description**
+## 8️⃣ Monitor Profiles
 
-The groups section defines the virtual user groups that participate in the test. Each group specifies:
+**Field:** `monitorProfileIds`  
+**Type:** `List<Integer>`  
+**Required:** ❌ (optional)
 
-* Name of the group - unique for each groups in the test
-* Number of virtual users (vusers)
-* Assigned script
-* Load Generators (hostnames)
-* Optional local RTS (runtime settings) or references to global RTS
-* Optional group-level command line or reference to global command lines
-* Optional scheduler settings (for BY_GROUP workload types)
+**Description:**
 
-> Note: At least one group must be defined. The test will fail validation if the `groups` array is empty.
+- Specifies a list of Monitor Profiles to attach to the test.
+- Each entry corresponds to a valid **Monitor Profile ID** in LRE.
+- Optional — if omitted, no monitor profiles will be attached.
 
-**8.2 YAML Structure**
+**Validation rules:**
 
-```yaml
-groups:
-  - name: "SampleGroup"                                   # mandatory, unique name for the group
-    vusers: 50                                            # mandatory, number of virtual users in the group
-    script: "e2e/Optional"                                # mandatory, script path or ID assigned to the group
-    hostnames: "LG1, cloud1"                              # if lgAmount is not specified at root level, mandatory
-    hostTemplate: "cloud1 : 1"                            # optional, host template for cloud LGs
-    globalRTS: "RTS1"                                     # optional, reference to a global RTS by name
-    globalCommandLine: "cmd1"                             # optional, reference to a global command line by name
-    scheduler: # optional, required for BY_GROUP workload type
-      - "Initialize: gradually:10u@30s"
-      - "Start vusers: 10vu:gradually:2U@10s"
-      - "Duration: 30 s"
-      - "Duration: 30 s"
-      - "Start vusers: 15vu:gradually:2U@10s"
-      - "Stop vusers: 50vu:simultaneously"
+- Only non-null integers are considered.
+- If the list is empty or null, no profiles are attached.
+- Each ID must correspond to a valid Monitor Profile in LRE (validation is done server-side).
 
-  - name: "SampleGroup2"                                  # mandatory, unique name for the group
-    vusers: 10                                            # mandatory, number of virtual users in the group
-    script: "10"                                          # mandatory, script path or ID assigned to the group
-    hostnames: "LG1, MyLocalLG"                           # hostnames can be specified as mixed automatch and manual
-    globalRTS: "RTS1"                                     # optional, reference to a global RTS by name
-
-    # Global RTS is not used in this group. and no local RTS as well. the test will use default RTS for this group. 
-  - name: "SampleGroup3"
-    vusers: 15
-    script: "11"
-    hostnames: "LG2"
-
-    # Global RTS is not used in this group. defining RTS locally. 
-    pacing: "random interval: 10 - 15 / 5"
-    thinkTime: "random: 50 - 150 : 30"
-    log: ignore
-    selenium: "JREPath=C:\\java\\jdk,ClassPath=myclasspath.jar,TestNgFiles=testng.xml"
-
-```
-
-**Fields:**
-
-| Field               | Type         | Required | Description                                                                                               |
-|---------------------|--------------|----------|-----------------------------------------------------------------------------------------------------------|
-| `name`              | String       | ✅        | Name of the group. Must be unique within the test.                                                        |
-| `vusers`            | Integer      | ✅        | Number of virtual users in the group.                                                                     |
-| `script`            | String       | ✅        | Script ID or name to execute for the group.                                                               |
-| `hostnames`         | String       | ❌        | Comma-separated list of Load Generators (LGs) for this group. Ignored if `lgAmount` is set at root-level. |
-| `globalRTS`         | String       | ❌        | Name of a globally defined RTS from `globalRts`. If provided, local RTS fields are ignored.               |
-| `globalCommandLine` | String       | ❌        | Name of a globally defined Command Line.                                                                  |
-| `pacing`            | String       | ❌        | Local pacing settings for the group (used only if `globalRTS` is not set).                                |
-| `thinkTime`         | String       | ❌        | Local think time settings (used only if `globalRTS` is not set).                                          |
-| `log`               | String       | ❌        | Log configuration for the group.                                                                          |
-| `jmeter`            | String       | ❌        | JMeter configuration string.                                                                              |
-| `selenium`          | String       | ❌        | Selenium configuration string.                                                                            |
-| `javaVM`            | String       | ❌        | JavaVM configuration string.                                                                              |
-| `scheduler`         | List<Object> | ❌        | Optional scheduler for vUser ramp-up. Each entry can include `rampUp` and `interval`.                     |
-
-**8.3 Validation Rules**
-
-1. **Mandatory Fields**
-    - `name` Must be non-empty and must be unique per test.
-    - `vusers` Must be a positive integer and should be greater than zero
-    - `script` Must exist in LRE. You can provide either the script id or its path.
-2. Hostnames / LoadGenerators (LGs)
-    - If `lgAmount` is not defined at root-level, `hostnames` is required.
-    - Multiple hostnames can be assigned using a comma-separated string
-    - Automatch LG names can be referred as `LG1`, `LG2` etc.
-    - On-prem LG names can be referred as its fully qualified name as available in LRE. `localLG1`
-    - cloud LG names (e.g., cloud1) can also be provided. If cloud LGs are used, `hostTemplate` is recommended to be
-      defined.
-    - `hostTemplate` is optional and can be used to specify cloud LG template id or cloud template name.
-
-**3. RTS (Runtime Settings)**
-
-- **If `globalRTS` is defined:**
-    - The group uses the referenced global RTS.
-    - Local RTS settings (`pacing`, `thinkTime`, `log`, `jmeter`, `selenium`, `javaVM`) are not required. if defined,
-      they will be ignored.
-    - Validator throws an error if the referenced `globalRTS` does not exist.
-
-- **If `globalRTS` is omitted:**
-    - Local RTS can be defined using the `pacing`, `thinkTime`, `log`, `jmeter`, `selenium`, and `javaVM` fields.
-    - Validator applies defaults for missing RTS fields.
-
-**4. Command Lines**
-
-- If `globalCommandLine` is defined, validator ensures the reference exists in global command lines.
-- Local command lines (group-specific) can also be applied; otherwise, they are omitted.
-
-**5. Scheduler**
-
-- Required for `BY_GROUP` workload type.
-- Optional for other workload types (`BY_TEST` or `GOAL_ORIENTED`).
-- Scheduler configuration must match the number of Vusers in the group.
-
-### Examples
-
-**Group using Global RTS and Global Command Line:**
+**Example:**
 
 ```yaml
-groups:
-  - name: "FrontendGroup"
-    vusers: 20
-    script: "frontend_script"
-    hostnames: "LG1, LG2"
-    globalRTS: "RTS1"
-    globalCommandLine: "CmdLine1"
-
+lgAmount: 4
+workloadTypeCode: 1
+monitorProfileIds: [ 1001, 1002, 1003 ]
 ```
 
-**Group with Local RTS and Scheduler (no global references):**
-
-```yaml
-groups:
-  - name: "BackendGroup"
-    vusers: 15
-    script: "backend_script"
-    hostnames: "LG3"
-    pacing: "fixed delay:5/3"
-    thinkTime: "modify:*1.5"
-    log: "extended:on error:10:trace"
-    jmeter: "StartMeasurements=true"
-    javaVM: "UserSpecifiedJdk=true,JdkHome=/usr/lib/jvm/java-17"
-
-
-```
-
-> Using global RTS is recommended when multiple groups share identical runtime settings, simplifying YAML maintenance.
-> Local RTS should only be used when per-group customization is required.
+> The test will attach Monitor Profiles with IDs 1001, 1002, and 1003.
 
 ---
 
