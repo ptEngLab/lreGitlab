@@ -169,6 +169,58 @@ groups:
 > Using global RTS is recommended when multiple groups share identical runtime settings, simplifying YAML maintenance.
 > Local RTS should only be used when per-group customization is required.
 
+## 2️⃣ Scheduler
+
+**Field:** `scheduler`  
+**Type:** `Object` (`Scheduler`)  
+**Required:** ✅ (mandatory for `BY_GROUP` workload type; optional otherwise)
+
+**Description:**
+
+- Defines how a test executes over time — controlling how virtual users (Vusers) or groups are **initialized, started, held, and stopped**. 
+- Its structure depends on the **workload type** (`BASIC` or `REAL_WORLD`) and scope (`BY_TEST` or `BY_GROUP`).
+- If omitted, default values are assigned based on workload type
+
+### [Refer to Scheduler documentation for detailed syntax and examples.](ReadMe/Scheduler.md)
+
+### Examples
+
+**Example 1**. Minimal scheduler for BASIC/BY TEST/BY NUMBER (defaults applied)
+
+```yaml
+groups:
+  - name: "GroupA"
+    vusers: 50
+    script: "e2e/script1"
+
+  - name: "GroupB"
+    vusers: 20
+    script: "e2e/script2"
+
+scheduler:
+  - duration: "1h"
+```
+
+**Example 2**
+
+```yaml
+groups:
+  - name: "GroupA"
+    vusers: 50
+    script: "e2e/script1"
+
+  - name: "GroupB"
+    vusers: 20
+    script: "e2e/script2"
+
+scheduler:
+  - startVusers: "gradually:5u@15s"
+  - duration: "1h"
+  - stopVusers: "gradually:5u@15s"
+```
+
+---
+ 
 ## 2️⃣ Controller
 
 **Field:** `controller`  

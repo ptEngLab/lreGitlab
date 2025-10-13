@@ -172,3 +172,142 @@ groups:
 
 ```
 
+
+### Few examples for individual actions:
+
+#### Example: **StartGroup**
+
+StartGroup is optional. If omitted, defaults to `immediately`
+
+```yaml
+scheduler:
+  - startGroup: "immediately"
+```
+StartGroup with delay of 30 min after the load test begins
+
+```yaml
+scheduler:
+  - startGroup: "delay:30m"
+```
+StartGroup when group named `GroupA` finishes
+
+```yaml
+scheduler:
+  - startGroup: "after GroupA"
+```
+
+#### Example: **Initialize**
+
+Initialize action is optional. If omitted, defaults to `just before` which means, Vusers are initialized just before it runs
+
+```yaml
+scheduler:
+  - initialize: "just before"
+```
+Initialize `All Vusers simultaneously`
+
+```yaml
+scheduler:
+  - initialize: "simultaneously"
+```
+
+Initialize `All Vusers simultaneously` and wait for 30 seconds after initialization
+
+```yaml
+scheduler:
+  - initialize: "simultaneously+wait:30s"
+```
+
+Initialize 5 users every 10 seconds gradually
+
+```yaml
+scheduler:
+  - initialize: "gradually:5u@10s"
+```
+
+Initialize 5 users every 10 seconds gradually and wait for 2 minutes after initialization
+
+```yaml
+scheduler:
+  - initialize: "gradually:5u@10s+wait:2m"
+```
+
+#### Example: **StartVusers**
+
+StartVusers action is optional. If omitted, defaults to `All Vusers Simultaneously`.
+
+```yaml
+scheduler:
+  - startVusers: "simultaneously"
+```
+
+Start all VUsers gradually 2 users every 10 seconds
+
+```yaml
+scheduler:
+  - startVusers: "gradually:2u@10s"
+```
+
+For Real-World workload type, We can assign the number vusers to be started as below. example, start 50 vusers simultaneously
+
+```yaml
+scheduler:
+  - startVusers: "50vu:simultaneously"
+```
+
+Example shows - Start 50 users, gradually 2 users every 10 seconds
+
+```yaml
+scheduler:
+  - startVusers: "50vu:gradually:2u@10s"
+```
+
+
+#### Example: **Duration**
+
+Duration action is optional. If omitted, defaults to `until complete` for Basic by Test workload type. For Real World type, it is set to run for 5 minute.
+
+```yaml
+scheduler:
+  - duration: "until complete"
+```
+
+Run for 1 hour 30 min 20 seconds
+
+```yaml
+scheduler:
+  - duration: "1h30m20s"
+```
+
+
+#### Example: **StopVusers**
+
+StopVusers action is optional. If omitted, defaults to `All Vusers Simultaneously`.
+
+```yaml
+scheduler:
+  - stopVusers: "simultaneously"
+```
+
+Stop all VUsers gradually 2 users every 10 seconds
+
+```yaml
+scheduler:
+  - stopVusers: "gradually:2u@10s"
+```
+
+For Real-World workload type, We can assign the number vusers to be stopped as below. example, stop 50 vusers simultaneously
+
+```yaml
+scheduler:
+  - stopVusers: "50vu:simultaneously"
+```
+
+Example shows - Stop 50 users, gradually 2 users every 10 seconds
+
+```yaml
+scheduler:
+  - stopVusers: "50vu:gradually:2u@10s"
+```
+
+
