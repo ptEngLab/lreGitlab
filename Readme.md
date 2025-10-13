@@ -16,7 +16,6 @@ This guide explains how to create YAML configuration files for defining LoadRunn
 
 ---
 
-
 ## 1️⃣ Groups
 
 **Field**: `groups`
@@ -99,17 +98,18 @@ groups:
 ### 1.3 Validation Rules
 
 **1. Mandatory Fields**
-    - `name` Must be non-empty and must be unique per test.
-    - `vusers` Must be a positive integer and should be greater than zero
-    - `script` Must exist in LRE. You can provide either the script id or its path.
-**2. Hostnames / LoadGenerators (LGs)**
-    - If `lgAmount` is not defined at root-level, `hostnames` is required.
-    - Multiple hostnames can be assigned using a comma-separated string
-    - Automatch LG names can be referred as `LG1`, `LG2` etc.
-    - On-prem LG names can be referred as its fully qualified name as available in LRE. `localLG1`
-    - cloud LG names (e.g., cloud1) can also be provided. If cloud LGs are used, `hostTemplate` is recommended to be
-      defined.
-    - `hostTemplate` is optional and can be used to specify cloud LG template id or cloud template name.
+
+- `name` Must be non-empty and must be unique per test.
+- `vusers` Must be a positive integer and should be greater than zero
+- `script` Must exist in LRE. You can provide either the script id or its path.
+  **2. Hostnames / LoadGenerators (LGs)**
+- If `lgAmount` is not defined at root-level, `hostnames` is required.
+- Multiple hostnames can be assigned using a comma-separated string
+- Automatch LG names can be referred as `LG1`, `LG2` etc.
+- On-prem LG names can be referred as its fully qualified name as available in LRE. `localLG1`
+- cloud LG names (e.g., cloud1) can also be provided. If cloud LGs are used, `hostTemplate` is recommended to be
+  defined.
+- `hostTemplate` is optional and can be used to specify cloud LG template id or cloud template name.
 
 **3. RTS (Runtime Settings)**
 
@@ -218,15 +218,15 @@ controller: "devserver"
 
 **Valid values:**
 
-| Code | Type          | SubType  | Scheduler Placement   |
-|------|---------------|----------|-----------------------|
-| 1    | BASIC         | BY_TEST  | Root-level allowed    |
-| 2    | BASIC         | BY_TEST  | Root-level allowed    |
-| 3    | BASIC         | BY_GROUP | Group-level only      |
-| 4    | REAL_WORLD    | BY_TEST  | Root-level allowed    |
-| 5    | REAL_WORLD    | BY_TEST  | Root-level allowed    |
-| 6    | REAL_WORLD    | BY_GROUP | Group-level only      |
-| 7    | GOAL_ORIENTED | -        | Controlled internally |
+| Code | Type          | SubType  | VuserDistributionMode | Scheduler Placement   |
+|------|---------------|----------|-----------------------|-----------------------|
+| 1    | BASIC         | BY_TEST  | BY_NUMBER             | Root-level allowed    |
+| 2    | BASIC         | BY_TEST  | BY_PERCENTAGE         | Root-level allowed    |
+| 3    | BASIC         | BY_GROUP | -                     | Group-level only      |
+| 4    | REAL_WORLD    | BY_TEST  | BY_NUMBER             | Root-level allowed    |
+| 5    | REAL_WORLD    | BY_TEST  | BY_PERCENTAGE         | Root-level allowed    |
+| 6    | REAL_WORLD    | BY_GROUP | -                     | Group-level only      |
+| 7    | GOAL_ORIENTED | -        | -                     | Controlled internally |
 
 **Notes:**
 
@@ -461,9 +461,6 @@ sla:
 ```
 
 ---
-
-
-
 
 ## 8️⃣ Monitor Profiles
 

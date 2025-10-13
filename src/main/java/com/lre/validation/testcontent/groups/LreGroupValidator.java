@@ -94,14 +94,7 @@ public record LreGroupValidator(LreRestApis restApis, TestContent content, YamlT
             ));
         }
 
-        group.setRts(match.get());
-
-        if (StringUtils.isNotBlank(yamlGroup.getJmeter()) ||
-                StringUtils.isNotBlank(yamlGroup.getSelenium()) ||
-                StringUtils.isNotBlank(yamlGroup.getJavaVM())) {
-            log.warn("Group '{}' references GlobalRTS '{}'. Local RTS definitions (JMeter, Selenium, JavaVM) will be ignored.",
-                    yamlGroup.getName(), yamlGroup.getGlobalRTS());
-        }
+        group.setGlobalRTS(match.get().getName());
 
         log.debug("Group '{}' successfully bound to GlobalRTS '{}'", yamlGroup.getName(), yamlGroup.getGlobalRTS());
     }

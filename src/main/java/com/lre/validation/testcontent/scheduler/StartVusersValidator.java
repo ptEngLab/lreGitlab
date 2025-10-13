@@ -47,7 +47,7 @@ public record StartVusersValidator(String workloadType, int vusersCount) {
 
     private void setVusersForRealWorld(StartVusers startVusers, Matcher matcher) {
         String startVusersCount = matcher.group("vusersCount");
-        if (realWorldByGroup.equalsIgnoreCase(workloadType)) {
+        if (realWorldByGroup.equalsIgnoreCase(workloadType) || realWorldByTest.equalsIgnoreCase(workloadType)) {
             if (StringUtils.isNotEmpty(startVusersCount)) startVusers.setVusersFromString(startVusersCount);
             else startVusers.setVusers(vusersCount);
         }

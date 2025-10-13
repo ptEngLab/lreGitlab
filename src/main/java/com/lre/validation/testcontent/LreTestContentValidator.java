@@ -60,7 +60,7 @@ public class LreTestContentValidator {
         validateMonitorsOverFirewall();
         validateGlobalRts();
         validateGlobalCommandLines();
-        validateScheduler();
+        validateGlobalScheduler();
         validateGroups();
         validateAnalysisTemplate();
         validateAutomaticTrendReportData();
@@ -75,7 +75,6 @@ public class LreTestContentValidator {
 
         return content;
     }
-
 
 
     private YamlTest getTestContentFromYaml() {
@@ -131,14 +130,20 @@ public class LreTestContentValidator {
         new SLAValidator(content, yamlTest).validateSLA();
     }
 
-    private void validateScheduler() {
-        List<Map<String, String>> schedulerItems = Optional.ofNullable(yamlTest.getScheduler())
-                .orElse(Collections.emptyList());
+    private void validateGlobalScheduler() {
+        String workloadType = content.getWorkloadType().getWorkloadTypeAsStr();
+        if (workloadType.endsWith("group")) {
+            content.setScheduler(null);
+        } else {
+            List<Map<String, String>> schedulerItems = Optional.ofNullable(yamlTest.getScheduler())
+                    .orElse(Collections.emptyList());
 
-        Scheduler scheduler = new SchedulerValidator(content)
-                .validateScheduler(schedulerItems, getScenarioTotalVusers());
+            Scheduler scheduler = new SchedulerValidator(content)
+                    .validateScheduler(schedulerItems, getScenarioTotalVusers());
 
-        content.setScheduler(scheduler);
+            content.setScheduler(scheduler);
+
+        }
     }
 
 

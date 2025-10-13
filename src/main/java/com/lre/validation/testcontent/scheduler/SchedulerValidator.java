@@ -19,15 +19,6 @@ public class SchedulerValidator {
             "startgroup", "initialize", "startvusers", "duration", "stopvusers"
     );
 
-    // Action execution order constants
-    private static final int ORDER_START_GROUP = 0;
-    private static final int ORDER_INITIALIZE = 1;
-    private static final int ORDER_START_VUSERS = 2;
-    private static final int ORDER_DURATION = 3;
-    private static final int ORDER_STOP_VUSERS = 4;
-    private static final int ORDER_UNKNOWN = Integer.MAX_VALUE;
-
-
     public SchedulerValidator(TestContent content) {
         this.content = content;
         this.workloadTypeStr = content.getWorkloadType().getWorkloadTypeAsStr();
@@ -44,6 +35,7 @@ public class SchedulerValidator {
         }
 
         List<Action> parsedActions = new ArrayList<>();
+
         for (Map<String, String> item : schedulerItems) {
             for (Map.Entry<String, String> entry : item.entrySet()) {
                 String key = entry.getKey().toLowerCase(Locale.ROOT).trim();
@@ -51,7 +43,7 @@ public class SchedulerValidator {
                     log.error("Unsupported scheduler key: '{}'. Supported keys: {}", key, SUPPORTED_ACTIONS);
                     return null;
                 }
-                String value = entry.getValue() == null ? "" : entry.getValue().trim();
+                String value = Optional.ofNullable(entry.getValue()).orElse("").trim();
                 Action action = parseSchedulerItemFromKeyValue(key, value, vusersCount);
                 if (action != null) parsedActions.add(action);
             }
@@ -69,20 +61,15 @@ public class SchedulerValidator {
         return switch (workloadTypeStr) {
             case basicByTest -> Scheduler.getDefaultSchedulerForBasicByTest();
             case realWorldByTest -> Scheduler.getDefaultSchedulerForRBTest(vusersCount);
-            case basicByGroup -> {
-                content.setScheduler(null);
-                yield Scheduler.getDefaultSchedulerForBasicByGroup();
-            }
-            case realWorldByGroup -> {
-                content.setScheduler(null);
-                yield Scheduler.getDefaultSchedulerForRBGrp(vusersCount);
-            }
+            case basicByGroup -> Scheduler.getDefaultSchedulerForBasicByGroup();
+            case realWorldByGroup -> Scheduler.getDefaultSchedulerForRBGrp(vusersCount);
             default -> {
                 log.info("No default scheduler for workload type: {}", workloadTypeStr);
                 yield new Scheduler();
             }
         };
     }
+
 
     /**
      * Parses a single scheduler key-value pair into an Action object.
@@ -138,12 +125,17 @@ public class SchedulerValidator {
      * Determines execution order of actions.
      */
     private int getActionOrder(Action action) {
-        if (action.getStartGroup() != null) return ORDER_START_GROUP;
-        if (action.getInitialize() != null) return ORDER_INITIALIZE;
-        if (action.getStartVusers() != null) return ORDER_START_VUSERS;
-        if (action.getDuration() != null) return ORDER_DURATION;
-        if (action.getStopVusers() != null) return ORDER_STOP_VUSERS;
-        return ORDER_UNKNOWN;
+        boolean isRealWorld = workloadTypeStr.startsWith("real-world");
+
+        if (isRealWorld) {
+            if (action.getStartGroup() != null) return 0;
+            if (action.getInitialize() != null) return 1;
+        } else { // basic or other workloads
+            if (action.getInitialize() != null) return 0;
+        }
+
+        // All other actions (startVusers, duration, stopVusers) come after first two
+        return 2; // same value ensures relative order is preserved by stable sort
     }
 
 }

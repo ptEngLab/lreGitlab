@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 
 import static com.lre.actions.utils.ConfigConstants.*;
@@ -24,6 +25,7 @@ public record DurationValidator(String workloadType) {
             return duration;
         }
 
+        input = StringUtils.deleteWhitespace(input).toLowerCase(Locale.ROOT);
         Matcher untilCompleteMatcher = RUN_UNTIL_COMPLETE_PATTERN.matcher(input);
         Matcher runMatcher = RUN_FOR_PATTERN.matcher(input);
 
