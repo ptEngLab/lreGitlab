@@ -15,7 +15,7 @@ import static com.lre.actions.utils.ConfigConstants.LRE_API_XMLNS;
 @AllArgsConstructor
 @NoArgsConstructor
 @JacksonXmlRootElement(localName = "StartVusers", namespace = LRE_API_XMLNS)
-public   class StartVusers {
+public class StartVusers {
 
     @JsonProperty("Type")
     @JacksonXmlProperty(isAttribute = true, localName = "Type")

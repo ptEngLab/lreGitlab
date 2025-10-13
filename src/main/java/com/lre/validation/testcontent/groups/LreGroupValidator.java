@@ -2,8 +2,7 @@ package com.lre.validation.testcontent.groups;
 
 import com.lre.actions.apis.LreRestApis;
 import com.lre.actions.exceptions.LreException;
-import com.lre.validation.testcontent.rts.*;
-import com.lre.validation.testcontent.scheduler.SchedulerValidator;
+import com.lre.actions.utils.WorkloadUtils;
 import com.lre.model.test.testcontent.TestContent;
 import com.lre.model.test.testcontent.groups.Group;
 import com.lre.model.test.testcontent.groups.commandline.CommandLine;
@@ -11,6 +10,8 @@ import com.lre.model.test.testcontent.groups.rts.RTS;
 import com.lre.model.test.testcontent.scheduler.Scheduler;
 import com.lre.model.yaml.YamlGroup;
 import com.lre.model.yaml.YamlTest;
+import com.lre.validation.testcontent.rts.*;
+import com.lre.validation.testcontent.scheduler.SchedulerValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -37,8 +38,6 @@ public record LreGroupValidator(LreRestApis restApis, TestContent content, YamlT
         for (YamlGroup yamlGroup : yamlTest.getGroups()) {
             Group group = new Group();
             group.setName(yamlGroup.getName());
-            group.setVusers(yamlGroup.getVusers());
-
             group.setScript(new LreGroupScriptValidator(restApis).validateYamlGroupScript(yamlGroup));
             group.setHosts(new LreGroupHostValidator(restApis, content).validateAndPopulateHosts(yamlGroup));
 
@@ -51,6 +50,7 @@ public record LreGroupValidator(LreRestApis restApis, TestContent content, YamlT
                 handleLocalRtsPerGroup(group, yamlGroup);
 
             group.setScheduler(validateGroupScheduler(yamlGroup));
+            group.setVusers(yamlGroup.getVusers());
             validatedGroups.add(group);
         }
 
@@ -120,15 +120,48 @@ public record LreGroupValidator(LreRestApis restApis, TestContent content, YamlT
     }
 
 
-    private Scheduler validateGroupScheduler(YamlGroup group) {
-        if (content.getWorkloadType().getWorkloadTypeAsStr().endsWith("group")) {
-            List<Map<String, String>> groupSchedulerData = Optional.ofNullable(group.getScheduler())
-                    .orElse(Collections.emptyList());
-             int groupVusers = Optional.ofNullable(group.getVusers()).orElse(0);
-            return new SchedulerValidator(content).validateScheduler(groupSchedulerData, groupVusers);
+    private Scheduler validateGroupScheduler(YamlGroup yamlGroup) {
+        String workloadType = content.getWorkloadType().getWorkloadTypeAsStr();
+
+        if (workloadType.endsWith("group")) {
+            List<Map<String, String>> schedulerData =
+                    Optional.ofNullable(yamlGroup.getScheduler()).orElse(Collections.emptyList());
+            int originalVusers = Optional.ofNullable(yamlGroup.getVusers()).orElse(0);
+
+            Scheduler scheduler = new SchedulerValidator(content)
+                    .validateScheduler(schedulerData, originalVusers);
+
+            if (WorkloadUtils.isRealWorldByGroup(workloadType) && scheduler != null) {
+                int totalStartVusers = scheduler.getActions().stream()
+                        .filter(a -> a.getStartVusers() != null)
+                        .mapToInt(a -> Optional.ofNullable(a.getStartVusers().getVusers()).orElse(0))
+                        .sum();
+
+                if (totalStartVusers > 0) {
+                    if (originalVusers == 0) {
+                        yamlGroup.setVusers(totalStartVusers);
+                        log.debug("[Scheduler] Group '{}' had no vuser count, using cumulative {} from startVusers actions.",
+                                yamlGroup.getName(), totalStartVusers);
+                    } else if (originalVusers != totalStartVusers) {
+                        log.warn("[Scheduler] Group '{}' defined {} vusers, but startVusers total {} differs. Overriding to {}.",
+                                yamlGroup.getName(), originalVusers, totalStartVusers, totalStartVusers);
+                        yamlGroup.setVusers(totalStartVusers);
+                    } else {
+                        log.debug("[Scheduler] Group '{}' vusers ({}) match cumulative startVusers count.",
+                                yamlGroup.getName(), totalStartVusers);
+                    }
+                } else {
+                    log.debug("[Scheduler] Group '{}' has no startVusers actions; keeping existing vusers count: {}",
+                            yamlGroup.getName(), originalVusers);
+                }
+            }
+
+            return scheduler;
         }
+
         return null;
     }
+
 
 
 }

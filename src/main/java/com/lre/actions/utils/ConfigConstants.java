@@ -90,6 +90,6 @@ public class ConfigConstants {
 
     // Start group finish: "Group1" or "API_Users"
     public static final Pattern START_GROUP_FINISH_PATTERN =
-            Pattern.compile("^(?<groupName>[a-zA-Z0-9_-]+)$", Pattern.CASE_INSENSITIVE);
+            Pattern.compile("^after (?<groupName>[a-zA-Z0-9_-]+)$", Pattern.CASE_INSENSITIVE);
 
 }

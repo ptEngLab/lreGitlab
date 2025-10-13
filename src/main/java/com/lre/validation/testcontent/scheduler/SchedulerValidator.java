@@ -1,5 +1,6 @@
 package com.lre.validation.testcontent.scheduler;
 
+import com.lre.actions.utils.WorkloadUtils;
 import com.lre.model.test.testcontent.TestContent;
 import com.lre.model.test.testcontent.scheduler.Scheduler;
 import com.lre.model.test.testcontent.scheduler.action.Action;
@@ -30,7 +31,7 @@ public class SchedulerValidator {
      */
     public Scheduler validateScheduler(List<Map<String, String>> schedulerItems, int vusersCount) {
         if (schedulerItems == null || schedulerItems.isEmpty()) {
-            log.info("No scheduler items provided, using default scheduler for workload type: {}", workloadTypeStr);
+            log.info("[Scheduler] No scheduler items provided, using default scheduler for workload type: {}", workloadTypeStr);
             return getDefaultSchedulerForWorkload(vusersCount);
         }
 
@@ -40,7 +41,7 @@ public class SchedulerValidator {
             for (Map.Entry<String, String> entry : item.entrySet()) {
                 String key = entry.getKey().toLowerCase(Locale.ROOT).trim();
                 if (!SUPPORTED_ACTIONS.contains(key)) {
-                    log.error("Unsupported scheduler key: '{}'. Supported keys: {}", key, SUPPORTED_ACTIONS);
+                    log.error("[Scheduler] Unsupported scheduler key: '{}'. Supported keys: {}", key, SUPPORTED_ACTIONS);
                     return null;
                 }
                 String value = Optional.ofNullable(entry.getValue()).orElse("").trim();
@@ -64,7 +65,7 @@ public class SchedulerValidator {
             case basicByGroup -> Scheduler.getDefaultSchedulerForBasicByGroup();
             case realWorldByGroup -> Scheduler.getDefaultSchedulerForRBGrp(vusersCount);
             default -> {
-                log.info("No default scheduler for workload type: {}", workloadTypeStr);
+                log.info("[Scheduler] No default scheduler for workload type: {}", workloadTypeStr);
                 yield new Scheduler();
             }
         };
@@ -93,15 +94,15 @@ public class SchedulerValidator {
                         .stopVusers(new StopVusersValidator(workloadTypeStr, vusersCount).validateStop(value))
                         .build();
                 default -> {
-                    log.error("Unsupported scheduler key: {}", key);
+                    log.error("[Scheduler] Unsupported scheduler key: {}", key);
                     yield null;
                 }
             };
         } catch (IllegalArgumentException e) {
-            log.error("Validation error for scheduler item '{}:{}': {}", key, value, e.getMessage());
+            log.error("[Scheduler] Validation error for scheduler item '{}:{}': {}", key, value, e.getMessage());
             return null;
         } catch (Exception e) {
-            log.error("Unexpected error parsing scheduler item '{}:{}': {}", key, value, e.getMessage(), e);
+            log.error("[Scheduler] Unexpected error parsing scheduler item '{}:{}': {}", key, value, e.getMessage(), e);
             return null;
         }
     }
@@ -125,7 +126,7 @@ public class SchedulerValidator {
      * Determines execution order of actions.
      */
     private int getActionOrder(Action action) {
-        boolean isRealWorld = workloadTypeStr.startsWith("real-world");
+        boolean isRealWorld = WorkloadUtils.isRealWorld(workloadTypeStr);
 
         if (isRealWorld) {
             if (action.getStartGroup() != null) return 0;

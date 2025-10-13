@@ -36,7 +36,7 @@ public class StartGroupValidator {
         StartGroup startGroup = new StartGroup(); // default: IMMEDIATELY
 
         if (StringUtils.isBlank(input)) {
-            log.debug("StartGroup input is blank → default type IMMEDIATELY");
+            log.debug("[Scheduler] StartGroup input is blank → default type IMMEDIATELY");
             return startGroup;
         }
 
@@ -67,14 +67,14 @@ public class StartGroupValidator {
         }
 
         // Fallback
-        log.warn("StartGroup input '{}' did not match any pattern → default type IMMEDIATELY", input);
+        log.warn("[Scheduler] StartGroup input '{}' did not match any pattern → default type IMMEDIATELY", input);
         startGroup.setType(SchedulerStartGroupType.IMMEDIATELY);
         return startGroup;
     }
 
     private void validateGroupExists(String groupName) {
         if (!isValidGroup(groupName)) {
-            throw new IllegalArgumentException("Invalid group name in StartGroup: '" + groupName + "'. Available groups: " + availableGroupNamesAsStr());
+            throw new IllegalArgumentException("[Scheduler] Invalid group name in StartGroup: '" + groupName + "'. Available groups: " + availableGroupNamesAsStr());
         }
     }
 
@@ -99,10 +99,10 @@ public class StartGroupValidator {
         if (content.getWorkloadType().getWorkloadTypeAsStr().endsWith("group")) {
             List<Action> startGroups = actions.stream().filter(a -> a.getStartGroup() != null).toList();
             if (startGroups.isEmpty()) {
-                log.warn("No StartGroup found. Adding default StartGroup.");
+                log.warn("[Scheduler] No StartGroup found. Adding default StartGroup.");
                 actions.add(0, Action.builder().startGroup(new StartGroup()).build());
             } else if (startGroups.size() > 1) {
-                log.warn("Multiple StartGroup actions found. Keeping first, removing others.");
+                log.warn("[Scheduler] Multiple StartGroup actions found. Keeping first, removing others.");
                 Action first = startGroups.get(0);
                 actions.removeIf(a -> a.getStartGroup() != null && a != first);
             }

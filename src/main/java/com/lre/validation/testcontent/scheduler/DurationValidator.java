@@ -1,5 +1,6 @@
 package com.lre.validation.testcontent.scheduler;
 
+import com.lre.actions.utils.WorkloadUtils;
 import com.lre.model.enums.SchedulerDurationType;
 import com.lre.model.test.testcontent.scheduler.action.Action;
 import com.lre.model.test.testcontent.scheduler.action.common.TimeInterval;
@@ -11,7 +12,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 
-import static com.lre.actions.utils.ConfigConstants.*;
+import static com.lre.actions.utils.ConfigConstants.RUN_FOR_PATTERN;
+import static com.lre.actions.utils.ConfigConstants.RUN_UNTIL_COMPLETE_PATTERN;
 import static com.lre.model.test.testcontent.scheduler.action.common.TimeInterval.parseTimeInterval;
 
 @Slf4j
@@ -19,63 +21,48 @@ public record DurationValidator(String workloadType) {
 
     public Duration validateDuration(String input) {
         Duration duration = new Duration(); // default: UNTIL_COMPLETION
-
-        if (StringUtils.isBlank(input)) {
-            log.debug("Input is blank, using default Duration type: UNTIL_COMPLETION");
-            return duration;
-        }
+        if (StringUtils.isBlank(input)) return duration;
 
         input = StringUtils.deleteWhitespace(input).toLowerCase(Locale.ROOT);
-        Matcher untilCompleteMatcher = RUN_UNTIL_COMPLETE_PATTERN.matcher(input);
-        Matcher runMatcher = RUN_FOR_PATTERN.matcher(input);
+        Matcher untilComplete = RUN_UNTIL_COMPLETE_PATTERN.matcher(input);
+        Matcher runFor = RUN_FOR_PATTERN.matcher(input);
 
-        if (untilCompleteMatcher.matches()) return handleUntilComplete(duration);
-        if (runMatcher.matches()) return handleRunFor(duration, runMatcher);
-
-        log.debug("Input did not match any duration pattern → using default Duration type: UNTIL_COMPLETION");
-        return duration;
-    }
-
-    private Duration handleRunFor(Duration duration, Matcher run) {
-        duration.setType(SchedulerDurationType.RUN_FOR);
-        String interval = run.group("interval");
-
-        if (StringUtils.isNotBlank(interval)) {
-            duration.setTimeInterval(parseTimeInterval(interval));
+        if (untilComplete.matches()) {
+            duration.setType(SchedulerDurationType.UNTIL_COMPLETION);
+        } else if (runFor.matches()) {
+            duration.setType(SchedulerDurationType.RUN_FOR);
+            String interval = runFor.group("interval");
+            duration.setTimeInterval(StringUtils.isNotBlank(interval)
+                    ? parseTimeInterval(interval)
+                    : new TimeInterval(0, 0, 5, 0)); // default 5m
         } else {
-            log.warn("RUN_FOR matched but interval missing — using default 5m");
-            duration.setTimeInterval(new TimeInterval(0, 0, 5, 0));
+            log.debug("[Scheduler] Unknown Duration '{}'. Using UNTIL_COMPLETION.", input);
         }
 
-        return duration;
-    }
-
-    private Duration handleUntilComplete(Duration duration) {
-        duration.setType(SchedulerDurationType.UNTIL_COMPLETION);
-        duration.setTimeInterval(null);
         return duration;
     }
 
     public void validateDurationActions(List<Action> actions) {
-        List<Action> durationActions = getDurationActions(actions);
+        List<Action> durations = getDurationActions(actions);
 
-        if (durationActions.isEmpty()) {
+        if (durations.isEmpty()) {
+            log.warn("[Scheduler] No Duration found. Adding default.");
             actions.add(Action.builder().duration(createDefaultDuration()).build());
-            durationActions = getDurationActions(actions);
+            durations = getDurationActions(actions);
         }
 
-        if (workloadType.startsWith("basic") && durationActions.size() > 1) {
-            log.warn("Multiple duration actions found. Keeping first, removing {} others.", durationActions.size() - 1);
-            Action first = durationActions.get(0);
+        if (WorkloadUtils.isBasic(workloadType) && durations.size() > 1) {
+            log.warn("[Scheduler] Multiple Duration actions found. Keeping first.");
+            Action first = durations.get(0);
             actions.removeIf(a -> a.getDuration() != null && a != first);
         }
     }
 
     private Duration createDefaultDuration() {
         Duration duration = new Duration();
-        if (workloadType.startsWith("real-world")) {
+        if (WorkloadUtils.isRealWorld(workloadType)) {
             duration.setType(SchedulerDurationType.RUN_FOR);
-            duration.setTimeInterval(new TimeInterval(0, 0, 5, 0)); // default 5 min
+            duration.setTimeInterval(new TimeInterval(0, 0, 5, 0));
         } else {
             duration.setType(SchedulerDurationType.UNTIL_COMPLETION);
         }

@@ -1,5 +1,6 @@
 package com.lre.validation.testcontent.scheduler;
 
+import com.lre.actions.utils.WorkloadUtils;
 import com.lre.model.enums.SchedulerVusersType;
 import com.lre.model.test.testcontent.scheduler.action.Action;
 import com.lre.model.test.testcontent.scheduler.action.common.Ramp;
@@ -19,35 +20,32 @@ public record StartVusersValidator(String workloadType, int vusersCount) {
         StartVusers startVusers = new StartVusers(); // default: SIMULTANEOUSLY
 
         if (StringUtils.isBlank(input)) {
-            if (realWorldByGroup.equalsIgnoreCase(workloadType)) startVusers.setVusers(vusersCount);
+            if (WorkloadUtils.isRealWorldByGroup(workloadType)) startVusers.setVusers(vusersCount);
             log.debug("WorkloadType {},  StartVusers Input is blank, using default StartVusers type: SIMULTANEOUSLY", workloadType);
             return startVusers;
         }
 
+        input = StringUtils.trimToEmpty(input).toLowerCase();
         Matcher sim = SIMULTANEOUSLY_PATTERN.matcher(input);
         Matcher grad = GRADUALLY_PATTERN.matcher(input);
 
         if (sim.matches()) {
             startVusers.setType(SchedulerVusersType.SIMULTANEOUSLY);
             setVusersForRealWorld(startVusers, sim);
-            return startVusers;
-        }
-
-        if (grad.matches()) {
+        } else if (grad.matches()) {
             startVusers.setType(SchedulerVusersType.GRADUALLY);
             setVusersForRealWorld(startVusers, grad);
-            Ramp ramp = new Ramp(grad.group("users"), grad.group("interval"));
-            startVusers.setRamp(ramp);
-            return startVusers;
+            startVusers.setRamp(new Ramp(grad.group("users"), grad.group("interval")));
+        } else {
+            log.debug("[Scheduler] Unknown StartVusers '{}'. Using default SIMULTANEOUSLY.", input);
         }
 
-        log.debug("Input '{}' did not match any known pattern → using default StartVusers type", input);
         return startVusers;
     }
 
     private void setVusersForRealWorld(StartVusers startVusers, Matcher matcher) {
         String startVusersCount = matcher.group("vusersCount");
-        if (realWorldByGroup.equalsIgnoreCase(workloadType) || realWorldByTest.equalsIgnoreCase(workloadType)) {
+        if (WorkloadUtils.isRealWorld(workloadType)) {
             if (StringUtils.isNotEmpty(startVusersCount)) startVusers.setVusersFromString(startVusersCount);
             else startVusers.setVusers(vusersCount);
         }
@@ -57,19 +55,21 @@ public record StartVusersValidator(String workloadType, int vusersCount) {
         List<Action> startVusersActions = getStartVusersActions(actions);
 
         if (startVusersActions.isEmpty()) {
+            log.warn("[Scheduler] No StartVusers action found. Adding default.");
             StartVusers start = new StartVusers();
             start.setType(SchedulerVusersType.SIMULTANEOUSLY);
-            if (realWorldByGroup.equalsIgnoreCase(workloadType)) start.setVusers(vusersCount);
+            if (WorkloadUtils.isRealWorldByGroup(workloadType)) start.setVusers(vusersCount);
             actions.add(Action.builder().startVusers(start).build());
-            startVusersActions = getStartVusersActions(actions); // Refresh list
+            startVusersActions = getStartVusersActions(actions);
         }
 
-        if (workloadType.startsWith("basic") && startVusersActions.size() > 1) {
-            log.warn("Multiple StartVusers actions found. Keeping first, removing {} others.", startVusersActions.size() - 1);
+        if (WorkloadUtils.isBasic(workloadType) && startVusersActions.size() > 1) {
+            log.warn("[Scheduler] Multiple StartVusers found. Keeping first.");
             Action first = startVusersActions.get(0);
             actions.removeIf(a -> a.getStartVusers() != null && a != first);
         }
     }
+
 
     private List<Action> getStartVusersActions(List<Action> actions) {
         return actions.stream().filter(a -> a.getStartVusers() != null).toList();

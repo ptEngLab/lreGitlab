@@ -1,5 +1,6 @@
 package com.lre.validation.testcontent.scheduler;
 
+import com.lre.actions.utils.WorkloadUtils;
 import com.lre.model.enums.SchedulerDurationType;
 import com.lre.model.enums.SchedulerVusersType;
 import com.lre.model.test.testcontent.scheduler.action.Action;
@@ -17,59 +18,51 @@ import static com.lre.actions.utils.ConfigConstants.SIMULTANEOUSLY_PATTERN;
 @Slf4j
 public record StopVusersValidator(String workloadType, int vusersCount) {
 
-
     public StopVusers validateStop(String input) {
         StopVusers stopVusers = new StopVusers(); // default: SIMULTANEOUSLY
+        if (StringUtils.isBlank(input)) return stopVusers;
 
-        if (StringUtils.isBlank(input)) {
-            log.debug("Input is blank, using default StopVusers type: SIMULTANEOUSLY");
-            return stopVusers;
-        }
-
+        input = StringUtils.trimToEmpty(input).toLowerCase();
         Matcher sim = SIMULTANEOUSLY_PATTERN.matcher(input);
         Matcher grad = GRADUALLY_PATTERN.matcher(input);
 
         if (sim.matches()) {
             stopVusers.setType(SchedulerVusersType.SIMULTANEOUSLY);
             setVusersForRealWorld(stopVusers, sim);
-            return stopVusers;
-        }
-
-        if (grad.matches()) {
+        } else if (grad.matches()) {
             stopVusers.setType(SchedulerVusersType.GRADUALLY);
             setVusersForRealWorld(stopVusers, grad);
-            Ramp ramp = new Ramp(grad.group("users"), grad.group("interval"));
-            stopVusers.setRamp(ramp);
-            return stopVusers;
+            stopVusers.setRamp(new Ramp(grad.group("users"), grad.group("interval")));
+        } else {
+            log.debug("[Scheduler] Unknown StopVusers '{}'. Using default SIMULTANEOUSLY.", input);
         }
 
-        log.debug("Input did not match any pattern → using default StopVusers type");
         return stopVusers;
     }
 
     private void setVusersForRealWorld(StopVusers stopVusers, Matcher matcher) {
-        String stopVusersCount = matcher.group("vusersCount");
-        if (workloadType.startsWith("real-world")) {
-            if (StringUtils.isNotEmpty(stopVusersCount)) stopVusers.setVusersFromString(stopVusersCount);
-        }
+        String count = matcher.group("vusersCount");
+        if (WorkloadUtils.isRealWorld(workloadType) && StringUtils.isNotEmpty(count))
+            stopVusers.setVusersFromString(count);
     }
 
     public void validateStopVusersActions(List<Action> actions) {
-        List<Action> stopVusersActions = getStopVusersActions(actions);
+        List<Action> stops = getStopVusersActions(actions);
         boolean anyRunFor = actions.stream()
                 .filter(a -> a.getDuration() != null)
                 .anyMatch(d -> d.getDuration().getType() == SchedulerDurationType.RUN_FOR);
 
-        if (anyRunFor && stopVusersActions.isEmpty()) {
+        if (anyRunFor && stops.isEmpty()) {
+            log.warn("[Scheduler] Duration has RUN_FOR but no StopVusers found. Adding default.");
             StopVusers stop = new StopVusers();
             stop.setType(SchedulerVusersType.SIMULTANEOUSLY);
             actions.add(Action.builder().stopVusers(stop).build());
-            stopVusersActions = getStopVusersActions(actions); // Refresh list
+            stops = getStopVusersActions(actions);
         }
 
-        if (workloadType.startsWith("basic") && stopVusersActions.size() > 1) {
-            log.warn("Multiple StopVusers actions found. Keeping first, removing {} others.", stopVusersActions.size() - 1);
-            Action first = stopVusersActions.get(0);
+        if (WorkloadUtils.isBasic(workloadType) && stops.size() > 1) {
+            log.warn("[Scheduler] Multiple StopVusers found. Keeping first.");
+            Action first = stops.get(0);
             actions.removeIf(a -> a.getStopVusers() != null && a != first);
         }
     }
@@ -77,5 +70,4 @@ public record StopVusersValidator(String workloadType, int vusersCount) {
     private List<Action> getStopVusersActions(List<Action> actions) {
         return actions.stream().filter(a -> a.getStopVusers() != null).toList();
     }
-
 }
