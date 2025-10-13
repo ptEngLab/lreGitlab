@@ -1,9 +1,10 @@
 package com.lre.actions.runclient;
 
 import com.lre.actions.apis.LreRestApis;
-import com.lre.model.run.LreRunStatus;
 import com.lre.actions.exceptions.LreException;
 import com.lre.actions.runmodel.LreTestRunModel;
+import com.lre.model.enums.RunState;
+import com.lre.model.run.LreRunStatus;
 import com.lre.services.*;
 import lombok.extern.slf4j.Slf4j;
 
@@ -82,9 +83,10 @@ public class LreRunClient implements AutoCloseable {
 
     private boolean isRunFailure(LreRunStatus status) {
         if (status == null) return true;
-        String runState = status.getRunState();
-        return "RUN_FAILURE".equals(runState) || "UNDEFINED".equals(runState);
+        RunState runState = RunState.fromValue(status.getRunState());
+        return runState == RunState.RUN_FAILURE || runState == RunState.UNDEFINED;
     }
+
 
     @Override
     public void close() {
