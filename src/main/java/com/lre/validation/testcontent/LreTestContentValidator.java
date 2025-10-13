@@ -5,11 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.lre.actions.apis.LreRestApis;
 import com.lre.actions.exceptions.LreException;
-import com.lre.validation.testcontent.globalrts.LreGlobalRtsValidator;
-import com.lre.validation.testcontent.groups.LreGroupValidator;
-import com.lre.validation.testcontent.scheduler.SchedulerValidator;
-import com.lre.validation.testcontent.sla.SLAValidator;
-import com.lre.validation.testcontent.trending.AutomaticTrendingValidator;
 import com.lre.actions.runmodel.LreTestRunModel;
 import com.lre.actions.utils.XmlUtils;
 import com.lre.model.enums.LGDistributionType;
@@ -25,6 +20,11 @@ import com.lre.model.test.testcontent.scheduler.Scheduler;
 import com.lre.model.test.testcontent.workloadtype.WorkloadType;
 import com.lre.model.yaml.YamlCommandLine;
 import com.lre.model.yaml.YamlTest;
+import com.lre.validation.testcontent.globalrts.LreGlobalRtsValidator;
+import com.lre.validation.testcontent.groups.LreGroupValidator;
+import com.lre.validation.testcontent.scheduler.SchedulerValidator;
+import com.lre.validation.testcontent.sla.SLAValidator;
+import com.lre.validation.testcontent.trending.AutomaticTrendingValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -137,10 +137,8 @@ public class LreTestContentValidator {
         } else {
             List<Map<String, String>> schedulerItems = Optional.ofNullable(yamlTest.getScheduler())
                     .orElse(Collections.emptyList());
-
-            Scheduler scheduler = new SchedulerValidator(content)
-                    .validateScheduler(schedulerItems, getScenarioTotalVusers());
-
+            SchedulerValidator schedulerValidator = new SchedulerValidator(content);
+            Scheduler scheduler = schedulerValidator.validateScheduler(schedulerItems, getScenarioTotalVusers());
             content.setScheduler(scheduler);
 
         }

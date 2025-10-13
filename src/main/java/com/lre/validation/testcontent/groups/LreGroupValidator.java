@@ -12,6 +12,7 @@ import com.lre.model.yaml.YamlGroup;
 import com.lre.model.yaml.YamlTest;
 import com.lre.validation.testcontent.rts.*;
 import com.lre.validation.testcontent.scheduler.SchedulerValidator;
+import com.lre.validation.testcontent.scheduler.StartGroupValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -56,6 +57,9 @@ public record LreGroupValidator(LreRestApis restApis, TestContent content, YamlT
 
 
         content.setGroups(validatedGroups);
+
+        validateAllGroupDependencies();
+
 
         log.debug("All groups validated successfully. Total groups: {}", validatedGroups.size());
     }
@@ -128,8 +132,9 @@ public record LreGroupValidator(LreRestApis restApis, TestContent content, YamlT
                     Optional.ofNullable(yamlGroup.getScheduler()).orElse(Collections.emptyList());
             int originalVusers = Optional.ofNullable(yamlGroup.getVusers()).orElse(0);
 
-            Scheduler scheduler = new SchedulerValidator(content)
-                    .validateScheduler(schedulerData, originalVusers);
+            Scheduler scheduler = new SchedulerValidator(content).validateScheduler(schedulerData, originalVusers);
+
+
 
             if (WorkloadUtils.isRealWorldByGroup(workloadType) && scheduler != null) {
                 int totalStartVusers = scheduler.getActions().stream()
@@ -162,6 +167,19 @@ public record LreGroupValidator(LreRestApis restApis, TestContent content, YamlT
         return null;
     }
 
+
+    private void validateAllGroupDependencies() {
+        StartGroupValidator groupValidator = new StartGroupValidator(content);
+
+        // Validate all group-level schedulers
+        if (content.getGroups() != null) {
+            for (Group group : content.getGroups()) {
+                if (group.getScheduler() != null) {
+                    groupValidator.validateAllGroupReferences(group.getScheduler());
+                }
+            }
+        }
+    }
 
 
 }

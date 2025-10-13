@@ -3,15 +3,13 @@ package com.lre.validation.testcontent.scheduler;
 import com.lre.model.enums.SchedulerStartGroupType;
 import com.lre.model.test.testcontent.TestContent;
 import com.lre.model.test.testcontent.groups.Group;
+import com.lre.model.test.testcontent.scheduler.Scheduler;
 import com.lre.model.test.testcontent.scheduler.action.Action;
 import com.lre.model.test.testcontent.scheduler.action.startgroup.StartGroup;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
@@ -60,7 +58,6 @@ public class StartGroupValidator {
         Matcher finishMatcher = START_GROUP_FINISH_PATTERN.matcher(input);
         if (finishMatcher.matches()) {
             String groupName = finishMatcher.group("groupName").trim();
-            validateGroupExists(groupName);
             startGroup.setType(SchedulerStartGroupType.WHEN_GROUP_FINISHES);
             startGroup.setName(groupName);
             return startGroup;
@@ -70,6 +67,19 @@ public class StartGroupValidator {
         log.warn("[Scheduler] StartGroup input '{}' did not match any pattern → default type IMMEDIATELY", input);
         startGroup.setType(SchedulerStartGroupType.IMMEDIATELY);
         return startGroup;
+    }
+
+    public void validateAllGroupReferences(Scheduler scheduler) {
+        if (scheduler == null || scheduler.getActions() == null) return;
+
+        for (Action action : scheduler.getActions()) {
+            if (action.getStartGroup() != null &&
+                    action.getStartGroup().getType() == SchedulerStartGroupType.WHEN_GROUP_FINISHES) {
+
+                String groupName = action.getStartGroup().getName();
+                validateGroupExists(groupName);
+            }
+        }
     }
 
     private void validateGroupExists(String groupName) {
@@ -92,7 +102,7 @@ public class StartGroupValidator {
     }
 
     private String availableGroupNamesAsStr() {
-        return normalizedGroupNames.stream().sorted().collect(Collectors.joining(", "));
+        return availableGroups.stream().map(Group::getName).sorted().collect(Collectors.joining(", "));
     }
 
     public void validateStartGroupActions(List<Action> actions) {
