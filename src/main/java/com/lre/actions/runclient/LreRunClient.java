@@ -23,7 +23,12 @@ public class LreRunClient implements AutoCloseable {
 
     public void startRun() {
         try {
-            executeRunWorkflow();
+            LreRunStatus finalStatus = executeRunWorkflow();
+            if (isRunFailure(finalStatus)) {
+                String errorMessage = String.format("Run failed for test: %s. Final state: %s", model.getTestToRun(), finalStatus.getRunState());
+                log.error(errorMessage);
+                throw new LreException(errorMessage);
+            }
             log.info("Run completed successfully for test: {}", model.getTestToRun());
         } catch (Exception e) {
 
@@ -32,12 +37,12 @@ public class LreRunClient implements AutoCloseable {
         }
     }
 
-    private void executeRunWorkflow() {
+    private LreRunStatus executeRunWorkflow() {
         fetchTestDetails();
         resolveTestInstance();
         LreTimeslotManager timeslotManager = checkTimeslotAvailability();
         initiateTestRun(timeslotManager);
-        monitorRunCompletion(timeslotManager);
+        return monitorRunCompletion(timeslotManager);
     }
 
     private void fetchTestDetails() {
@@ -65,12 +70,20 @@ public class LreRunClient implements AutoCloseable {
         log.info("Run started successfully. Run ID: {}, Dashboard URL: {}", model.getRunId(), model.getDashboardUrl());
     }
 
-    private void monitorRunCompletion(LreTimeslotManager timeslotManager) {
+    private LreRunStatus monitorRunCompletion(LreTimeslotManager timeslotManager) {
         int timeslotDuration = timeslotManager.getTotalMinutes();
         log.debug("Starting run monitoring with timeslot duration: {} minutes", timeslotDuration);
         LreRunStatusPoller runStatusPoller = new LreRunStatusPoller(lreRestApis, model, timeslotDuration);
         LreRunStatus runStatus = runStatusPoller.pollUntilDone();
         log.debug("Run monitoring completed. {}", runStatus.getRunState());
+        return runStatus;
+
+    }
+
+    private boolean isRunFailure(LreRunStatus status) {
+        if (status == null) return true;
+        String runState = status.getRunState();
+        return "RUN_FAILURE".equals(runState) || "UNDEFINED".equals(runState);
     }
 
     @Override
