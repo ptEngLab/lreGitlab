@@ -29,7 +29,6 @@ import static com.lre.actions.utils.ConfigConstants.LRE_API_XMLNS;
 @NoArgsConstructor
 @AllArgsConstructor
 @JacksonXmlRootElement(localName = "Content", namespace = LRE_API_XMLNS)
-@JsonInclude(JsonInclude.Include.NON_EMPTY) // skip null or empty lists in XML
 public class TestContent {
 
     @JsonProperty("Controller")
@@ -44,6 +43,7 @@ public class TestContent {
     @JacksonXmlProperty(localName = "LGDistribution", namespace = LRE_API_XMLNS)
     private LGDistribution lgDistribution;
 
+    @JsonInclude(JsonInclude.Include.ALWAYS)
     @JsonProperty("MonitorProfiles")
     @JacksonXmlElementWrapper(localName = "MonitorProfiles", namespace = LRE_API_XMLNS)
     @JacksonXmlProperty(localName = "MonitorProfile", namespace = LRE_API_XMLNS)

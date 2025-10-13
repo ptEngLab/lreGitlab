@@ -1,6 +1,7 @@
 package com.lre.model.test.testcontent.groups;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
@@ -30,6 +31,11 @@ public class Group {
     @JacksonXmlProperty(localName = "Vusers", namespace = LRE_API_XMLNS)
     private Integer vusers;
 
+    @JsonProperty("Script")
+    @JacksonXmlProperty(localName = "Script", namespace = LRE_API_XMLNS)
+    private Script script;
+
+    @JsonInclude(JsonInclude.Include.ALWAYS)
     @JsonProperty("CommandLine")
     @JacksonXmlProperty(localName = "CommandLine", namespace = LRE_API_XMLNS)
     private String commandLine;
@@ -41,10 +47,6 @@ public class Group {
     @JsonProperty("GlobalCommandLine")
     @JacksonXmlProperty(localName = "GlobalCommandLine", namespace = LRE_API_XMLNS)
     private String globalCommandLine;
-
-    @JsonProperty("Script")
-    @JacksonXmlProperty(localName = "Script", namespace = LRE_API_XMLNS)
-    private Script script;
 
     @JsonProperty("Hosts")
     @JacksonXmlElementWrapper(localName = "Hosts", namespace = LRE_API_XMLNS)

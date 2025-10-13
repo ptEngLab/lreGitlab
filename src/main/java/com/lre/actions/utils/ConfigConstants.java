@@ -64,12 +64,12 @@ public class ConfigConstants {
 
     // Simultaneously: "50vu:simultaneously+wait:30s" or "simultaneously" or "simultaneously:wait:1m"
     public static final Pattern SIMULTANEOUSLY_PATTERN =
-            Pattern.compile("(?:(?<vusersCount>\\d+)vu:)?simultaneously(?:[:+]?wait:(?<wait>(\\d+[dhms])+))?$",
+            Pattern.compile("^(?:(?<vusersCount>\\d+)vu:)?simultaneously(?:[+:]?wait:(?<wait>(\\d+[dhms])+))?$",
                     Pattern.CASE_INSENSITIVE);
 
     // Gradually: "gradually:10u@30s" or "gradually:25u@1m+wait:10s" or "50vu:gradually:10u@30s"
     public static final Pattern GRADUALLY_PATTERN =
-            Pattern.compile("(?:(?<vusersCount>\\d+)vu:)?gradually:(?<users>\\d+)u@(?<interval>(\\d+[dhms])+)(?:\\+?wait:(?<wait>(\\d+[dhms])+))?$",
+            Pattern.compile("^(?:(?<vusersCount>\\d+)vu:)?gradually:(?<users>\\d+)u@(?<interval>(\\d+[dhms])+)(?:[+:]wait:(?<wait>(\\d+[dhms])+))?$",
                     Pattern.CASE_INSENSITIVE);
 
     // Just before: "just before"
