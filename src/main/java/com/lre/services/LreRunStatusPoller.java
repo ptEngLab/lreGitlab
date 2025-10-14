@@ -66,7 +66,7 @@ public class LreRunStatusPoller {
                 errorCount = currentStatus.getTotalErrors();
                 if (errorCount >= model.getMaxErrors()) {
                     log.error("Run [{}] exceeded maximum LRE errors [{}]. Stopping test.", runId, errorCount);
-                    apiClient.abortRun(model.getRunId());
+                    if (currentState == RunState.RUNNING) apiClient.abortRun(model.getRunId());
                     break;
                 }
 
