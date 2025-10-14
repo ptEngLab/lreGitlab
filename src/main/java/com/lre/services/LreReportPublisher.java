@@ -32,8 +32,6 @@ public record LreReportPublisher(LreRestApis lreRestApis, LreTestRunModel model)
         Path reportDir = Paths.get(String.format(HTML_REPORT_PATH, model.getWorkspace(), ARTIFACTS_DIR));
 
         log.info("Publishing report for Run ID: {}", runId);
-        log.info("Report directory: {}", reportDir.toAbsolutePath());
-
         Optional<LreRunResult> htmlReportResult = findHtmlReportResult(runId);
         if (htmlReportResult.isEmpty()) {
             log.warn("No LRE HTML report archive found for Run ID: {}", runId);

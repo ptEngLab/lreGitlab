@@ -43,7 +43,7 @@ public class LreRunClient implements AutoCloseable {
         LreReportPublisher publisher = new LreReportPublisher(lreRestApis, model);
         Path reportPath = publisher.publish();
 
-        if (reportPath != null) log.info("Report successfully extracted");
+        if (reportPath != null) log.info("Report successfully published at: {}", reportPath.resolve("index.html"));
         else log.warn("Report not available for run id: {}", model.getRunId());
 
     }

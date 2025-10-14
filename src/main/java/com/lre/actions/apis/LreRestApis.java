@@ -129,15 +129,12 @@ public class LreRestApis implements AutoCloseable {
 
     public LreRunResponse startRun(int testId, String payload) {
         return executor.postWithQuery(
-                urlBuilder.getStartRunUrl(),
-                Map.of("testId", String.valueOf(testId)),
-                payload,
-                LreRunResponse.class,
-                "Start Run"
+                urlBuilder.getStartRunUrl(), Map.of("testId", String.valueOf(testId)),
+                payload, LreRunResponse.class, "Start Run"
         );
     }
 
-    public List<LreRunResult> fetchRunResults(int runId){
+    public List<LreRunResult> fetchRunResults(int runId) {
         return executor.fetchList(urlBuilder.getRunResultsUrl(runId), LreRunResult.class, "Run Results");
     }
 
@@ -177,7 +174,7 @@ public class LreRestApis implements AutoCloseable {
         return executor.fetchList(fullUrl, HostResponse.class, "Load Generators list");
     }
 
-    public boolean getRunResultData(int runId, int resultsId, String filePath){
+    public boolean getRunResultData(int runId, int resultsId, String filePath) {
         String url = urlBuilder.getRunResultsFileUrl(runId, resultsId);
         return executor.download(url, filePath);
     }

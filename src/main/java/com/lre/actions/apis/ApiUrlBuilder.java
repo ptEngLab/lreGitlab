@@ -91,6 +91,6 @@ public class ApiUrlBuilder {
     }
 
     public String getRunResultsFileUrl(int runId, int resultId){
-        return String.format("%s/%s/%d/%s/%d", lreApiUrl, RUN_STATUS_API, runId, RESULTS_RESOURCE_API, resultId);
+        return String.format("%s/%s/%d/%s/%d/data", lreApiUrl, RUN_STATUS_API, runId, RESULTS_RESOURCE_API, resultId);
     }
 }
