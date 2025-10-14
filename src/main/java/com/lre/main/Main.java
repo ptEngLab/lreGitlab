@@ -92,6 +92,7 @@ public class Main {
         LreRunClient lreRunClient = new LreRunClient(lreTestRunModel);
         lreRunClient.startRun();
         lreRunClient.publishRunReport();
+        lreRunClient.printRunSummary();
         removeRunIdFile();
         lreRunClient.close();
 

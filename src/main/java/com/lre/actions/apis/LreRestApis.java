@@ -1,10 +1,11 @@
 package com.lre.actions.apis;
 
-import com.lre.core.http.HttpClientUtils;
 import com.lre.actions.runmodel.LreTestRunModel;
+import com.lre.core.http.HttpClientUtils;
 import com.lre.model.run.LreRunResponse;
 import com.lre.model.run.LreRunResult;
 import com.lre.model.run.LreRunStatus;
+import com.lre.model.run.LreRunStatusExtended;
 import com.lre.model.test.Test;
 import com.lre.model.test.testcontent.groups.hosts.CloudTemplate;
 import com.lre.model.test.testcontent.groups.hosts.HostResponse;
@@ -15,8 +16,8 @@ import com.lre.model.testinstance.LreTestInstance;
 import com.lre.model.testplan.LreTestPlan;
 import com.lre.model.timeslot.TimeslotCheckResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.core5.http.ContentType;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -132,6 +133,10 @@ public class LreRestApis implements AutoCloseable {
                 urlBuilder.getStartRunUrl(), Map.of("testId", String.valueOf(testId)),
                 payload, LreRunResponse.class, "Start Run"
         );
+    }
+
+    public List<LreRunStatusExtended> fetchRunResultsExtended(String payload) {
+        return executor.createList(urlBuilder.getRunResultsExtendedUrl(), payload, ContentType.APPLICATION_JSON, LreRunStatusExtended.class, "Run status extended");
     }
 
     public List<LreRunResult> fetchRunResults(int runId) {

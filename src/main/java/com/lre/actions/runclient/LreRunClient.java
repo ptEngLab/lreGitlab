@@ -3,12 +3,19 @@ package com.lre.actions.runclient;
 import com.lre.actions.apis.LreRestApis;
 import com.lre.actions.exceptions.LreException;
 import com.lre.actions.runmodel.LreTestRunModel;
+import com.lre.actions.utils.JsonUtils;
 import com.lre.model.enums.RunState;
 import com.lre.model.run.LreRunStatus;
+import com.lre.model.run.LreRunStatusExtended;
+import com.lre.model.run.LreRunStatusReqWeb;
 import com.lre.services.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.LocalDateTime;
+
+import static com.lre.actions.utils.CommonUtils.logTableDynamic;
 
 @Slf4j
 public class LreRunClient implements AutoCloseable {
@@ -48,6 +55,48 @@ public class LreRunClient implements AutoCloseable {
 
     }
 
+    public void printRunSummary(){
+        LreRunStatusReqWeb runStatusReq = LreRunStatusReqWeb.createRunStatusPayloadForRunId(model.getRunId());
+
+        LreRunStatusExtended runStatusExtended = lreRestApis.fetchRunResultsExtended(JsonUtils.toJson(runStatusReq)).get(0);
+
+            String[][] rows = {
+                    {
+                            "Domain: " + model.getDomain(),
+                            "Project: " + model.getProject(),
+                            "Test Name: " + model.getTestName(),
+                            "Test Id: " + model.getTestId()
+                    },
+                    {
+                            "Test Folder: " + model.getTestFolderPath(),
+                            "Test Instance Id: " + model.getTestInstanceId(),
+                            "Run Name: " + runStatusExtended.getName(),
+                            "Run Status: " + runStatusExtended.getState()
+
+                    },
+                    {
+                            "Start Time: " + runStatusExtended.getStart(),
+                            "End Time: " + runStatusExtended.getEnd(),
+                            "Test Duration: " + calculateTestDuration(runStatusExtended.getStart(), runStatusExtended.getEnd()),
+                            "Vusers involved: " + runStatusExtended.getVusersInvolved()
+                    },
+                    {
+                            "Transaction Passed: " + runStatusExtended.getTransPassed(),
+                            "Transaction Failed: " + runStatusExtended.getTransFailed(),
+                            "Errors: " + runStatusExtended.getErrors(),
+                            "Transaction per Sec: " + runStatusExtended.getTransPerSec()
+                    },
+                    {
+                            "Hits per Sec: " + runStatusExtended.getHitsPerSec(),
+                            "Throughput (avg): " + runStatusExtended.getThroughputAvg(),
+                            "Controller used: " + runStatusExtended.getController(),
+                            "LGs used: " + runStatusExtended.getLgs()
+                    },
+            };
+
+            log.info(logTableDynamic(rows));
+
+    }
 
     private LreRunStatus executeRunWorkflow() {
         fetchTestDetails();
@@ -97,6 +146,17 @@ public class LreRunClient implements AutoCloseable {
         RunState runState = RunState.fromValue(status.getRunState());
         return runState == RunState.RUN_FAILURE || runState == RunState.UNDEFINED;
     }
+
+    private static String calculateTestDuration(LocalDateTime start, LocalDateTime end) {
+
+        Duration duration = (start == null || end == null) ? Duration.ZERO : Duration.between(start, end);
+        long hours = duration.toHours();
+        long minutes = duration.toMinutesPart();
+        long seconds = duration.toSecondsPart();
+
+        return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+    }
+
 
 
     @Override

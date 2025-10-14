@@ -87,10 +87,15 @@ public class ApiUrlBuilder {
     }
 
     public String getRunResultsUrl(int runId) {
-        return String.format("%s/%s%d/%s", lreApiUrl, RUN_STATUS_API, runId, RESULTS_RESOURCE_API);
+        return String.format("%s/%s/%d/%s", lreApiUrl, RUN_STATUS_API, runId, RESULTS_RESOURCE_API);
     }
 
     public String getRunResultsFileUrl(int runId, int resultId){
         return String.format("%s/%s/%d/%s/%d/data", lreApiUrl, RUN_STATUS_API, runId, RESULTS_RESOURCE_API, resultId);
     }
+
+    public String getRunResultsExtendedUrl(){
+        return String.format("%s/%s/get", lreWebUrl, RUN_STATUS_API);
+    }
+
 }

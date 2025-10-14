@@ -40,6 +40,15 @@ public record ApiRequestExecutor(CloseableHttpClient httpClient) {
         return execute(HttpMethod.POST, url, payload, contentType, clazz, "Create " + resourceName);
     }
 
+    public <T> List<T> createList(String url, String payload, ContentType contentType, Class<T> clazz, String resourceName) {
+        try {
+            String response = sendRequest(buildRequest(HttpMethod.POST, url, payload, contentType));
+            return JsonUtils.fromJsonArray(response, clazz);
+        } catch (URISyntaxException e) {
+            throw uriError(resourceName, url, e);
+        }
+    }
+
     public <T> T postWithQuery(String baseUrl, Map<String, String> params, String payload,
                                Class<T> clazz, String operation) {
         String url = buildUrlWithParams(baseUrl, params);
