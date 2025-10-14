@@ -36,48 +36,35 @@ public class LreRunStatusPoller {
 
     public LreRunStatus pollUntilDone() {
         long startTime = System.currentTimeMillis();
-        RunState lastLoggedState = RunState.UNDEFINED;
+        RunState lastState = RunState.UNDEFINED;
         int consecutiveFailures = 0;
         LreRunStatus lastKnownStatus = new LreRunStatus();
         lastKnownStatus.setRunState(RunState.UNDEFINED.getValue());
 
-        long errorCount;
-
         while (!Thread.currentThread().isInterrupted()) {
             try {
-                LreRunStatus currentStatus = apiClient.fetchRunStatus(runId);
+                // 🔹 Fetch current status
+                LreRunStatus currentStatus = fetchStatusAndLogTransition(startTime, lastState);
                 RunState currentState = RunState.fromValue(currentStatus.getRunState());
                 lastKnownStatus = currentStatus; // store last known status
+                lastState = currentState;
 
-                // Log state changes
-                if (currentState != lastLoggedState) {
-                    logStateChange(currentState, startTime);
-                    lastLoggedState = currentState;
-                }
+                // 🔹 Handle terminal completion
+                if (isTerminalState(currentState)) return currentStatus;
 
-                // Terminal state reached
-                if (postRunAction.isTerminal(currentState)) {
-                    log.info("Run [{}] reached terminal state [{}] for PostRunAction [{}]", runId, currentState, postRunAction);
-                    if (currentState == RunState.FINISHED) model.setHtmlReportAvailable(true);
-                    return currentStatus; // exit immediately
-                }
-
-                // Check for errors from LRE
-                errorCount = currentStatus.getTotalErrors();
-                if (errorCount >= model.getMaxErrors()) {
-                    log.error("Run [{}] exceeded allowed error threshold [{} / {} ]. Stopping test.", runId, errorCount, model.getMaxErrors());
-                    if (currentState == RunState.RUNNING) apiClient.abortRun(model.getRunId());
+                // 🔹 Monitor error thresholds
+                if (shouldAbortDueToErrors(currentStatus, currentState)) {
+                    abortRunDueToErrors(currentStatus);
                     break;
                 }
 
-                consecutiveFailures = 0; // reset after successful fetch
-
-                // Timeslot expired
+                // 🔹 Handle timeslot expiry
                 if (isTimeslotExceeded(startTime)) {
                     log.info("Timeslot duration ended for run [{}], stopping monitoring", runId);
                     break;
                 }
 
+                consecutiveFailures = 0; // reset after successful fetch
                 sleep(pollIntervalSeconds);
 
             } catch (Exception e) {
@@ -90,13 +77,45 @@ public class LreRunStatusPoller {
         return lastKnownStatus;
     }
 
+    private LreRunStatus fetchStatusAndLogTransition(long startTime, RunState lastLoggedState) {
+        LreRunStatus currentStatus = apiClient.fetchRunStatus(runId);
+        RunState currentState = RunState.fromValue(currentStatus.getRunState());
+        if (currentState != lastLoggedState) logStateChange(currentState, startTime);
+        return currentStatus;
+    }
+
+    private boolean isTerminalState(RunState currentState) {
+        if (!postRunAction.isTerminal(currentState)) return false;
+        log.info("Run [{}] reached terminal state [{}] for PostRunAction [{}]", runId, currentState, postRunAction);
+        if (currentState == RunState.FINISHED) model.setHtmlReportAvailable(true);
+        return true;
+    }
+
+    private boolean shouldAbortDueToErrors(LreRunStatus currentStatus, RunState currentState) {
+        return currentState == RunState.RUNNING && currentStatus.getTotalErrors() >= model.getMaxErrors();
+    }
+
+    private void abortRunDueToErrors(LreRunStatus currentStatus) {
+        long currentErrorCount = currentStatus.getTotalErrors();
+        long threshold = model.getMaxErrors();
+
+        log.error("Run [{}] Current errorCount {} exceeded max allowed errorCount {}. Aborting test execution.",
+                runId, currentErrorCount, threshold);
+        try {
+            apiClient.abortRun(runId);
+            log.warn("Run [{}] was aborted due to excessive errors.", runId);
+        } catch (Exception stopEx) {
+            log.error("Failed to abort run [{}]: {}", runId, stopEx.getMessage());
+        }
+    }
 
     private int handleFailure(int consecutiveFailures, Exception e) {
         consecutiveFailures++;
-        log.warn("Failed to fetch run status for run [{}]: {}", runId, e.getMessage());
+        log.warn("Failed to fetch status for run [{}]: {} (Attempt {}/{})",
+                runId, e.getMessage(), consecutiveFailures, MAX_RETRIES);
 
         if (consecutiveFailures >= MAX_RETRIES) {
-            log.info("Maximum retries reached, reauthenticating for run [{}]", runId);
+            log.info("Max retries reached. Reauthenticating for run [{}].", runId);
             authManager.login();
             consecutiveFailures = 0;
         }
