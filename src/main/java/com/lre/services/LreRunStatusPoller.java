@@ -55,19 +55,19 @@ public class LreRunStatusPoller {
                     lastLoggedState = currentState;
                 }
 
+                // Terminal state reached
+                if (postRunAction.isTerminal(currentState)) {
+                    log.info("Run [{}] reached terminal state [{}] for PostRunAction [{}]", runId, currentState, postRunAction);
+                    if (currentState == RunState.FINISHED) model.setHtmlReportAvailable(true);
+                    return currentStatus; // exit immediately
+                }
+
                 // Check for errors from LRE
                 errorCount = currentStatus.getTotalErrors();
                 if (errorCount >= model.getMaxErrors()) {
                     log.error("Run [{}] exceeded maximum LRE errors [{}]. Stopping test.", runId, errorCount);
                     apiClient.abortRun(model.getRunId());
                     break;
-                }
-
-                // Terminal state reached
-                if (postRunAction.isTerminal(currentState)) {
-                    log.info("Run [{}] reached terminal state [{}] for PostRunAction [{}]", runId, currentState, postRunAction);
-                    if (currentState == RunState.FINISHED) model.setHtmlReportAvailable(true);
-                    return currentStatus; // exit immediately
                 }
 
                 consecutiveFailures = 0; // reset after successful fetch
