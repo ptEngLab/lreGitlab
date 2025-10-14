@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.File;
 import java.io.IOException;
 
+import static com.lre.actions.utils.CommonUtils.removeRunIdFile;
+
 @Slf4j
 public class Main {
 
@@ -55,7 +57,6 @@ public class Main {
                 default -> false;
             };
 
-            removeRunIdFile();
             System.exit(operationResult ? EXIT_CODE_SUCCESS : EXIT_LRE_FAILURE);
 
         } catch (LreException e) {
@@ -88,9 +89,10 @@ public class Main {
     }
 
     private static boolean runLreTest(LreTestRunModel lreTestRunModel) throws LreException, IOException {
-        // TODO: add actual LRE logic
         LreRunClient lreRunClient = new LreRunClient(lreTestRunModel);
         lreRunClient.startRun();
+        lreRunClient.publishRunReport();
+        removeRunIdFile();
         lreRunClient.close();
 
         return true;
@@ -132,10 +134,7 @@ public class Main {
         return System.getProperty("user.dir") + File.separator + "config.json";
     }
 
-    private static void removeRunIdFile() {
-        // TODO: implement cleanup logic
-        log.debug("Removing temporary Run ID file (if exists)...");
-    }
+
 
     private static void exitWithError(int code, String message, Exception e) {
         log.error("{}: {}", message, e.getMessage(), e);

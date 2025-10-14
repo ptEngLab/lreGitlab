@@ -3,6 +3,7 @@ package com.lre.actions.apis;
 import com.lre.core.http.HttpClientUtils;
 import com.lre.actions.runmodel.LreTestRunModel;
 import com.lre.model.run.LreRunResponse;
+import com.lre.model.run.LreRunResult;
 import com.lre.model.run.LreRunStatus;
 import com.lre.model.test.Test;
 import com.lre.model.test.testcontent.groups.hosts.CloudTemplate;
@@ -136,6 +137,10 @@ public class LreRestApis implements AutoCloseable {
         );
     }
 
+    public List<LreRunResult> fetchRunResults(int runId){
+        return executor.fetchList(urlBuilder.getRunResultsUrl(runId), LreRunResult.class, "Run Results");
+    }
+
     // Timeslot
     public TimeslotCheckResponse calculateTimeslotAvailability(int testId, String payload) {
         return executor.postWithQuery(
@@ -170,5 +175,10 @@ public class LreRestApis implements AutoCloseable {
         String queryValue = "{Purpose['*Load Generator*'];State['Operational']}";
         String fullUrl = url + "?query=" + URLEncoder.encode(queryValue, StandardCharsets.UTF_8);
         return executor.fetchList(fullUrl, HostResponse.class, "Load Generators list");
+    }
+
+    public boolean getRunResultData(int runId, int resultsId, String filePath){
+        String url = urlBuilder.getRunResultsFileUrl(runId, resultsId);
+        return executor.download(url, filePath);
     }
 }

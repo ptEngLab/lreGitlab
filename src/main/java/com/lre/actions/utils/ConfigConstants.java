@@ -8,8 +8,11 @@ public class ConfigConstants {
 
     // File System Constants
     public static final String DEFAULT_OUTPUT_DIR = new File(System.getProperty("user.dir")).getAbsolutePath();
-    public static final String LRE_ARTIFACTS_DIR = "lre_artifacts";
+    public static final String ARTIFACTS_DIR = "artifacts";
     public static final String DEFAULT_TEST_FOLDER = "default_folder";
+
+    public static final String HTML_REPORT_PATH = "%s/%s/LreReports/HtmlReport";
+    public static final String LRE_REPORT_ARCHIVE_NAME = "Reports.zip";
 
     // Logging Constants
     public static final String LRE_LOG_FILE = "lre_actions_%s.log";
@@ -41,6 +44,7 @@ public class ConfigConstants {
     public static final String RUN_STATUS_API = "Runs";
     public static final String CLOUD_TEMPLATE_RESOURCE_NAME = "cloud/templates";
     public static final String HOST_RESOURCE_API = "Hosts";
+    public static final String RESULTS_RESOURCE_API = "Results";
 
     // Query Parameters
     public static final String TEST_INSTANCE_QUERY = "{test-id[\"%d\"]}";

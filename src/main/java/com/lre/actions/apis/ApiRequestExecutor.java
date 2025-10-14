@@ -50,6 +50,14 @@ public record ApiRequestExecutor(CloseableHttpClient httpClient) {
         execute(HttpMethod.PUT, url, payload, contentType, Void.class, "Update");
     }
 
+    public boolean download(String url, String destPath){
+        try {
+            ClassicRequestBuilder requestBuilder = buildRequest(HttpMethod.GET, url, null, null);
+            return downloadApi(requestBuilder, destPath);
+        } catch (URISyntaxException e) {
+            throw uriError("Download file", url, e);
+        }
+    }
     // Centralized Execution
 
     private <T> T execute(HttpMethod method, String url, String payload,
@@ -75,6 +83,8 @@ public record ApiRequestExecutor(CloseableHttpClient httpClient) {
             throw uriError(operation, url, e);
         }
     }
+
+
 
     // Request Builder
 
@@ -112,6 +122,10 @@ public record ApiRequestExecutor(CloseableHttpClient httpClient) {
 
     private String sendRequest(ClassicRequestBuilder requestBuilder) {
         return HttpRequestExecutor.sendRequest(httpClient, requestBuilder);
+    }
+
+    private boolean downloadApi(ClassicRequestBuilder requestBuilder, String destPath){
+        return HttpRequestExecutor.downloadFile(httpClient, requestBuilder, destPath);
     }
 
     private RuntimeException uriError(String operation, String url, URISyntaxException e) {

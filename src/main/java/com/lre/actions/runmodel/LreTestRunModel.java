@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.nio.file.Path;
+
 @Builder
 @Getter
 @Setter
@@ -43,6 +45,7 @@ public class LreTestRunModel {
     private String dashboardUrl;
     private int timeslotId;
     private boolean htmlReportAvailable;
+    private Path htmlReportPath;
 
 
 }

@@ -3,12 +3,14 @@ package com.lre.actions.utils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.UncheckedIOException;
+import java.nio.file.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.function.Function;
 
 import static com.lre.actions.utils.ConfigConstants.*;
@@ -43,7 +45,7 @@ public class CommonUtils {
     public static String createLogFileName() {
         LocalDate today = LocalDate.now();
         String logFileName = String.format(LRE_LOG_FILE, today.format(DateTimeFormatter.ISO_DATE));
-        Path logDirPath = Path.of(DEFAULT_OUTPUT_DIR, LRE_ARTIFACTS_DIR);
+        Path logDirPath = Path.of(DEFAULT_OUTPUT_DIR, ARTIFACTS_DIR);
         try {
             Files.createDirectories(logDirPath);
         } catch (IOException e) {
@@ -137,4 +139,83 @@ public class CommonUtils {
             throw exceptionSupplier.create("Invalid " + name + ": '" + value + "'. Must be a positive number." + validExamples);
         }
     }
+
+    public static void removeRunIdFile() {
+        try {
+            File runIdFile = new File(LRE_RUN_ID_FILE);
+
+            if (!runIdFile.exists()) {
+                log.debug("Run ID file does not exist, no need to delete");
+                return;
+            }
+
+            if (runIdFile.delete()) {
+                log.debug("Successfully deleted temporary Run ID file: {}", LRE_RUN_ID_FILE);
+            } else {
+                log.warn("Failed to delete temporary Run ID file. Path: {}, Absolute Path: {}, Readable: {}, Writable: {}",
+                        LRE_RUN_ID_FILE,
+                        runIdFile.getAbsolutePath(),
+                        runIdFile.canRead(),
+                        runIdFile.canWrite());
+            }
+
+        } catch (SecurityException e) {
+            log.error("Security exception while trying to delete Run ID file '{}': {}", LRE_RUN_ID_FILE, e.getMessage());
+        } catch (Exception e) {
+            log.error("Unexpected error while trying to delete Run ID file '{}' - {}", LRE_RUN_ID_FILE, e.getMessage());
+        }
+    }
+
+    public static void unzip(File zipFile, File destDir) throws IOException {
+        Path destPath = destDir.toPath();
+        if (Files.notExists(destPath)) {
+            Files.createDirectories(destPath);
+        }
+
+        try (FileSystem zipFs = FileSystems.newFileSystem(zipFile.toPath(), (ClassLoader) null)) {
+            for (Path root : zipFs.getRootDirectories()) {
+                try (var stream = Files.walk(root)) {
+                    stream.forEach(source -> {
+                        try {
+                            Path relative = root.relativize(source);
+                            if (relative.toString().isEmpty()) return;
+
+                            Path destination = destPath.resolve(relative.toString());
+                            if (Files.isDirectory(source)) {
+                                Files.createDirectories(destination);
+                            } else {
+                                Files.createDirectories(destination.getParent());
+                                Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
+                            }
+                        } catch (IOException e) {
+                            throw new UncheckedIOException("Failed to extract: " + source, e);
+                        }
+                    });
+                }
+            }
+        } catch (UncheckedIOException e) {
+            throw e.getCause();
+        } catch (IOException e) {
+            throw new IOException("Failed to unzip file: " + zipFile.getAbsolutePath(), e);
+        }
+    }
+
+    /**
+     * Deletes a directory and all its contents recursively.
+     */
+    public static void deleteDirectoryRecursively(Path dir) throws IOException {
+        if (Files.notExists(dir)) return;
+
+        try (var stream = Files.walk(dir)) {
+            stream.sorted(Comparator.reverseOrder())
+                    .forEach(path -> {
+                        try {
+                            Files.delete(path);
+                        } catch (IOException e) {
+                            log.warn("Failed to delete {}", path, e);
+                        }
+                    });
+        }
+    }
+
 }

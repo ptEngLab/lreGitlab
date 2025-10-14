@@ -38,7 +38,6 @@ public class ApiUrlBuilder {
         return lreApiUrl + "/" + SCRIPTS_RESOURCE_NAME + "/" + testId;
     }
 
-
     public String getTestPlansUrl() {
         return lreApiUrl + "/" + TEST_PLAN_NAME;
     }
@@ -83,7 +82,15 @@ public class ApiUrlBuilder {
         return lreApiUrl + "/" + CLOUD_TEMPLATE_RESOURCE_NAME + "/" + id;
     }
 
-    public String getHostsUrl(){
-        return lreApiUrl + "/" + HOST_RESOURCE_API;
+    public String getHostsUrl() {
+        return String.format("%s/%s", lreApiUrl, HOST_RESOURCE_API);
+    }
+
+    public String getRunResultsUrl(int runId) {
+        return String.format("%s/%s%d/%s", lreApiUrl, RUN_STATUS_API, runId, RESULTS_RESOURCE_API);
+    }
+
+    public String getRunResultsFileUrl(int runId, int resultId){
+        return String.format("%s/%s/%d/%s/%d", lreApiUrl, RUN_STATUS_API, runId, RESULTS_RESOURCE_API, resultId);
     }
 }

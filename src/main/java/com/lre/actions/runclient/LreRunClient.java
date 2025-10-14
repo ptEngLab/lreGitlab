@@ -8,6 +8,8 @@ import com.lre.model.run.LreRunStatus;
 import com.lre.services.*;
 import lombok.extern.slf4j.Slf4j;
 
+import java.nio.file.Path;
+
 @Slf4j
 public class LreRunClient implements AutoCloseable {
 
@@ -36,6 +38,16 @@ public class LreRunClient implements AutoCloseable {
             throw new LreException("Test run execution failed", e);
         }
     }
+
+    public void publishRunReport() {
+        LreReportPublisher publisher = new LreReportPublisher(lreRestApis, model);
+        Path reportPath = publisher.publish();
+
+        if (reportPath != null) log.info("Report successfully extracted");
+        else log.warn("Report not available for run id: {}", model.getRunId());
+
+    }
+
 
     private LreRunStatus executeRunWorkflow() {
         fetchTestDetails();
