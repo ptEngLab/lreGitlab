@@ -41,6 +41,8 @@ public class LreRunStatusPoller {
         LreRunStatus lastKnownStatus = new LreRunStatus();
         lastKnownStatus.setRunState(RunState.UNDEFINED.getValue());
 
+        long errorCount;
+
         while (!Thread.currentThread().isInterrupted()) {
             try {
                 LreRunStatus currentStatus = apiClient.fetchRunStatus(runId);
@@ -51,6 +53,14 @@ public class LreRunStatusPoller {
                 if (currentState != lastLoggedState) {
                     logStateChange(currentState, startTime);
                     lastLoggedState = currentState;
+                }
+
+                // Check for errors from LRE
+                errorCount = currentStatus.getTotalErrors();
+                if (errorCount >= model.getMaxErrors()) {
+                    log.error("Run [{}] exceeded maximum LRE errors [{}]. Stopping test.", runId, errorCount);
+                    apiClient.abortRun(model.getRunId());
+                    break;
                 }
 
                 // Terminal state reached

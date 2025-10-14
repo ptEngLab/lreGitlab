@@ -135,6 +135,10 @@ public class LreRestApis implements AutoCloseable {
         );
     }
 
+    public void abortRun(int runId){
+        executor.create(urlBuilder.getAbortRunUrl(runId), "{}", ContentType.APPLICATION_JSON, Void.class, "Abort Run");
+    }
+
     public List<LreRunStatusExtended> fetchRunResultsExtended(String payload) {
         return executor.createList(urlBuilder.getRunResultsExtendedUrl(), payload, ContentType.APPLICATION_JSON, LreRunStatusExtended.class, "Run status extended");
     }

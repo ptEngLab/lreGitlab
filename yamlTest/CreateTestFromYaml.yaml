@@ -12,7 +12,7 @@ controller: "devserver"
 workloadTypeCode: 6
 
 # IDs of the monitor profiles to attach (for system metrics). If you don't have any monitoring, you can comment out this line or omit it.
-monitorProfileIds: [ 1001, 1002 ]
+#monitorProfileIds: [ 1001, 1002 ]
 
 # Automatic trending configuration for test results
 automaticTrending:
@@ -24,18 +24,16 @@ automaticTrending:
 # Each group defines a set of virtual users running a specific script
 # ===============================================
 groups:
-  - name: "SampleGroup"           # Logical name of the Vuser group
-    vusers: 35                    # Total number of virtual users in this group
+  - name: "SampleGroup1"           # Logical name of the Vuser group
     script: "e2e/Optional"        # Path or identifier of the test script to run
 
     # Scheduler for this group — defines how users start/stop during the test. This scheduler section used if the workloadTypeCode supports group-level scheduling.
     scheduler:
-      - initialize: "gradually:10u@30s"         # Initialize 10 users gradually over 30 seconds
-      - startVusers: "10vu:gradually:2U@10s"    # Start 10 virtual users, ramp-up 2 users every 10 seconds
-      - duration: "10m 30s"                     # Hold load for 10 min 30 seconds
-      - startVusers: "15vu:gradually:2U@10s"    # Start 15 more users gradually (2 users every 10 seconds)
-      - duration: "1h 5m 10s"                   # Hold for 1 hour 5 min and 30 seconds
-      - stopVusers: "35vu:simultaneously"       # Stop all 35 users at once
+      - startVusers: "52vu:gradually:2U@15s"    # ramp-up 2 users every 10 seconds
+      - duration: "50m"
+      - startVusers: "50vu:simultaneously"    # ramp-up 2 users every 10 seconds
+      - duration: "5"
+
 
     # Load generator assignment — which LGs will run this group. In this example, LG1 (automatch 1 on-prem LG) and a cloud LG
     hostnames: "LG1, cloud1"
@@ -52,27 +50,23 @@ groups:
     # Logging options for Vusers
     log: "extended:on error:15:trace"  # Detailed logging on error with trace enabled and cache size 15KB
 
-    # Java Virtual Machine configuration for Java-based scripts
-    javaVM: >
-      JavaEnvClassPaths=lib\\junit.jar;lib\\hamcrest.jar;user_binaries\\myapp.jar,
-      UserSpecifiedJdk=true,
-      JdkHome=/usr/lib/jvm/java-17,
-      UseXboot=false,
-      EnableClassLoaderPerVuser=true,
-      JavaVmParameters=-Xms128m -Xmx512m -Dspring.profiles.active=test
+
 
     # Reference to a global runtime setting
-    globalRTS: "RTS1"
+#    globalRTS: "RTS1"
 
     # Reference to a predefined global command line
-    globalCommandLine: "cmd1"
+#    globalCommandLine: "cmd1"
 
 
   - name: "SampleGroup2"
     vusers: 10
     script: "10"                # Reference to another script or ID
     hostnames: "LG1, MyLocalLG"
-    globalRTS: "RTS1"           # Reuse global RTS profile
+    scheduler:
+      - startGroup: "after SampleGroup1"    # ramp-up 2 users every 10 seconds
+
+#    globalRTS: "RTS1"           # Reuse global RTS profile
 
 
   - name: "SampleGroup3"
@@ -85,36 +79,40 @@ groups:
     selenium: >
       JREPath=C:\\java\\jdk,
       ClassPath=myclasspath.jar,
-      TestNgFiles=testng.xml                 # Selenium-specific JVM config
+      TestNgFiles=testng.xml
 
 
-# ===============================================
-# ️ Global Configurations shared across groups
-# ===============================================
-
-# Global command lines available to groups
-globalCommandLines:
-  - name: "cmd1"
-    value: "command line 1"
-
-# Global runtime settings profiles (RTS)
-globalRts:
-  - name: "RTS1"
-    pacing: "immediately"        # Start next iteration immediately after previous ends
-    thinkTime: "modify:*2.0"     # Double the recorded think time globally
-
+## ===============================================
+## ️ Global Configurations shared across groups
+## ===============================================
+#
+## Global command lines available to groups
+#globalCommandLines:
+#  - name: "cmd1"
+#    value: "command line 1"
+#
+## Global runtime settings profiles (RTS)
+#globalRts:
+#  - name: "RTS1"
+#    pacing: "immediately"        # Start next iteration immediately after previous ends
+#    thinkTime: "modify:*2.0"     # Double the recorded think time globally
+#
 
 # ===============================================
 # Global Scheduler (for test-level scheduling)
 # This scheduler section is used if the workloadTypeCode supports only test-level scheduling.
 # ===============================================
 scheduler:
-  - initialize: "gradually:10u@30s"
-  - startVusers: "10vu:gradually:2U@10s"
-  - duration: "30 s"
-  - duration: "30 s"
-  - startVusers: "15vu:gradually:2U@10s"
-  - stopVusers: "50vu:simultaneously"
+#  - initialize: "gradually:10u@30s"
+   - startVusers: "10vu:gradually:2U@10s"
+#   - startVusers: "gradually:2U@15s"
+#   - duration: "until complete"
+
+   - duration: "1 h 5 M"
+   - startVusers: "1vu:simultaneously"
+   - duration: "5m"
+#  - startVusers: "15vu:gradually:2U@10s"
+   - stopVusers: "simultaneously"
 
 
 # ===============================================

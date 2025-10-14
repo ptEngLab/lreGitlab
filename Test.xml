@@ -9,59 +9,33 @@
     <Type>all to each group</Type>
     <Amount>4</Amount>
   </LGDistribution>
-  <MonitorProfiles>
-    <MonitorProfile>
-      <ID>1001</ID>
-    </MonitorProfile>
-    <MonitorProfile>
-      <ID>1002</ID>
-    </MonitorProfile>
-  </MonitorProfiles>
-  <GlobalRTS>
-    <RTS>
-      <Name>RTS1</Name>
-      <Pacing>
-        <NumberOfIterations>1</NumberOfIterations>
-        <StartNewIteration Type="immediately"/>
-      </Pacing>
-      <ThinkTime Type="modify">
-        <MultiplyFactor>2.0</MultiplyFactor>
-      </ThinkTime>
-      <Log Type="standard">
-        <LogOptions Type="on error">
-          <CacheSize>1</CacheSize>
-        </LogOptions>
-      </Log>
-    </RTS>
-  </GlobalRTS>
-  <GlobalCommandLine>
-    <CommandLine>
-      <Name>cmd1</Name>
-      <Value>command line 1</Value>
-    </CommandLine>
-  </GlobalCommandLine>
+  <MonitorProfiles/>
   <Groups>
     <Group>
-      <Name>SampleGroup</Name>
-      <Vusers>35</Vusers>
-      <CommandLine>cmd1</CommandLine>
+      <Name>SampleGroup1</Name>
+      <Vusers>102</Vusers>
       <Script>
         <ID>200</ID>
         <ProtocolType>Web - HTTP/HTML</ProtocolType>
       </Script>
+      <CommandLine/>
       <RTS>
-        <Name>RTS1</Name>
         <Pacing>
-          <NumberOfIterations>1</NumberOfIterations>
-          <StartNewIteration Type="immediately"/>
+          <NumberOfIterations>3</NumberOfIterations>
+          <StartNewIteration Type="fixed delay">
+            <DelayOfSeconds>5</DelayOfSeconds>
+          </StartNewIteration>
         </Pacing>
         <ThinkTime Type="modify">
           <MultiplyFactor>2.0</MultiplyFactor>
         </ThinkTime>
-        <Log Type="standard">
+        <Log Type="extended">
           <LogOptions Type="on error">
-            <CacheSize>1</CacheSize>
+            <CacheSize>15</CacheSize>
           </LogOptions>
+          <ParametersSubstitution>false</ParametersSubstitution>
+          <DataReturnedByServer>false</DataReturnedByServer>
+          <AdvanceTrace>true</AdvanceTrace>
         </Log>
       </RTS>
       <Scheduler>
@@ -70,46 +44,36 @@
             <StartGroup Type="immediately"/>
           </Action>
           <Action>
-            <Initialize Type="gradually">
+            <Initialize Type="just before vuser runs"/>
+          </Action>
+          <Action>
+            <StartVusers Type="gradually">
+              <Vusers>52</Vusers>
+              <Ramp>
+                <Vusers>2</Vusers>
+                <TimeInterval>
+                  <Seconds>15</Seconds>
+                </TimeInterval>
+              </Ramp>
+            </StartVusers>
+          </Action>
+          <Action>
+            <Duration Type="run for">
               <TimeInterval>
-                <Seconds>30</Seconds>
+                <Minutes>50</Minutes>
               </TimeInterval>
-              <Vusers>10</Vusers>
-              <WaitAfterInit/>
-            </Initialize>
+            </Duration>
           </Action>
           <Action>
-            <StartVusers Type="gradually">
-              <Vusers>10</Vusers>
-              <Ramp>
-                <Vusers>2</Vusers>
-                <TimeInterval>
-                  <Seconds>10</Seconds>
-                </TimeInterval>
-              </Ramp>
-            </StartVusers>
-          </Action>
-          <Action>
-            <StartVusers Type="gradually">
-              <Vusers>15</Vusers>
-              <Ramp>
-                <Vusers>2</Vusers>
-                <TimeInterval>
-                  <Seconds>10</Seconds>
-                </TimeInterval>
-              </Ramp>
+            <StartVusers Type="simultaneously">
+              <Vusers>50</Vusers>
             </StartVusers>
           </Action>
           <Action>
             <Duration Type="until completion"/>
           </Action>
           <Action>
-            <Duration Type="until completion"/>
-          </Action>
-          <Action>
-            <StopVusers Type="simultaneously">
-              <Vusers>35</Vusers>
-            </StopVusers>
+            <StopVusers Type="simultaneously"/>
           </Action>
         </Actions>
       </Scheduler>
@@ -121,15 +85,13 @@
         <ID>10</ID>
         <ProtocolType>Web - HTTP/HTML</ProtocolType>
       </Script>
+      <CommandLine/>
       <RTS>
-        <Name>RTS1</Name>
         <Pacing>
           <NumberOfIterations>1</NumberOfIterations>
           <StartNewIteration Type="immediately"/>
         </Pacing>
-        <ThinkTime Type="modify">
-          <MultiplyFactor>2.0</MultiplyFactor>
-        </ThinkTime>
+        <ThinkTime Type="ignore"/>
         <Log Type="standard">
           <LogOptions Type="on error">
             <CacheSize>1</CacheSize>
@@ -139,7 +101,9 @@
       <Scheduler>
         <Actions>
           <Action>
-            <StartGroup Type="immediately"/>
+            <StartGroup Type="when group finishes">
+              <Name>SampleGroup1</Name>
+            </StartGroup>
           </Action>
           <Action>
             <Initialize Type="just before vuser runs"/>
@@ -152,14 +116,15 @@
           <Action>
             <Duration Type="run for">
               <TimeInterval>
+                <Days>0</Days>
+                <Hours>0</Hours>
                 <Minutes>5</Minutes>
+                <Seconds>0</Seconds>
               </TimeInterval>
             </Duration>
           </Action>
           <Action>
-            <StopVusers Type="simultaneously">
-              <Vusers>10</Vusers>
-            </StopVusers>
+            <StopVusers Type="simultaneously"/>
           </Action>
         </Actions>
       </Scheduler>
@@ -171,6 +136,7 @@
         <ID>11</ID>
         <ProtocolType>Web - HTTP/HTML</ProtocolType>
       </Script>
+      <CommandLine/>
       <RTS>
         <Pacing>
           <NumberOfIterations>5</NumberOfIterations>
@@ -188,7 +154,7 @@
         <Selenium>
           <JREPath>C:\\java\\jdk</JREPath>
           <ClassPath>myclasspath.jar</ClassPath>
-          <TestNgFiles>testng.xml                 # Selenium-specific JVM config</TestNgFiles>
+          <TestNgFiles>testng.xml</TestNgFiles>
         </Selenium>
       </RTS>
       <Scheduler>

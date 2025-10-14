@@ -6,5 +6,6 @@
   "LRE_PROJECT": "test-project",
   "LRE_TEST": "yamlTest/CreateTestFromYaml.yaml",
   "SYNC_GITLAB_WITH_LRE_FLAG": "false",
-  "GITLAB_URL": "https://gitlab.example.com"
+  "GITLAB_URL": "https://gitlab.example.com",
+  "MAX_ERROR_COUNT": 200
 }

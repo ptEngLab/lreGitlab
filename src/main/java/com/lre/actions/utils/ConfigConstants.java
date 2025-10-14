@@ -41,6 +41,7 @@ public class ConfigConstants {
     public static final String DEFAULT_TEST_SET_FOLDER_NAME = "AutoTestSet";
     public static final String TIMESLOT_CHECK = "designLoadTest/CalculateAvailability";
     public static final String START_RUN_API = "designLoadTest/StartRun";
+    public static final String ABORT_RUN_API = "abort";
     public static final String RUN_STATUS_API = "Runs";
     public static final String CLOUD_TEMPLATE_RESOURCE_NAME = "cloud/templates";
     public static final String HOST_RESOURCE_API = "Hosts";
@@ -55,7 +56,7 @@ public class ConfigConstants {
     public static final int MINUTES_PER_HOUR = 60;
     public static final int MAX_RETRIES = 3;
     public static final int RETRY_DELAY_SECONDS = 5;
-    public static final long DEFAULT_POLL_INTERVAL_SECONDS = 0;
+    public static final long DEFAULT_POLL_INTERVAL_SECONDS = 1;
 
 
     public static final String LRE_RUN_ID_FILE = "lre_run_id.txt";

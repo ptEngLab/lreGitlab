@@ -36,6 +36,7 @@ public class ConfigMapper {
                 .statusBySla((String) params.get(ParameterDefinitions.Keys.LRE_STATUS_BY_SLA))
                 .workspace((String) params.get(ParameterDefinitions.Keys.LRE_OUTPUT_DIR))
                 .runTestFromGitlab((Boolean) params.get(ParameterDefinitions.Keys.RUN_LRE_TEST_FROM_GITLAB_FLAG))
+                .maxErrors((Long) params.get(ParameterDefinitions.Keys.MAX_ERROR_COUNT))
                 .existingTest(false)
                 .testContentToCreate(null)
                 .testFolderPath(null)

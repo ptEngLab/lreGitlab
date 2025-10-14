@@ -55,11 +55,15 @@ public class ApiUrlBuilder {
     }
 
     public String getRunStatusUrl(int runId) {
-        return lreApiUrl + "/" + RUN_STATUS_API + "/" + runId;
+        return lreApiUrl + "/" + RUN_STATUS_API + "/" + runId + "/Extended";
     }
 
     public String getStartRunUrl() {
         return lreWebUrl + "/" + START_RUN_API;
+    }
+
+    public String getAbortRunUrl(int runId) {
+        return lreApiUrl + "/" + RUN_STATUS_API + "/" + runId + "/"  + ABORT_RUN_API;
     }
 
     public String getTimeslotCheckUrl() {

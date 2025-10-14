@@ -42,6 +42,7 @@ public record ConfigParser(ParameterResolver resolver) {
         try {
             if (def.defaultValue() instanceof Integer) map.put(def.key(), Integer.parseInt(value));
             else if (def.defaultValue() instanceof Boolean) map.put(def.key(), Boolean.parseBoolean(value.toLowerCase()));
+            else if (def.defaultValue() instanceof Long) map.put(def.key(), Long.parseLong(value.toLowerCase()));
             else map.put(def.key(), value);
         } catch (NumberFormatException e) {
             map.put(def.key(), def.defaultValue());

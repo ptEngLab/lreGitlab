@@ -30,6 +30,7 @@ public class LreTestRunModel {
     private int testInstanceId;
     private int timeslotDurationHours;
     private int timeslotDurationMinutes;
+    private long maxErrors;
 
     private PostRunAction lrePostRunAction;
     private boolean virtualUserFlexDaysMode;
