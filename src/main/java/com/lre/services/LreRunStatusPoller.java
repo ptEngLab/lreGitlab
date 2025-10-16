@@ -117,36 +117,32 @@ public class LreRunStatusPoller {
         long errorThreshold = model.getMaxErrors();
         long failedTxnThreshold = model.getMaxFailedTxns();
 
-        StringBuilder reason = new StringBuilder("Aborting test execution due to threshold breach: ");
+        StringBuilder reason = new StringBuilder();
 
         if (errorCount >= errorThreshold) {
-            reason.append(String.format("Errors %d/%d", errorCount, errorThreshold));
+            reason.append(String.format("Error threshold breached (%d/%d)", errorCount, errorThreshold));
         }
-
         if (failedTxnCount >= failedTxnThreshold) {
             if (!reason.isEmpty()) reason.append(" | ");
-            reason.append(String.format("FailedTxns %d/%d", failedTxnCount, failedTxnThreshold));
+            reason.append(String.format("Failed Txn threshold breached (%d/%d)", failedTxnCount, failedTxnThreshold));
         }
 
-        log.error("Run [{}] {}", runId, reason);
-
+        log.error("Run [{}] Aborting test execution due to threshold breach: {}", runId, reason);
         try {
             apiClient.abortRun(runId);
-            log.warn(
-                    "Run aborted due to threshold breach. errorCount={}, errorThreshold={}, failedTxnCount={}, failedTxnThreshold={}, ",
-                    errorCount, errorThreshold, failedTxnCount, failedTxnThreshold
-            );
-
+            log.warn("Run aborted due to threshold breach. errorCount={}, errorThreshold={}, failedTxnCount={}, failedTxnThreshold={}",
+                    errorCount, errorThreshold, failedTxnCount, failedTxnThreshold);
             model.setTestFailed(true);
+            model.setFailureReason("Aborted due to threshold breach: " + reason);
         } catch (Exception ex) {
             log.error("Failed to abort run [{}] after threshold breach: {}", runId, ex.getMessage());
         }
     }
 
+
     private int handleFailure(int consecutiveFailures, Exception e) {
         consecutiveFailures++;
-        log.warn("Failed to fetch status for run [{}]: {} (Attempt {}/{})",
-                runId, e.getMessage(), consecutiveFailures, MAX_RETRIES);
+        log.warn("Failed to fetch status for run [{}]: {} (Attempt {}/{})", runId, e.getMessage(), consecutiveFailures, MAX_RETRIES);
 
         if (consecutiveFailures >= MAX_RETRIES) {
             log.info("Max retries reached. Reauthenticating for run [{}].", runId);

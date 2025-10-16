@@ -49,6 +49,7 @@ public class LreTestRunModel {
     private boolean htmlReportAvailable;
     private Path htmlReportPath;
     private boolean testFailed;
+    private String failureReason;
 
 
 }

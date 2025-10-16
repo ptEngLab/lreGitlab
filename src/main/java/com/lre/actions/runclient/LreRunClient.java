@@ -33,37 +33,34 @@ public class LreRunClient implements AutoCloseable {
     public void startRun() {
         try {
             LreRunStatus finalStatus = executeRunWorkflow();
-
-            if (model.isTestFailed()) {
-                String errorMessage = String.format(
-                        "Run failed for test: %s. Last known state: %s (Errors: %d, FailedTxns: %d)",
-                        model.getTestToRun(),
-                        finalStatus.getRunState(),
-                        finalStatus.getTotalErrors(),
-                        finalStatus.getTotalFailedTransactions()
-                );
-                log.error(errorMessage);
-
-                printRunSummary();
-                throw new LreException(errorMessage);
-            }
-
+            if (model.isTestFailed()) throw new LreException(getErrorMsg(finalStatus));
             log.info("Run completed successfully for test: {}", model.getTestToRun());
-
         } catch (LreException le) {
-            throw le; // Let main handle exit
+            log.debug("LRE execution failed: {}", le.getMessage());
+            throw le;
         } catch (Exception ex) {
-            // Unexpected exception — concise logging
-            log.error("Unexpected error during test run for [{}]: {}", model.getTestToRun(), ex.getMessage());
+            log.error("Unexpected error during test run [{}]: {}", model.getTestToRun(), ex.getMessage());
             throw new LreException("Unexpected failure during test execution", ex);
         }
     }
 
+    private String getErrorMsg(LreRunStatus finalStatus) {
+        String reason = model.getFailureReason() != null ? model.getFailureReason() : "Unknown failure";
+        return String.format(
+                "Test failed for [%s]: %s (Last known state: %s, Errors: %d, FailedTxns: %d)",
+                model.getTestToRun(),
+                reason,
+                finalStatus.getRunState(),
+                finalStatus.getTotalErrors(),
+                finalStatus.getTotalFailedTransactions()
+        );
+    }
+
+
     public void publishRunReport() {
-        if(model.isHtmlReportAvailable()) {
+        if (model.isHtmlReportAvailable()) {
             LreReportPublisher publisher = new LreReportPublisher(lreRestApis, model);
             Path reportPath = publisher.publish();
-
             if (reportPath != null) log.info("Report successfully published at: {}", reportPath.resolve("index.html"));
             else log.warn("Report not available for run id: {}", model.getRunId());
         }
@@ -105,7 +102,7 @@ public class LreRunClient implements AutoCloseable {
                         "Test Folder: " + model.getTestFolderPath(),
                         "Test Instance Id: " + model.getTestInstanceId(),
                         "Run Name: " + runStatusExtended.getName(),
-                        "Run Status: " + runStatusExtended.getState() + " - " + runResult
+                        "Run Status: " + runStatusExtended.getState() + ", Result: " + runResult
                 },
                 {
                         "Start Time: " + runStatusExtended.getStart(),
@@ -182,7 +179,6 @@ public class LreRunClient implements AutoCloseable {
 
         return String.format("%02d:%02d:%02d", hours, minutes, seconds);
     }
-
 
 
     @Override
