@@ -4,7 +4,6 @@ import com.lre.actions.apis.LreRestApis;
 import com.lre.actions.exceptions.LreException;
 import com.lre.actions.runmodel.LreTestRunModel;
 import com.lre.actions.utils.JsonUtils;
-import com.lre.model.enums.RunState;
 import com.lre.model.run.LreRunStatus;
 import com.lre.model.run.LreRunStatusExtended;
 import com.lre.model.run.LreRunStatusReqWeb;
@@ -34,7 +33,7 @@ public class LreRunClient implements AutoCloseable {
     public void startRun() {
         try {
             LreRunStatus finalStatus = executeRunWorkflow();
-            if (isRunFailure(finalStatus)) {
+            if (model.isTestFailed()) {
                 String errorMessage = String.format("Run failed for test: %s. Final state: %s", model.getTestToRun(), finalStatus.getRunState());
                 throw new LreException(errorMessage);
             }
@@ -140,12 +139,6 @@ public class LreRunClient implements AutoCloseable {
         log.debug("Run monitoring completed. {}", runStatus.getRunState());
         return runStatus;
 
-    }
-
-    private boolean isRunFailure(LreRunStatus status) {
-        if (status == null) return true;
-        RunState runState = RunState.fromValue(status.getRunState());
-        return runState == RunState.RUN_FAILURE || runState == RunState.UNDEFINED;
     }
 
     private static String calculateTestDuration(LocalDateTime start, LocalDateTime end) {
