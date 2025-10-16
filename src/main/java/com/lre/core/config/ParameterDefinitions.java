@@ -29,6 +29,7 @@ public class ParameterDefinitions {
         public static final boolean VIRTUAL_USER_FLEX_DAYS_MODE = false;
         public static final int VIRTUAL_USER_FLEX_DAYS_AMOUNT = 0;
         public static final long MAX_ERROR_COUNT = 5000;
+        public static final long MAX_FAILED_TXN_COUNT = 100;
 
 
         // GitLab Parameters
@@ -64,6 +65,7 @@ public class ParameterDefinitions {
         public static final String VIRTUAL_USER_FLEX_DAYS_MODE = "virtual_user_flex_days_mode";
         public static final String VIRTUAL_USER_FLEX_DAYS_AMOUNT = "virtual_user_flex_days_amount";
         public static final String MAX_ERROR_COUNT = "max_error_count";
+        public static final String MAX_FAILED_TXN_COUNT = "max_failed_txn_count";
 
         // GitLab Parameters
         public static final String SYNC_GITLAB_WITH_LRE_FLAG = "sync_gitlab_with_lre_flag";
@@ -110,6 +112,7 @@ public class ParameterDefinitions {
                 new ConfigParameter<>(Keys.RUN_LRE_TEST_FROM_GITLAB_FLAG, false, Defaults.RUN_LRE_TEST_FROM_GITLAB_FLAG),
                 new ConfigParameter<>(Keys.VIRTUAL_USER_FLEX_DAYS_MODE, false, Defaults.VIRTUAL_USER_FLEX_DAYS_MODE),
                 new ConfigParameter<>(Keys.MAX_ERROR_COUNT, false, Defaults.MAX_ERROR_COUNT),
+                new ConfigParameter<>(Keys.MAX_FAILED_TXN_COUNT, false, Defaults.MAX_FAILED_TXN_COUNT),
                 new ConfigParameter<>(Keys.VIRTUAL_USER_FLEX_DAYS_AMOUNT, false, Defaults.VIRTUAL_USER_FLEX_DAYS_AMOUNT)
         );
 

@@ -92,20 +92,51 @@ public class LreRunStatusPoller {
     }
 
     private boolean shouldAbortDueToErrors(LreRunStatus currentStatus, RunState currentState) {
-        return currentState == RunState.RUNNING && currentStatus.getTotalErrors() >= model.getMaxErrors();
+        if (currentState != RunState.RUNNING) return false;
+
+        long errorCount = currentStatus.getTotalErrors();
+        long failedTxnCount = currentStatus.getTotalFailedTransactions();
+        long errorThreshold = model.getMaxErrors();
+        long failedTxnThreshold = model.getMaxFailedTxns();
+
+        boolean errorLimitExceeded = errorCount >= errorThreshold;
+        boolean failedTxnLimitExceeded = failedTxnCount >= failedTxnThreshold;
+
+        if (errorLimitExceeded || failedTxnLimitExceeded) {
+            log.warn("Run [{}] threshold breach detected. Current Errors: {}/{} | Failed Txns: {}/{}",
+                    runId, errorCount, errorThreshold, failedTxnCount, failedTxnThreshold);
+            return true;
+        }
+
+        return false;
     }
 
     private void abortRunDueToErrors(LreRunStatus currentStatus) {
-        long currentErrorCount = currentStatus.getTotalErrors();
-        long threshold = model.getMaxErrors();
+        long errorCount = currentStatus.getTotalErrors();
+        long failedTxnCount = currentStatus.getTotalFailedTransactions();
+        long errorThreshold = model.getMaxErrors();
+        long failedTxnThreshold = model.getMaxFailedTxns();
 
-        log.error("Run [{}] Current errorCount {} exceeded max allowed errorCount {}. Aborting test execution.",
-                runId, currentErrorCount, threshold);
+        StringBuilder reason = new StringBuilder("Aborting test execution due to threshold breach: ");
+
+        if (errorCount >= errorThreshold) {
+            reason.append(String.format("Errors %d/%d", errorCount, errorThreshold));
+        }
+
+        if (failedTxnCount >= failedTxnThreshold) {
+            if (!reason.isEmpty()) reason.append(" | ");
+            reason.append(String.format("FailedTxns %d/%d", failedTxnCount, failedTxnThreshold));
+        }
+
+        log.error("Run [{}] {}", runId, reason);
+
         try {
             apiClient.abortRun(runId);
-            log.warn("Run [{}] was aborted due to excessive errors.", runId);
-        } catch (Exception stopEx) {
-            log.error("Failed to abort run [{}]: {}", runId, stopEx.getMessage());
+            log.warn("Run [{}] was aborted due to threshold breach (Errors: {}/{} | FailedTxns: {}/{}).",
+                    runId, errorCount, errorThreshold, failedTxnCount, failedTxnThreshold);
+            model.setTestFailed(true);
+        } catch (Exception ex) {
+            log.error("Failed to abort run [{}] after threshold breach: {}", runId, ex.getMessage());
         }
     }
 

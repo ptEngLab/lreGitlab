@@ -31,6 +31,7 @@ public class LreTestRunModel {
     private int timeslotDurationHours;
     private int timeslotDurationMinutes;
     private long maxErrors;
+    private long maxFailedTxns;
 
     private PostRunAction lrePostRunAction;
     private boolean virtualUserFlexDaysMode;
@@ -47,6 +48,7 @@ public class LreTestRunModel {
     private int timeslotId;
     private boolean htmlReportAvailable;
     private Path htmlReportPath;
+    private boolean testFailed;
 
 
 }

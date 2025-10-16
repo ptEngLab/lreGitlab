@@ -37,6 +37,7 @@ public class ConfigMapper {
                 .workspace((String) params.get(ParameterDefinitions.Keys.LRE_OUTPUT_DIR))
                 .runTestFromGitlab((Boolean) params.get(ParameterDefinitions.Keys.RUN_LRE_TEST_FROM_GITLAB_FLAG))
                 .maxErrors((Long) params.get(ParameterDefinitions.Keys.MAX_ERROR_COUNT))
+                .maxFailedTxns((Long) params.get(ParameterDefinitions.Keys.MAX_FAILED_TXN_COUNT))
                 .existingTest(false)
                 .testContentToCreate(null)
                 .testFolderPath(null)
