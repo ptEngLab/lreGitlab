@@ -73,7 +73,7 @@ public class LreRunStatusPoller {
         }
 
         // Return the last known status if loop exited due to timeslot expiration
-        log.info("Returning last known status for run [{}]: {}", runId, lastKnownStatus.getRunState());
+        log.debug("Returning last known status for run [{}]: {}", runId, lastKnownStatus.getRunState());
         return lastKnownStatus;
     }
 
@@ -132,8 +132,11 @@ public class LreRunStatusPoller {
 
         try {
             apiClient.abortRun(runId);
-            log.warn("Run [{}] was aborted due to threshold breach (Errors: {}/{} | FailedTxns: {}/{}).",
-                    runId, errorCount, errorThreshold, failedTxnCount, failedTxnThreshold);
+            log.warn(
+                    "Run aborted due to threshold breach. errorCount={}, errorThreshold={}, failedTxnCount={}, failedTxnThreshold={}, ",
+                    errorCount, errorThreshold, failedTxnCount, failedTxnThreshold
+            );
+
             model.setTestFailed(true);
         } catch (Exception ex) {
             log.error("Failed to abort run [{}] after threshold breach: {}", runId, ex.getMessage());

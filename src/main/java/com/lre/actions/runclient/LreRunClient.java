@@ -33,15 +33,29 @@ public class LreRunClient implements AutoCloseable {
     public void startRun() {
         try {
             LreRunStatus finalStatus = executeRunWorkflow();
+
             if (model.isTestFailed()) {
-                String errorMessage = String.format("Run failed for test: %s. Final state: %s", model.getTestToRun(), finalStatus.getRunState());
+                String errorMessage = String.format(
+                        "Run failed for test: %s. Last known state: %s (Errors: %d, FailedTxns: %d)",
+                        model.getTestToRun(),
+                        finalStatus.getRunState(),
+                        finalStatus.getTotalErrors(),
+                        finalStatus.getTotalFailedTransactions()
+                );
+                log.error(errorMessage);
+
+                printRunSummary();
                 throw new LreException(errorMessage);
             }
-            log.info("Run completed successfully for test: {}", model.getTestToRun());
-        } catch (Exception e) {
 
-            log.error("Run failed for test: {}", model.getTestToRun(), e);
-            throw new LreException("Test run execution failed", e);
+            log.info("Run completed successfully for test: {}", model.getTestToRun());
+
+        } catch (LreException le) {
+            throw le; // Let main handle exit
+        } catch (Exception ex) {
+            // Unexpected exception — concise logging
+            log.error("Unexpected error during test run for [{}]: {}", model.getTestToRun(), ex.getMessage());
+            throw new LreException("Unexpected failure during test execution", ex);
         }
     }
 
@@ -55,47 +69,65 @@ public class LreRunClient implements AutoCloseable {
         }
     }
 
-    public void printRunSummary(){
+    public void printRunSummary() {
         LreRunStatusReqWeb runStatusReq = LreRunStatusReqWeb.createRunStatusPayloadForRunId(model.getRunId());
+        LreRunStatusExtended runStatusExtended = lreRestApis
+                .fetchRunResultsExtended(JsonUtils.toJson(runStatusReq))
+                .get(0);
 
-        LreRunStatusExtended runStatusExtended = lreRestApis.fetchRunResultsExtended(JsonUtils.toJson(runStatusReq)).get(0);
+        // Determine if thresholds were exceeded
+        long errorThreshold = model.getMaxErrors();
+        long failedTxnThreshold = model.getMaxFailedTxns();
 
-            String[][] rows = {
-                    {
-                            "Domain: " + model.getDomain(),
-                            "Project: " + model.getProject(),
-                            "Test Name: " + model.getTestName(),
-                            "Test Id: " + model.getTestId()
-                    },
-                    {
-                            "Test Folder: " + model.getTestFolderPath(),
-                            "Test Instance Id: " + model.getTestInstanceId(),
-                            "Run Name: " + runStatusExtended.getName(),
-                            "Run Status: " + runStatusExtended.getState()
+        boolean errorExceeded = runStatusExtended.getErrors() >= errorThreshold;
+        boolean failedTxnExceeded = runStatusExtended.getTransFailed() >= failedTxnThreshold;
 
-                    },
-                    {
-                            "Start Time: " + runStatusExtended.getStart(),
-                            "End Time: " + runStatusExtended.getEnd(),
-                            "Test Duration: " + calculateTestDuration(runStatusExtended.getStart(), runStatusExtended.getEnd()),
-                            "Vusers involved: " + runStatusExtended.getVusersInvolved()
-                    },
-                    {
-                            "Transaction Passed: " + runStatusExtended.getTransPassed(),
-                            "Transaction Failed: " + runStatusExtended.getTransFailed(),
-                            "Errors: " + runStatusExtended.getErrors(),
-                            "Transaction per Sec: " + runStatusExtended.getTransPerSec()
-                    },
-                    {
-                            "Hits per Sec: " + runStatusExtended.getHitsPerSec(),
-                            "Throughput (avg): " + runStatusExtended.getThroughputAvg(),
-                            "Controller used: " + runStatusExtended.getController(),
-                            "LGs used: " + runStatusExtended.getLgs()
-                    },
-            };
+        String errorStr = errorExceeded
+                ? runStatusExtended.getErrors() + " ⚠ (limit: " + errorThreshold + ") — Exceeded"
+                : runStatusExtended.getErrors() + " (limit: " + errorThreshold + ")";
 
-            log.info(logTableDynamic(rows));
+        String failedTxnStr = failedTxnExceeded
+                ? runStatusExtended.getTransFailed() + " ⚠ (limit: " + failedTxnThreshold + ") — Exceeded"
+                : runStatusExtended.getTransFailed() + " (limit: " + failedTxnThreshold + ")";
 
+        String runResult = (errorExceeded || failedTxnExceeded || model.isTestFailed())
+                ? "❌ FAILED"
+                : "✅ PASSED";
+
+        String[][] rows = {
+                {
+                        "Domain: " + model.getDomain(),
+                        "Project: " + model.getProject(),
+                        "Test Name: " + model.getTestName(),
+                        "Test Id: " + model.getTestId()
+                },
+                {
+                        "Test Folder: " + model.getTestFolderPath(),
+                        "Test Instance Id: " + model.getTestInstanceId(),
+                        "Run Name: " + runStatusExtended.getName(),
+                        "Run Status: " + runStatusExtended.getState() + " - " + runResult
+                },
+                {
+                        "Start Time: " + runStatusExtended.getStart(),
+                        "End Time: " + runStatusExtended.getEnd(),
+                        "Test Duration: " + calculateTestDuration(runStatusExtended.getStart(), runStatusExtended.getEnd()),
+                        "Vusers involved: " + runStatusExtended.getVusersInvolved()
+                },
+                {
+                        "Transaction Passed: " + runStatusExtended.getTransPassed(),
+                        "Transaction Failed: " + failedTxnStr,
+                        "Errors: " + errorStr,
+                        "Transaction per Sec: " + runStatusExtended.getTransPerSec()
+                },
+                {
+                        "Hits per Sec: " + runStatusExtended.getHitsPerSec(),
+                        "Throughput (avg): " + runStatusExtended.getThroughputAvg(),
+                        "Controller used: " + runStatusExtended.getController(),
+                        "LGs used: " + runStatusExtended.getLgs()
+                },
+        };
+
+        log.info(logTableDynamic(rows));
     }
 
     private LreRunStatus executeRunWorkflow() {
