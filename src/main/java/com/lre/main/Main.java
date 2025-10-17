@@ -1,5 +1,6 @@
 package com.lre.main;
 
+import com.lre.actions.runclient.GitSyncClient;
 import com.lre.core.config.ReadConfigFile;
 import com.lre.actions.utils.LogHelper;
 import com.lre.actions.runclient.LreRunClient;
@@ -52,7 +53,7 @@ public class Main {
             // Run requested operation
             boolean operationResult = switch (operation) {
                 case RUN_LRE_TEST -> runLreTest(lreTestRunModel);
-                case SYNC_GITLAB_WITH_LRE -> syncGitlabWithLre();
+                case SYNC_GITLAB_WITH_LRE -> syncGitlabWithLre(gitTestRunModel, lreTestRunModel);
                 case SEND_EMAIL -> sendEmail();
                 default -> false;
             };
@@ -89,20 +90,21 @@ public class Main {
     }
 
     private static boolean runLreTest(LreTestRunModel lreTestRunModel) throws LreException, IOException {
-        LreRunClient lreRunClient = new LreRunClient(lreTestRunModel);
-        lreRunClient.startRun();
-        lreRunClient.publishRunReport();
-        lreRunClient.printRunSummary();
-        removeRunIdFile();
-        lreRunClient.close();
-
-        return true;
+        try (LreRunClient lreRunClient = new LreRunClient(lreTestRunModel)) {
+            lreRunClient.startRun();
+            lreRunClient.publishRunReport();
+            lreRunClient.printRunSummary();
+            removeRunIdFile();
+            return true;
+        }
     }
 
-    private static boolean syncGitlabWithLre() throws LreException, IOException {
+    private static boolean syncGitlabWithLre(GitTestRunModel gitTestRunModel, LreTestRunModel lreTestRunModel) throws LreException, IOException {
         log.info("Starting GitLab and LRE synchronization...");
-        // TODO: add actual sync logic
-        return true;
+
+        try(GitSyncClient gitSyncClient = new GitSyncClient(gitTestRunModel, lreTestRunModel)) {
+            return true;
+        }
     }
 
     private static boolean sendEmail() {

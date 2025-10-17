@@ -33,7 +33,10 @@ public class LreRunClient implements AutoCloseable {
     public void startRun() {
         try {
             LreRunStatus finalStatus = executeRunWorkflow();
-            if (model.isTestFailed()) throw new LreException(getErrorMsg(finalStatus));
+            if (model.isTestFailed()) {
+                printRunSummary();
+                throw new LreException(getErrorMsg(finalStatus));
+            }
             log.info("Run completed successfully for test: {}", model.getTestToRun());
         } catch (LreException le) {
             log.debug("LRE execution failed: {}", le.getMessage());

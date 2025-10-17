@@ -14,7 +14,7 @@ import lombok.ToString;
 @ToString(exclude = {"gitlabToken"})
 public class GitTestRunModel {
 
-    private boolean syncWithLre;
+    private boolean syncGitLabWithLre;
     private String gitServerUrl;
     private String branch;
     private String jobName;

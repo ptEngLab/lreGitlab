@@ -19,7 +19,7 @@ import java.util.Base64;
 import static com.lre.actions.utils.ConfigConstants.*;
 
 @Slf4j
-public record AuthenticationService(CloseableHttpClient httpClient, ApiUrlBuilder urlBuilder) {
+public record AuthenticationService(CloseableHttpClient httpClient, ApiUrlBuilderLre urlBuilder) {
     public boolean login(String username, String password, boolean authenticateWithToken) {
         return authenticateWithToken
                 ? loginWithToken(username, password)

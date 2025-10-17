@@ -54,7 +54,7 @@ public class ConfigMapper {
 
     public GitTestRunModel mapToGitModel(Map<String, Object> params) {
         return GitTestRunModel.builder()
-                .syncWithLre((Boolean) params.get(ParameterDefinitions.Keys.SYNC_GITLAB_WITH_LRE_FLAG))
+                .syncGitLabWithLre((Boolean) params.get(ParameterDefinitions.Keys.SYNC_GITLAB_WITH_LRE_FLAG))
                 .gitServerUrl((String) params.get(ParameterDefinitions.Keys.GITLAB_SERVER))
                 .branch((String) params.get(ParameterDefinitions.Keys.GITLAB_BRANCH))
                 .jobName((String) params.get(ParameterDefinitions.Keys.GITLAB_JOB_NAME))

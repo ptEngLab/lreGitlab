@@ -19,25 +19,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.core5.http.ContentType;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Map;
-
-import static com.lre.actions.utils.ConfigConstants.QUERY_PARAM;
-import static com.lre.actions.utils.ConfigConstants.TEST_INSTANCE_QUERY;
 
 @Slf4j
 public class LreRestApis implements AutoCloseable {
 
     private final CloseableHttpClient httpClient;
-    private final ApiUrlBuilder urlBuilder;
+    private final ApiUrlBuilderLre urlBuilder;
     private final ApiRequestExecutor executor;
     private final AuthenticationService authService;
 
     public LreRestApis(LreTestRunModel model) {
         this.httpClient = HttpClientUtils.createClient();
-        this.urlBuilder = new ApiUrlBuilder(model);
+        this.urlBuilder = new ApiUrlBuilderLre(model);
         this.executor = new ApiRequestExecutor(httpClient);
         this.authService = new AuthenticationService(httpClient, urlBuilder);
     }
@@ -102,12 +96,8 @@ public class LreRestApis implements AutoCloseable {
 
     // Test Instance
     public List<LreTestInstance> fetchTestInstances(int testId) {
-        return executor.fetchByQuery(
-                urlBuilder.getTestInstancesUrl(),
-                Map.of(QUERY_PARAM, String.format(TEST_INSTANCE_QUERY, testId)),
-                LreTestInstance.class,
-                "Test Instances"
-        );
+        String url = urlBuilder.getTestInstancesByTestIdUrl(testId);
+        return executor.fetchList(url, LreTestInstance.class, "Test Instances");
     }
 
     public LreTestInstance createTestInstance(String payload) {
@@ -129,13 +119,11 @@ public class LreRestApis implements AutoCloseable {
     }
 
     public LreRunResponse startRun(int testId, String payload) {
-        return executor.postWithQuery(
-                urlBuilder.getStartRunUrl(), Map.of("testId", String.valueOf(testId)),
-                payload, LreRunResponse.class, "Start Run"
-        );
+        String url = urlBuilder.getStartRunUrl(testId);
+        return executor.create(url, payload, ContentType.APPLICATION_JSON, LreRunResponse.class, "Start Run");
     }
 
-    public void abortRun(int runId){
+    public void abortRun(int runId) {
         executor.create(urlBuilder.getAbortRunUrl(runId), "{}", ContentType.APPLICATION_JSON, Void.class, "Abort Run");
     }
 
@@ -149,13 +137,8 @@ public class LreRestApis implements AutoCloseable {
 
     // Timeslot
     public TimeslotCheckResponse calculateTimeslotAvailability(int testId, String payload) {
-        return executor.postWithQuery(
-                urlBuilder.getTimeslotCheckUrl(),
-                Map.of("testId", String.valueOf(testId)),
-                payload,
-                TimeslotCheckResponse.class,
-                "Timeslot Check"
-        );
+        String url = urlBuilder.getTimeslotCheckUrl(testId);
+        return executor.create(url, payload, ContentType.APPLICATION_JSON, TimeslotCheckResponse.class, "Timeslot Check");
     }
 
     // Cloud Templates
@@ -169,18 +152,13 @@ public class LreRestApis implements AutoCloseable {
 
     // Hosts
     public List<HostResponse> fetchControllers() {
-        String url = urlBuilder.getHostsUrl();
-        String queryValue = "{Purpose['*Controller*'];State['Operational']}";
-        String fullUrl = url + "?query=" + URLEncoder.encode(queryValue, StandardCharsets.UTF_8);
-        return executor.fetchList(fullUrl, HostResponse.class, "Controllers list");
+        String url = urlBuilder.getControllersUrl();
+        return executor.fetchList(url, HostResponse.class, "Controllers list");
     }
 
-
     public List<HostResponse> fetchLoadGenerators() {
-        String url = urlBuilder.getHostsUrl();
-        String queryValue = "{Purpose['*Load Generator*'];State['Operational']}";
-        String fullUrl = url + "?query=" + URLEncoder.encode(queryValue, StandardCharsets.UTF_8);
-        return executor.fetchList(fullUrl, HostResponse.class, "Load Generators list");
+        String url = urlBuilder.getLoadGeneratorsUrl();
+        return executor.fetchList(url, HostResponse.class, "Load Generators list");
     }
 
     public boolean getRunResultData(int runId, int resultsId, String filePath) {

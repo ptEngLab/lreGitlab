@@ -1,19 +1,17 @@
 package com.lre.actions.apis;
 
-import com.lre.core.http.HttpRequestExecutor;
 import com.lre.actions.utils.JsonUtils;
+import com.lre.core.http.HttpRequestExecutor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
-import org.apache.hc.core5.net.URIBuilder;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 public record ApiRequestExecutor(CloseableHttpClient httpClient) {
@@ -31,11 +29,6 @@ public record ApiRequestExecutor(CloseableHttpClient httpClient) {
         return executeList(url, clazz, resourceName + " list");
     }
 
-    public <T> List<T> fetchByQuery(String baseUrl, Map<String, String> params, Class<T> clazz, String resourceName) {
-        String url = buildUrlWithParams(baseUrl, params);
-        return executeList(url, clazz, resourceName + " by query");
-    }
-
     public <T> T create(String url, String payload, ContentType contentType, Class<T> clazz, String resourceName) {
         return execute(HttpMethod.POST, url, payload, contentType, clazz, "Create " + resourceName);
     }
@@ -47,12 +40,6 @@ public record ApiRequestExecutor(CloseableHttpClient httpClient) {
         } catch (URISyntaxException e) {
             throw uriError(resourceName, url, e);
         }
-    }
-
-    public <T> T postWithQuery(String baseUrl, Map<String, String> params, String payload,
-                               Class<T> clazz, String operation) {
-        String url = buildUrlWithParams(baseUrl, params);
-        return execute(HttpMethod.POST, url, payload, ContentType.APPLICATION_JSON, clazz, operation);
     }
 
     public void update(String url, String payload, ContentType contentType) {
@@ -67,6 +54,7 @@ public record ApiRequestExecutor(CloseableHttpClient httpClient) {
             throw uriError("Download file", url, e);
         }
     }
+
     // Centralized Execution
 
     private <T> T execute(HttpMethod method, String url, String payload,
@@ -93,8 +81,6 @@ public record ApiRequestExecutor(CloseableHttpClient httpClient) {
         }
     }
 
-
-
     // Request Builder
 
     private ClassicRequestBuilder buildRequest(HttpMethod method, String url,
@@ -115,18 +101,6 @@ public record ApiRequestExecutor(CloseableHttpClient httpClient) {
         }
 
         return builder;
-    }
-
-    // Helpers
-
-    private String buildUrlWithParams(String baseUrl, Map<String, String> params) {
-        try {
-            URIBuilder builder = new URIBuilder(baseUrl);
-            params.forEach(builder::addParameter);
-            return builder.build().toString();
-        } catch (URISyntaxException e) {
-            throw uriError("Build URL with params", baseUrl, e);
-        }
     }
 
     private String sendRequest(ClassicRequestBuilder requestBuilder) {
