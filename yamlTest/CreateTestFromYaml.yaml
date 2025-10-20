@@ -3,13 +3,13 @@
 # ===============================================
 
 # Number of Load Generators to allocate. If this value is not specified, the system will allocate the hosts as per the group definitions.
-lgAmount: 4
+lgAmount: 1
 
 # Specific Controller to run the test. If not specified, the system assigns one automatically.
 controller: "devserver"
 
 # Type of workload (e.g., 1 = basicByTest, 2 = realWorldByTest). Refer the documentation for details. if not specified, defaults to 1 which means basicByTest.
-workloadTypeCode: 6
+workloadTypeCode: 1
 
 # IDs of the monitor profiles to attach (for system metrics). If you don't have any monitoring, you can comment out this line or omit it.
 #monitorProfileIds: [ 1001, 1002 ]
@@ -60,7 +60,7 @@ groups:
 
 
   - name: "SampleGroup2"
-    vusers: 10
+#    vusers: 10
     script: "10"                # Reference to another script or ID
     hostnames: "LG1, MyLocalLG"
     scheduler:
@@ -70,7 +70,7 @@ groups:
 
 
   - name: "SampleGroup3"
-    vusers: 15
+#    vusers: 15
     script: "11"
     hostnames: "LG2"
     pacing: "random interval: 10 - 15 / 5"   # Random pacing between 10–15 seconds, deviation 5s

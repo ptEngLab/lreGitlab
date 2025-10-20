@@ -47,6 +47,10 @@ public class LreTestManager {
         else createNewTest();
     }
 
+    public void uploadScriptsFromGitToLre(Path compressedScript) {
+        validateTestPlan();
+        log.info("Uploading {}", compressedScript);
+    }
     private void findTestById(int testId) {
         log.info("Using existing test with ID: {}", testId);
         Test test = restApis.fetchTest(testId);

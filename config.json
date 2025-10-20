@@ -5,7 +5,10 @@
   "LRE_DOMAIN": "example",
   "LRE_PROJECT": "test-project",
   "LRE_TEST": "yamlTest/CreateTestFromYaml.yaml",
+  "MAX_ERROR_COUNT": 200,
   "SYNC_GITLAB_WITH_LRE_FLAG": "false",
-  "GITLAB_URL": "https://gitlab.example.com",
-  "MAX_ERROR_COUNT": 200
+  "GITLAB_SERVER": "https://gitlab.com",
+  "GITLAB_JOB_NAME": "sync-jobs",
+  "GITLAB_PROJECT_ID": 75391932
+
 }

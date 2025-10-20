@@ -1,63 +1,87 @@
 package com.lre.actions.runclient;
 
+import com.lre.actions.apis.GitLabRestApis;
+import com.lre.actions.apis.LreRestApis;
 import com.lre.actions.exceptions.LreException;
 import com.lre.actions.runmodel.GitTestRunModel;
 import com.lre.actions.runmodel.LreTestRunModel;
+import com.lre.model.git.GitLabCommit;
+import com.lre.services.git.SyncResult;
+import com.lre.services.LreAuthenticationManager;
+import com.lre.services.git.CommitHistoryManager;
+import com.lre.services.git.GitRepositoryScanner;
+import com.lre.services.git.LreSyncService;
+import com.lre.services.git.SyncAnalyzer;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+
+import static com.lre.actions.utils.ConfigConstants.*;
 
 @Slf4j
-public class GitSyncClient implements AutoCloseable{
+public class GitSyncClient implements AutoCloseable {
 
-
-    private final GitTestRunModel gitModel;
-    private final LreTestRunModel lreModel;
+    private final LreAuthenticationManager authManager;
+    private final GitRepositoryScanner scanner;
+    private final CommitHistoryManager historyManager;
+    private final SyncAnalyzer analyzer;
+    private final LreSyncService lreService;
 
     public GitSyncClient(GitTestRunModel gitModel, LreTestRunModel lreModel) {
-        this.gitModel = gitModel;
-        this.lreModel = lreModel;
+        LreRestApis lreApis = new LreRestApis(lreModel);
+        GitLabRestApis gitApis = new GitLabRestApis(gitModel);
+
+        this.authManager = new LreAuthenticationManager(lreApis, lreModel);
+        this.scanner = new GitRepositoryScanner(gitApis, 5);
+        this.historyManager = new CommitHistoryManager(gitApis, getHistoryPath());
+        this.analyzer = new SyncAnalyzer();
+        this.lreService = new LreSyncService(gitApis, lreModel, lreApis);
+
+        this.authManager.login();
     }
 
-    /**
-     * Main entry point for two-way synchronization.
-     */
-    public boolean sync() throws LreException, IOException {
+    public boolean sync() throws LreException {
+        List<GitLabCommit> current = scanner.scanScripts();
+        List<GitLabCommit> previous = historyManager.loadHistory();
 
-        boolean pushSuccess = pushToLre();
-        boolean pullSuccess = pullFromLre();
-
-        if (pushSuccess && pullSuccess) {
-            log.info("✅ GitLab and LRE are fully synchronized.");
-            return true;
+        boolean success;
+        if (previous.isEmpty()) {
+            log.info("Performing INITIAL sync with {} scripts", current.size());
+            success = lreService.uploadScripts(current);
         } else {
-            log.warn("⚠️ Partial sync: push={}, pull={}", pushSuccess, pullSuccess);
-            return false;
+            log.info("Performing INCREMENTAL sync");
+            SyncResult diff = analyzer.analyze(previous, current);
+            if (!diff.hasChanges()) {
+                log.info("No changes detected - skipping sync");
+                return true;
+            }
+            logSyncSummary(diff);
+            success = lreService.deleteScripts(diff.scriptsToDelete()) && lreService.uploadScripts(diff.scriptsToUpload());
         }
+
+        if (success) historyManager.saveHistory(current);
+        return success;
     }
 
-    /**
-     * Push GitLab assets and configurations to LRE.
-     */
-    private boolean pushToLre() {
-        log.info("📤 Syncing GitLab → LRE...");
-        // TODO: Implement file discovery and upload logic
-        // Example: Upload scripts or YAML config to LRE REST API
-        return true;
+    private void logSyncSummary(SyncResult result) {
+        log.info("SYNC SUMMARY: upload={} delete={} unchanged={}",
+                result.scriptsToUpload().size(),
+                result.scriptsToDelete().size(),
+                result.unchangedScripts().size());
     }
 
-    /**
-     * Pull LRE results or reports back into GitLab.
-     */
-    private boolean pullFromLre() {
-        log.info("📥 Syncing LRE → GitLab...");
-        // TODO: Fetch LRE run results or reports
-        // Example: POST to GitLab API (commit comments, artifacts, or pipeline results)
-        return true;
+    private Path getHistoryPath() {
+        return Paths.get(DEFAULT_OUTPUT_DIR, COMMIT_HISTORY_ARTIFACT_PATH);
     }
 
     @Override
     public void close() {
-        log.debug("🧹 Cleaning up GitLreSyncClient resources...");
+        try {
+            authManager.close();
+        } catch (Exception e) {
+            log.warn("Error during cleanup", e);
+        }
     }
 }

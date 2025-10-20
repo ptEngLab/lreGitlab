@@ -103,7 +103,7 @@ public class Main {
         log.info("Starting GitLab and LRE synchronization...");
 
         try(GitSyncClient gitSyncClient = new GitSyncClient(gitTestRunModel, lreTestRunModel)) {
-            return true;
+            return gitSyncClient.sync();
         }
     }
 

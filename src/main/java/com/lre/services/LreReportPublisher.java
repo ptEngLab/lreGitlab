@@ -94,10 +94,10 @@ public record LreReportPublisher(LreRestApis lreRestApis, LreTestRunModel model)
     /**
      * Deletes any previous extracted report folder if it exists.
      */
-    private void cleanOldReportDir(Path extractedDir) throws IOException {
+    private void cleanOldReportDir(Path extractedDir) {
         if (Files.exists(extractedDir)) {
             log.debug("Cleaning up previous report directory: {}", extractedDir);
-            CommonUtils.deleteDirectoryRecursively(extractedDir);
+            CommonUtils.deleteFolder(extractedDir);
         }
     }
 

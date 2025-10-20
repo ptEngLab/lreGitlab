@@ -97,4 +97,10 @@ public class ConfigConstants {
     public static final Pattern START_GROUP_FINISH_PATTERN =
             Pattern.compile("^after (?<groupName>[a-zA-Z0-9_-]+)$", Pattern.CASE_INSENSITIVE);
 
+
+    public static final String GIT_REPO_EXTRACT_PATH = "GitLabRepo";
+    public static final String GIT_COMMIT_HISTORY_FILE = "Gitlab_Commit_History.json";
+
+    public static final String COMMIT_HISTORY_ARTIFACT_PATH = ARTIFACTS_DIR + "/" + GIT_REPO_EXTRACT_PATH + "/" + GIT_COMMIT_HISTORY_FILE;
+
 }

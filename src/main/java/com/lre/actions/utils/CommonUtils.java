@@ -1,5 +1,6 @@
 package com.lre.actions.utils;
 
+import com.lre.model.testplan.LreTestPlanCreationRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -8,10 +9,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
 import java.util.function.Function;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import static com.lre.actions.utils.ConfigConstants.*;
 
@@ -166,6 +169,32 @@ public class CommonUtils {
         }
     }
 
+    public static void createZipFile(Path sourceDir, Path zipFile) {
+        try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(zipFile))) {
+            Files.walkFileTree(sourceDir, new SimpleFileVisitor<>() {
+                @Override
+                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                    String entryName = sourceDir.relativize(dir).toString().replace(File.separator, "/") + "/";
+                    zos.putNextEntry(new ZipEntry(entryName));
+                    zos.closeEntry();
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    String entryName = sourceDir.relativize(file).toString().replace(File.separator, "/");
+                    zos.putNextEntry(new ZipEntry(entryName));
+                    Files.copy(file, zos);
+                    zos.closeEntry();
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        } catch (IOException e) {
+            log.error("Error creating zip file {}: {}", zipFile, e.getMessage(), e);
+        }
+    }
+
+
     public static void unzip(File zipFile, File destDir) throws IOException {
         Path destPath = destDir.toPath();
         if (Files.notExists(destPath)) {
@@ -200,22 +229,34 @@ public class CommonUtils {
         }
     }
 
-    /**
-     * Deletes a directory and all its contents recursively.
-     */
-    public static void deleteDirectoryRecursively(Path dir) throws IOException {
-        if (Files.notExists(dir)) return;
 
-        try (var stream = Files.walk(dir)) {
-            stream.sorted(Comparator.reverseOrder())
-                    .forEach(path -> {
-                        try {
-                            Files.delete(path);
-                        } catch (IOException e) {
-                            log.warn("Failed to delete {}", path, e);
-                        }
-                    });
+    public static void deleteFolder(Path folder) {
+        if (folder == null || !Files.exists(folder)) return;
+        try {
+            Files.walkFileTree(folder, new SimpleFileVisitor<>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    Files.deleteIfExists(file);
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                    Files.deleteIfExists(dir);
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        } catch (IOException e) {
+            log.warn("Failed to delete folder '{}': {}", folder, e.getMessage());
         }
+    }
+
+    public static LreTestPlanCreationRequest fromGitPath(String gitPath) {
+        String normalized = gitPath.replace("\\", "/");
+        int lastSlash = normalized.lastIndexOf('/');
+        String name = normalized.substring(lastSlash + 1);
+        String folder = lastSlash > 0 ? normalized.substring(0, lastSlash) : "Gitlab";
+        return new LreTestPlanCreationRequest(folder, name);
     }
 
 }
