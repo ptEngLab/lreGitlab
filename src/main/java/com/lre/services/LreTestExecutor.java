@@ -8,8 +8,7 @@ import com.lre.actions.runmodel.LreTestRunModel;
 import com.lre.actions.utils.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
 
-import static com.lre.actions.utils.CommonUtils.logTableDynamic;
-import static com.lre.actions.utils.CommonUtils.writeRunIdToFile;
+import static com.lre.actions.utils.CommonUtils.*;
 import static com.lre.actions.utils.ConfigConstants.DASHBOARD_URL;
 
 @Slf4j
@@ -49,7 +48,7 @@ public record LreTestExecutor(LreRestApis restApis, LreTestRunModel model, LreTi
                 }
         };
 
-        log.info(logTableDynamic(rows));
+        log.info(logTable(rows));
 
     }
 

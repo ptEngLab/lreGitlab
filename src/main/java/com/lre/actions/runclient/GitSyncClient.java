@@ -6,19 +6,16 @@ import com.lre.actions.exceptions.LreException;
 import com.lre.actions.runmodel.GitTestRunModel;
 import com.lre.actions.runmodel.LreTestRunModel;
 import com.lre.model.git.GitLabCommit;
-import com.lre.services.git.SyncResult;
 import com.lre.services.LreAuthenticationManager;
-import com.lre.services.git.CommitHistoryManager;
-import com.lre.services.git.GitRepositoryScanner;
-import com.lre.services.git.LreSyncService;
-import com.lre.services.git.SyncAnalyzer;
+import com.lre.services.git.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
-import static com.lre.actions.utils.ConfigConstants.*;
+import static com.lre.actions.utils.ConfigConstants.COMMIT_HISTORY_ARTIFACT_PATH;
+import static com.lre.actions.utils.ConfigConstants.DEFAULT_OUTPUT_DIR;
 
 @Slf4j
 public class GitSyncClient implements AutoCloseable {
@@ -62,6 +59,7 @@ public class GitSyncClient implements AutoCloseable {
         }
 
         if (success) historyManager.saveHistory(current);
+
         return success;
     }
 
@@ -84,4 +82,6 @@ public class GitSyncClient implements AutoCloseable {
             log.warn("Error during cleanup", e);
         }
     }
+
+
 }

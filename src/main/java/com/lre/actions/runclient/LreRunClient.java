@@ -14,7 +14,7 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
-import static com.lre.actions.utils.CommonUtils.logTableDynamic;
+import static com.lre.actions.utils.CommonUtils.logTable;
 
 @Slf4j
 public class LreRunClient implements AutoCloseable {
@@ -127,7 +127,7 @@ public class LreRunClient implements AutoCloseable {
                 },
         };
 
-        log.info(logTableDynamic(rows));
+        log.info(logTable(rows));
     }
 
     private LreRunStatus executeRunWorkflow() {
