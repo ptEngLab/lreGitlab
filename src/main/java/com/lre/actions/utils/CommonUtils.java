@@ -141,6 +141,10 @@ public class CommonUtils {
         return normalized;
     }
 
+public static String replaceBackSlash(String input) {
+        return input.replace("\\", "/");
+}
+
     public static <T extends Number> T parsePositive(
             String value,
             String name,
