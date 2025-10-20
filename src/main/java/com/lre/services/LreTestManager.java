@@ -1,15 +1,17 @@
 package com.lre.services;
 
 import com.lre.actions.apis.LreRestApis;
-import com.lre.validation.testcontent.LreTestContentValidator;
-import com.lre.model.testplan.LreTestPlan;
-import com.lre.model.testplan.LreTestPlanCreationRequest;
 import com.lre.actions.exceptions.LreException;
-import com.lre.model.test.Test;
-import com.lre.model.test.testcontent.TestContent;
 import com.lre.actions.runmodel.LreTestRunModel;
 import com.lre.actions.utils.JsonUtils;
 import com.lre.actions.utils.XmlUtils;
+import com.lre.model.script.LreScript;
+import com.lre.model.script.LreScriptUploadReq;
+import com.lre.model.test.Test;
+import com.lre.model.test.testcontent.TestContent;
+import com.lre.model.testplan.LreTestPlan;
+import com.lre.model.testplan.LreTestPlanCreationRequest;
+import com.lre.validation.testcontent.LreTestContentValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -48,9 +50,12 @@ public class LreTestManager {
     }
 
     public void uploadScriptsFromGitToLre(Path compressedScript) {
-        validateTestPlan();
+        String scriptPathInLre = validateTestPlan();
         log.info("Uploading {}", compressedScript);
+        uploadScriptsToLre(scriptPathInLre, compressedScript);
+
     }
+
     private void findTestById(int testId) {
         log.info("Using existing test with ID: {}", testId);
         Test test = restApis.fetchTest(testId);
@@ -77,10 +82,10 @@ public class LreTestManager {
         createOrUpdateTest();
     }
 
-    private void validateTestPlan() {
+    private String validateTestPlan() {
         List<LreTestPlan> currentTestPlans = getAllTestPlansCached();
         Path fullPath = Paths.get(model.getTestFolderPath());
-        Path currentPath = Paths.get("");
+        Path currentPath = Paths.get("Subject");
 
         Set<String> existingPaths = currentTestPlans.stream()
                 .map(plan -> Paths.get(plan.getFullPath()).normalize().toString())
@@ -99,6 +104,7 @@ public class LreTestManager {
         }
 
         log.debug("Test plan validation completed for path: {}", fullPath);
+        return currentPath.toString();
     }
 
     private void createOrUpdateTest() {
@@ -148,4 +154,10 @@ public class LreTestManager {
         model.setTestId(createdTest.getId());
     }
 
+    private void uploadScriptsToLre(String scriptPathInLre, Path compressedScript){
+        LreScriptUploadReq scriptUploadReq = new LreScriptUploadReq(scriptPathInLre);
+        LreScript script = restApis.uploadScript(compressedScript, JsonUtils.toJson(scriptUploadReq));
+        log.info("Script {}, Folder path {} uploaded successfully", script.getName(), script.getTestFolderPath());
+
+    }
 }

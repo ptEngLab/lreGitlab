@@ -6,6 +6,7 @@ import com.lre.model.run.LreRunResponse;
 import com.lre.model.run.LreRunResult;
 import com.lre.model.run.LreRunStatus;
 import com.lre.model.run.LreRunStatusExtended;
+import com.lre.model.script.LreScript;
 import com.lre.model.test.Test;
 import com.lre.model.test.testcontent.groups.hosts.CloudTemplate;
 import com.lre.model.test.testcontent.groups.hosts.HostResponse;
@@ -19,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.core5.http.ContentType;
 
+import java.nio.file.Path;
 import java.util.List;
 
 @Slf4j
@@ -164,5 +166,11 @@ public class LreRestApis implements AutoCloseable {
     public boolean getRunResultData(int runId, int resultsId, String filePath) {
         String url = urlBuilder.getRunResultsFileUrl(runId, resultsId);
         return executor.download(url, filePath);
+    }
+
+    public LreScript uploadScript(Path scriptPath, String payload) {
+        String url = urlBuilder.getUploadScriptUrl();
+        return executor.upload(url, payload, scriptPath.toFile(), LreScript.class, "Upload");
+
     }
 }

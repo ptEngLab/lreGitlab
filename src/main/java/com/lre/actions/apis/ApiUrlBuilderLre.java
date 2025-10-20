@@ -164,4 +164,7 @@ public class ApiUrlBuilderLre {
         return String.format("%s/%s/get", lreWebUrl, RUN_STATUS_API);
     }
 
+    public String getUploadScriptUrl() {
+            return String.format("%s/%s", lreApiUrl, SCRIPTS_RESOURCE_NAME);
+    }
 }

@@ -3,12 +3,14 @@ package com.lre.actions.apis;
 import com.lre.actions.utils.JsonUtils;
 import com.lre.core.http.HttpRequestExecutor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
 
+import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -115,4 +117,31 @@ public record ApiRequestExecutor(CloseableHttpClient httpClient) {
         log.error("Invalid URL for {}: {}", operation, url, e);
         return new RuntimeException(e);
     }
+
+    public <T> T upload(String url, String metadataJson, File zipFile,
+                        Class<T> clazz, String resourceName) {
+        try {
+            log.info("Uploading script '{}' to {}", zipFile.getName(), url);
+
+            var builder = ClassicRequestBuilder.post(new URI(url))
+                    .addHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType());
+
+            // Use multipart entity
+            var multipartEntity = MultipartEntityBuilder.create()
+                    .addTextBody("metadata", metadataJson, ContentType.APPLICATION_JSON)
+                    .addBinaryBody("file", zipFile, ContentType.APPLICATION_OCTET_STREAM, zipFile.getName())
+                    .build();
+
+            builder.setEntity(multipartEntity);
+
+            String response = sendRequest(builder);
+            log.debug("Upload {} response: {}", resourceName, response);
+
+            return clazz == Void.class ? null : JsonUtils.fromJson(response, clazz);
+
+        } catch (URISyntaxException e) {
+            throw uriError("Upload Script", url, e);
+        }
+    }
+
 }
