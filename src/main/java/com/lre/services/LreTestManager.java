@@ -22,6 +22,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.lre.actions.utils.CommonUtils.replaceBackSlash;
+
 @Slf4j
 public class LreTestManager {
     private final LreTestRunModel model;
@@ -84,7 +86,7 @@ public class LreTestManager {
     private String validateTestPlan() {
         List<LreTestPlan> currentTestPlans = getAllTestPlansCached();
         Path fullPath = Paths.get(model.getTestFolderPath());
-        Path currentPath = Paths.get("Subject");
+        Path currentPath = Paths.get("");
 
         Set<String> existingPaths = currentTestPlans.stream()
                 .map(plan -> Paths.get(plan.getFullPath()).normalize().toString())
@@ -156,7 +158,7 @@ public class LreTestManager {
     private void uploadScriptsToLre(String scriptPathInLre, Path compressedScript){
         LreScriptUploadReq scriptUploadReq = new LreScriptUploadReq(scriptPathInLre);
         LreScript script = restApis.uploadScript(compressedScript, JsonUtils.toJson(scriptUploadReq));
-        log.info("Script {}, Folder path {} uploaded successfully", script.getName(), script.getTestFolderPath());
+        log.info("Script {}, Folder path {} uploaded successfully", script.getName(), replaceBackSlash(script.getTestFolderPath()));
 
     }
 }

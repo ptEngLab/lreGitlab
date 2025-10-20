@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.lre.actions.utils.CommonUtils.logTable;
+import static com.lre.actions.utils.CommonUtils.normalizePathWithSubject;
 import static org.apache.commons.lang3.StringUtils.truncate;
 
 /**
@@ -56,21 +57,20 @@ public class LreSyncService {
             String commitSha = commit.getSha().substring(0, Math.min(8, commit.getSha().length()));
 
             try {
+                deriveTestPlanDetails(commit);
                 log.info("Preparing script for upload: {}", scriptName);
                 Path scriptZip = scriptPackager.prepare(commit);
-
-                deriveTestPlanDetails(commit);
-
                 uploader.upload(lreModel, scriptZip);
                 log.debug("Successfully uploaded script: {}", lreModel.getTestName());
-                results.add(new GitToLreUploadResult(scriptName, commitSha, "SUCCESS", "Uploaded successfully"));
-
+                results.add(new GitToLreUploadResult(lreModel.getTestFolderPath(), lreModel.getTestName(), commitSha,
+                        "SUCCESS", "Uploaded successfully"));
 
                 scriptPackager.cleanupCommitTempDir(scriptZip.getParent().getParent());
 
             } catch (Exception e) {
                 log.error("Failed to upload script '{}': {}", commit.getPath(), e.getMessage(), e);
-                results.add(new GitToLreUploadResult(scriptName, commitSha, "FAILED", e.getMessage()));
+                results.add(new GitToLreUploadResult(lreModel.getTestFolderPath(), lreModel.getTestName(), commitSha,
+                        "FAILED", e.getMessage()));
 
                 allSuccessful = false;
             }
@@ -108,7 +108,7 @@ public class LreSyncService {
     private void deriveTestPlanDetails(GitLabCommit commit) {
         // Derive folder/name from commit path
         LreTestPlanCreationRequest info = CommonUtils.fromGitPath(commit.getPath());
-        lreModel.setTestFolderPath(info.getPath());
+        lreModel.setTestFolderPath(normalizePathWithSubject(info.getPath()));
         lreModel.setTestName(info.getName());
 
     }
@@ -120,19 +120,22 @@ public class LreSyncService {
             return;
         }
 
-        // Define header separately
-        String[] header = { "Script Name", "Commit", "Status", "Message" };
+        // Define header with serial number
+        String[] header = {"#", "Test Folder Path", "Script Name", "Commit", "Status", "Message"};
 
         // Prepare data rows
-        String[][] dataRows = new String[results.size()][4];
+        String[][] dataRows = new String[results.size()][header.length];
         int i = 0;
         for (GitToLreUploadResult result : results) {
-            dataRows[i++] = new String[]{
+            dataRows[i] = new String[]{
+                    String.valueOf(i + 1),
+                    result.testFolderPath(),
                     result.scriptName(),
                     result.commitSha(),
                     result.status(),
-                    truncate(result.message(), 40)
+                    truncate(result.message(), 80)
             };
+            i++;
         }
 
         // Log the table
