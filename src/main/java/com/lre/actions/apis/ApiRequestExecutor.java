@@ -121,7 +121,7 @@ public record ApiRequestExecutor(CloseableHttpClient httpClient) {
     public <T> T upload(String url, String metadataJson, File zipFile,
                         Class<T> clazz, String resourceName) {
         try {
-            log.info("Uploading script '{}' to {}", zipFile.getName(), url);
+            log.debug("Uploading script '{}' to {}", zipFile.getName(), url);
 
             var builder = ClassicRequestBuilder.post(new URI(url))
                     .addHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType());

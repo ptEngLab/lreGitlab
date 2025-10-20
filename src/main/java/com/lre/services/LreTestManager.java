@@ -51,7 +51,6 @@ public class LreTestManager {
 
     public void uploadScriptsFromGitToLre(Path compressedScript) {
         String scriptPathInLre = validateTestPlan();
-        log.info("Uploading {}", compressedScript);
         uploadScriptsToLre(scriptPathInLre, compressedScript);
 
     }

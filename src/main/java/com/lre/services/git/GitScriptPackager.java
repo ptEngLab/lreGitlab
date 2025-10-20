@@ -69,7 +69,7 @@ public record GitScriptPackager(GitLabRestApis gitLabRestApis) {
             Path packagedZip = packagedDir.resolve(generateZipFileName(commit));
             CommonUtils.createZipFile(usrDir, packagedZip);
 
-            log.info("Packaged {} (commit {}) into {} ({} bytes)",
+            log.debug("Packaged {} (commit {}) into {} ({} bytes)",
                     commit.getPath(), commit.getSha(), packagedZip, Files.size(packagedZip));
 
             // Delete intermediate folders
