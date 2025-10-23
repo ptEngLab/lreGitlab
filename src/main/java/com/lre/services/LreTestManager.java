@@ -16,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -87,31 +86,47 @@ public class LreTestManager {
     private String validateTestPlan() {
         List<LreTestPlan> currentTestPlans = getAllTestPlansCached();
 
-        // Normalize using the same method
-        Path fullPath = Paths.get(model.getTestFolderPath());
-        Path currentPath = Paths.get("");
+        String normalizedInput = model.getTestFolderPath();
 
-        // Use case-insensitive comparison for Windows
+        if (!normalizedInput.toLowerCase().startsWith("subject\\")) {
+            throw new IllegalStateException("Expected path to start with 'Subject\\', but got: " + normalizedInput);
+        }
+
+        String[] pathParts = normalizedInput.split("\\\\");
+        StringBuilder currentPathBuilder = new StringBuilder("Subject");
+        String parentPath = "Subject"; // Start with Subject as initial parent
+
         Set<String> existingPathStrings = currentTestPlans.stream()
                 .map(plan -> normalizePathWithSubject(plan.getFullPath()).toLowerCase())
                 .collect(Collectors.toSet());
 
-        for (Path pathPart : fullPath) {
-            currentPath = currentPath.resolve(pathPart).normalize();
+        // Process subdirectories starting from index 1
+        for (int i = 1; i < pathParts.length; i++) {
+            String pathPart = pathParts[i];
 
-            String currentPathStr = currentPath.toString().toLowerCase();
-
-            if (!existingPathStrings.contains(currentPathStr)) {
-                Path parentPath = currentPath.getParent();
-                String parentPathStr = parentPath != null ? parentPath.toString() : "";
-                LreTestPlan testPlan = createNewTestPlanPath(parentPathStr, pathPart.toString());
-                currentTestPlans.add(testPlan);
-                existingPathStrings.add(currentPathStr);
+            // Build current path
+            if (i > 1) {
+                currentPathBuilder.append("\\");
             }
+            currentPathBuilder.append(pathPart);
+
+            String currentPath = currentPathBuilder.toString();
+            String currentPathLower = currentPath.toLowerCase();
+
+            if (!existingPathStrings.contains(currentPathLower)) {
+                LreTestPlan testPlan = createNewTestPlanPath(parentPath, pathPart);
+//                testPlan.setFullPath(currentPath);
+                currentTestPlans.add(testPlan);
+                existingPathStrings.add(currentPathLower);
+            }
+
+            // Update parent for next iteration
+            parentPath = currentPath;
         }
 
-        log.debug("Test plan validation completed for path: {}", fullPath);
-        return replaceBackSlash(currentPath.toString());
+        String finalPath = currentPathBuilder.toString();
+        log.debug("Test plan validation completed for path: {}", normalizedInput);
+        return finalPath;
     }
 
 
@@ -162,7 +177,7 @@ public class LreTestManager {
         model.setTestId(createdTest.getId());
     }
 
-    private void uploadScriptsToLre(String scriptPathInLre, Path compressedScript){
+    private void uploadScriptsToLre(String scriptPathInLre, Path compressedScript) {
         LreScriptUploadReq scriptUploadReq = new LreScriptUploadReq(scriptPathInLre);
         LreScript script = restApis.uploadScript(compressedScript, JsonUtils.toJson(scriptUploadReq));
         log.info("Script {}, Folder path {} uploaded successfully", script.getName(), replaceBackSlash(script.getTestFolderPath()));
