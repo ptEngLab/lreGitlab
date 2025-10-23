@@ -22,6 +22,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.lre.actions.utils.CommonUtils.normalizePathWithSubject;
 import static com.lre.actions.utils.CommonUtils.replaceBackSlash;
 
 @Slf4j
@@ -62,7 +63,7 @@ public class LreTestManager {
         Test test = restApis.fetchTest(testId);
         if (test == null) throw new LreException(String.format(TEST_NOT_FOUND_BY_ID, testId));
         model.setTestName(test.getName());
-        model.setTestFolderPath(test.getTestFolderPath());
+        model.setTestFolderPath(normalizePathWithSubject(test.getTestFolderPath()));
     }
 
     private void findTestByName(String testName) {
@@ -75,7 +76,7 @@ public class LreTestManager {
 
         model.setTestId(test.getId());
         model.setTestName(test.getName());
-        model.setTestFolderPath(test.getTestFolderPath());
+        model.setTestFolderPath(normalizePathWithSubject(test.getTestFolderPath()));
     }
 
     private void createNewTest() {
@@ -85,27 +86,32 @@ public class LreTestManager {
 
     private String validateTestPlan() {
         List<LreTestPlan> currentTestPlans = getAllTestPlansCached();
+
+        // Normalize using the same method
         Path fullPath = Paths.get(model.getTestFolderPath());
         Path currentPath = Paths.get("");
 
-        Set<Path> existingPaths = currentTestPlans.stream()
-                .map(plan -> Paths.get(plan.getFullPath()))
+        // Use case-insensitive comparison for Windows
+        Set<String> existingPathStrings = currentTestPlans.stream()
+                .map(plan -> normalizePathWithSubject(plan.getFullPath()).toLowerCase())
                 .collect(Collectors.toSet());
 
         for (Path pathPart : fullPath) {
             currentPath = currentPath.resolve(pathPart).normalize();
 
-            if (!existingPaths.contains(currentPath)) {
+            String currentPathStr = currentPath.toString().toLowerCase();
+
+            if (!existingPathStrings.contains(currentPathStr)) {
                 Path parentPath = currentPath.getParent();
                 String parentPathStr = parentPath != null ? parentPath.toString() : "";
                 LreTestPlan testPlan = createNewTestPlanPath(parentPathStr, pathPart.toString());
                 currentTestPlans.add(testPlan);
-                existingPaths.add(currentPath);
+                existingPathStrings.add(currentPathStr);
             }
         }
 
         log.debug("Test plan validation completed for path: {}", fullPath);
-        return currentPath.toString();
+        return replaceBackSlash(currentPath.toString());
     }
 
 

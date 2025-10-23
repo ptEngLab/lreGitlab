@@ -123,7 +123,7 @@ public class CommonUtils {
     }
 
     public static String normalizePathWithSubject(String path) {
-        if (StringUtils.isBlank(path)) return null;
+        if (StringUtils.isBlank(path)) return "Subject";
 
         // Use system-dependent file separator
         Path normalized = Paths.get(path).normalize();
