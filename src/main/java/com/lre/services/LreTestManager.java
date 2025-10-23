@@ -88,25 +88,26 @@ public class LreTestManager {
         Path fullPath = Paths.get(model.getTestFolderPath());
         Path currentPath = Paths.get("");
 
-        Set<String> existingPaths = currentTestPlans.stream()
-                .map(plan -> Paths.get(plan.getFullPath()).normalize().toString())
+        Set<Path> existingPaths = currentTestPlans.stream()
+                .map(plan -> Paths.get(plan.getFullPath()))
                 .collect(Collectors.toSet());
 
         for (Path pathPart : fullPath) {
             currentPath = currentPath.resolve(pathPart).normalize();
-            String currentPathStr = currentPath.toString();
 
-            if (!existingPaths.contains(currentPathStr)) {
-                String parentPath = currentPath.getParent() != null ? currentPath.getParent().toString() : "";
-                LreTestPlan testPlan = createNewTestPlanPath(parentPath, pathPart.toString());
+            if (!existingPaths.contains(currentPath)) {
+                Path parentPath = currentPath.getParent();
+                String parentPathStr = parentPath != null ? parentPath.toString() : "";
+                LreTestPlan testPlan = createNewTestPlanPath(parentPathStr, pathPart.toString());
                 currentTestPlans.add(testPlan);
-                existingPaths.add(currentPathStr);
+                existingPaths.add(currentPath);
             }
         }
 
         log.debug("Test plan validation completed for path: {}", fullPath);
         return currentPath.toString();
     }
+
 
     private void createOrUpdateTest() {
         String testName = model.getTestName();

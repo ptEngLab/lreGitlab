@@ -69,6 +69,7 @@ public class CommonUtils {
     public static String logTable(String[][] data) {
         return logTable(null, data);
     }
+
     public static String logTable(String[] header, String[][] dataRows) {
         if ((header == null || header.length == 0) && (dataRows == null || dataRows.length == 0)) {
             return "";
@@ -124,26 +125,20 @@ public class CommonUtils {
     public static String normalizePathWithSubject(String path) {
         if (StringUtils.isBlank(path)) return null;
 
-        // Step 1: Normalize all slashes to backslashes
-        String normalized = path.replace("/", "\\");
+        // Use system-dependent file separator
+        Path normalized = Paths.get(path).normalize();
+        String separator = File.separator;
 
-        // Step 2: Remove repeated backslashes (e.g., "folder\\\\sub" -> "folder\sub")
-        normalized = normalized.replaceAll("\\\\+", "\\\\");
-
-        // Step 3: Trim leading and trailing backslashes
-        normalized = normalized.replaceAll("^\\\\+|\\\\+$", "");
-
-        // Step 4: Ensure "Subject\" prefix (case-insensitive)
-        if (!normalized.regionMatches(true, 0, "Subject\\", 0, "Subject\\".length())) {
-            normalized = "Subject\\" + normalized;
+        if (!normalized.toString().toLowerCase().startsWith("subject" + separator)) {
+            normalized = Paths.get("Subject").resolve(normalized);
         }
 
-        return normalized;
+        return normalized.toString();
     }
 
-public static String replaceBackSlash(String input) {
+    public static String replaceBackSlash(String input) {
         return input.replace("\\", "/");
-}
+    }
 
     public static <T extends Number> T parsePositive(
             String value,
