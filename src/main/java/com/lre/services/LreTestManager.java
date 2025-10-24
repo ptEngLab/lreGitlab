@@ -86,47 +86,30 @@ public class LreTestManager {
     private String validateTestPlan() {
         List<LreTestPlan> currentTestPlans = getAllTestPlansCached();
 
-        String normalizedInput = model.getTestFolderPath();
+        String[] pathParts = model.getTestFolderPath().split("\\\\");
+        StringBuilder pathBuilder = new StringBuilder();
+        String parentPath = "";
 
-        if (!normalizedInput.toLowerCase().startsWith("subject\\")) {
-            throw new IllegalStateException("Expected path to start with 'Subject\\', but got: " + normalizedInput);
-        }
-
-        String[] pathParts = normalizedInput.split("\\\\");
-        StringBuilder currentPathBuilder = new StringBuilder("Subject");
-        String parentPath = "Subject"; // Start with Subject as initial parent
-
-        Set<String> existingPathStrings = currentTestPlans.stream()
+        Set<String> existingPaths = currentTestPlans.stream()
                 .map(plan -> normalizePathWithSubject(plan.getFullPath()).toLowerCase())
                 .collect(Collectors.toSet());
 
-        // Process subdirectories starting from index 1
-        for (int i = 1; i < pathParts.length; i++) {
-            String pathPart = pathParts[i];
+        for (String part : pathParts) {
+            if (!pathBuilder.isEmpty()) pathBuilder.append("\\");
+            pathBuilder.append(part);
 
-            // Build current path
-            if (i > 1) {
-                currentPathBuilder.append("\\");
-            }
-            currentPathBuilder.append(pathPart);
-
-            String currentPath = currentPathBuilder.toString();
-            String currentPathLower = currentPath.toLowerCase();
-
-            if (!existingPathStrings.contains(currentPathLower)) {
-                LreTestPlan testPlan = createNewTestPlanPath(parentPath, pathPart);
-//                testPlan.setFullPath(currentPath);
+            String currentPath = pathBuilder.toString();
+            if (!existingPaths.contains(currentPath.toLowerCase())) {
+                LreTestPlan testPlan = createNewTestPlanPath(parentPath, part);
+                testPlan.setFullPath(currentPath);
                 currentTestPlans.add(testPlan);
-                existingPathStrings.add(currentPathLower);
+                existingPaths.add(currentPath.toLowerCase());
             }
-
-            // Update parent for next iteration
             parentPath = currentPath;
         }
 
-        String finalPath = currentPathBuilder.toString();
-        log.debug("Test plan validation completed for path: {}", normalizedInput);
-        return finalPath;
+        log.debug("Test plan validation completed for path: {}", pathBuilder);
+        return pathBuilder.toString();
     }
 
 
