@@ -167,4 +167,9 @@ public class ApiUrlBuilderLre {
     public String getUploadScriptUrl() {
             return String.format("%s/%s", lreApiUrl, SCRIPTS_RESOURCE_NAME);
     }
+
+    public String getDeleteScriptUrl(int id) {
+        return String.format("%s/%s/%d", lreApiUrl, SCRIPTS_RESOURCE_NAME, id);
+    }
+
 }

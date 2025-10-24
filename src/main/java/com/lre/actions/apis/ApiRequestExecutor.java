@@ -27,6 +27,10 @@ public record ApiRequestExecutor(CloseableHttpClient httpClient) {
         return execute(HttpMethod.GET, url, null, null, clazz, resourceName + " by ID");
     }
 
+    public void deleteById(String url, String resourceName) {
+        execute(HttpMethod.DELETE, url, null, null, Void.class, resourceName + " by ID");
+    }
+
     public <T> List<T> fetchList(String url, Class<T> clazz, String resourceName) {
         return executeList(url, clazz, resourceName + " list");
     }
@@ -48,7 +52,7 @@ public record ApiRequestExecutor(CloseableHttpClient httpClient) {
         execute(HttpMethod.PUT, url, payload, contentType, Void.class, "Update");
     }
 
-    public boolean download(String url, String destPath){
+    public boolean download(String url, String destPath) {
         try {
             ClassicRequestBuilder requestBuilder = buildRequest(HttpMethod.GET, url, null, null);
             return downloadApi(requestBuilder, destPath);
@@ -109,7 +113,7 @@ public record ApiRequestExecutor(CloseableHttpClient httpClient) {
         return HttpRequestExecutor.sendRequest(httpClient, requestBuilder);
     }
 
-    private boolean downloadApi(ClassicRequestBuilder requestBuilder, String destPath){
+    private boolean downloadApi(ClassicRequestBuilder requestBuilder, String destPath) {
         return HttpRequestExecutor.downloadFile(httpClient, requestBuilder, destPath);
     }
 

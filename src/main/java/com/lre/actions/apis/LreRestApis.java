@@ -173,4 +173,9 @@ public class LreRestApis implements AutoCloseable {
         return executor.upload(url, payload, scriptPath.toFile(), LreScript.class, "Upload");
 
     }
+
+    public void deleteScript(int id) {
+        String url = urlBuilder.getDeleteScriptUrl(id);
+        executor.deleteById(url, "delete");
+    }
 }

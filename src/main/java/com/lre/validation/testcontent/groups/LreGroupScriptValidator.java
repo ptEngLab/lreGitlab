@@ -8,8 +8,6 @@ import com.lre.model.yaml.YamlGroup;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 @Slf4j
@@ -45,13 +43,13 @@ public class LreGroupScriptValidator {
 
     private Script fetchScriptByName(String scriptName, String groupName) {
         String normalizedPath = CommonUtils.normalizePathWithSubject(scriptName);
-        if (StringUtils.isBlank(normalizedPath)) {
+        if (normalizedPath.equalsIgnoreCase("subject")) {
             throw new LreException("Cannot fetch script: scriptName is null or empty for group " + groupName);
         }
 
-        Path scriptPath = Paths.get(normalizedPath);
-        String folderPath = scriptPath.getParent().toString();
-        String fileName = scriptPath.getFileName().toString();
+        int lastBackslash = normalizedPath.lastIndexOf('\\');
+        String folderPath = normalizedPath.substring(0, lastBackslash);
+        String fileName = normalizedPath.substring(lastBackslash + 1);
 
         return getScriptByName(folderPath, fileName);
     }

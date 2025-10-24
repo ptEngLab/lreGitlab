@@ -2,7 +2,6 @@ package com.lre.services.git;
 
 import com.lre.actions.apis.GitLabRestApis;
 import com.lre.actions.apis.LreRestApis;
-import com.lre.actions.exceptions.LreException;
 import com.lre.actions.runmodel.LreTestRunModel;
 import com.lre.actions.utils.CommonUtils;
 import com.lre.model.git.GitLabCommit;
@@ -25,19 +24,15 @@ import static org.apache.commons.lang3.StringUtils.truncate;
 @Slf4j
 public class LreSyncService {
 
-    private final GitLabRestApis gitLabRestApis;
-    private final LreRestApis lreRestApis;
     private final LreTestRunModel lreModel;
 
     private final GitScriptPackager scriptPackager;
-    private final LreUploader uploader;
+    private final LreScriptManager scriptManager; //
 
     public LreSyncService(GitLabRestApis gitLabRestApis, LreTestRunModel lreModel, LreRestApis lreRestApis) {
-        this.gitLabRestApis = gitLabRestApis;
-        this.lreRestApis = lreRestApis;
         this.lreModel = lreModel;
         this.scriptPackager = new GitScriptPackager(gitLabRestApis);
-        this.uploader = new LreUploader(lreRestApis);
+        this.scriptManager = new LreScriptManager(lreRestApis); // updated
     }
 
     /**
@@ -60,7 +55,7 @@ public class LreSyncService {
                 deriveTestPlanDetails(commit);
                 log.info("Preparing script for upload: {}", scriptName);
                 Path scriptZip = scriptPackager.prepare(commit);
-                uploader.upload(lreModel, scriptZip);
+                scriptManager.upload(lreModel, scriptZip);
                 log.debug("Successfully uploaded script: {}", lreModel.getTestName());
                 results.add(new GitToLreUploadResult(lreModel.getTestFolderPath(), lreModel.getTestName(), commitSha,
                         "SUCCESS", "Uploaded successfully"));
@@ -94,10 +89,11 @@ public class LreSyncService {
         for (GitLabCommit commit : commits) {
             try {
                 LreTestPlanCreationRequest info = CommonUtils.fromGitPath(commit.getPath());
-                // TODO
-//                lreRestApis.deleteTestByPath(info.getPath(), info.getName());
-                log.info("Deleted script from LRE: {}", info.getName());
-            } catch (LreException e) {
+                String normalizedPath = normalizePathWithSubject(info.getPath());
+
+                scriptManager.delete(normalizedPath, info.getName()); // using the new method
+                log.info("Deleted script from LRE: {} \\ {}", normalizedPath, info.getName());
+            } catch (Exception e) {
                 log.warn("Failed to delete script '{}' from LRE: {}", commit.getPath(), e.getMessage());
                 allDeleted = false;
             }
