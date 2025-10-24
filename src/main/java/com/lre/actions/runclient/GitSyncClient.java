@@ -25,16 +25,17 @@ public class GitSyncClient implements AutoCloseable {
     private final CommitHistoryManager historyManager;
     private final SyncAnalyzer analyzer;
     private final LreSyncService lreService;
+    private static final int THREADPOOL_SIZE = 5;
 
     public GitSyncClient(GitTestRunModel gitModel, LreTestRunModel lreModel) {
         LreRestApis lreApis = new LreRestApis(lreModel);
         GitLabRestApis gitApis = new GitLabRestApis(gitModel);
 
         this.authManager = new LreAuthenticationManager(lreApis, lreModel);
-        this.scanner = new GitRepositoryScanner(gitApis, 5);
+        this.scanner = new GitRepositoryScanner(gitApis, THREADPOOL_SIZE);
         this.historyManager = new CommitHistoryManager(gitApis, getHistoryPath());
         this.analyzer = new SyncAnalyzer();
-        this.lreService = new LreSyncService(new GitScriptPackager(gitApis), lreModel, new LreScriptManager(lreApis));
+        this.lreService = new LreSyncService(gitApis, lreModel, lreApis);
 
         this.authManager.login();
     }
@@ -55,7 +56,10 @@ public class GitSyncClient implements AutoCloseable {
                 return true;
             }
             logSyncSummary(diff);
-            success = lreService.deleteScripts(diff.scriptsToDelete()) && lreService.uploadScripts(diff.scriptsToUpload());
+            boolean uploadSuccess = lreService.uploadScripts(diff.scriptsToUpload());
+            boolean deleteSuccess = lreService.deleteScripts(diff.scriptsToDelete());
+            lreService.logCombinedSummary();
+            success = uploadSuccess && deleteSuccess;
         }
 
         if (success) historyManager.saveHistory(current);
@@ -70,7 +74,7 @@ public class GitSyncClient implements AutoCloseable {
                 result.unchangedScripts().size());
     }
 
-    private Path getHistoryPath() {
+    private static Path getHistoryPath() {
         return Paths.get(DEFAULT_OUTPUT_DIR, COMMIT_HISTORY_ARTIFACT_PATH);
     }
 
