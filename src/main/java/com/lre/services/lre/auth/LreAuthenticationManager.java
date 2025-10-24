@@ -1,4 +1,4 @@
-package com.lre.services.lre;
+package com.lre.services.lre.auth;
 
 import com.lre.client.api.lre.LreRestApis;
 import com.lre.client.runmodel.LreTestRunModel;

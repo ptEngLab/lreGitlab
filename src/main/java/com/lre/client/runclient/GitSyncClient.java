@@ -6,7 +6,7 @@ import com.lre.common.exceptions.LreException;
 import com.lre.client.runmodel.GitTestRunModel;
 import com.lre.client.runmodel.LreTestRunModel;
 import com.lre.model.git.GitLabCommit;
-import com.lre.services.lre.LreAuthenticationManager;
+import com.lre.services.lre.auth.LreAuthenticationManager;
 import com.lre.services.git.*;
 import lombok.extern.slf4j.Slf4j;
 
