@@ -1,8 +1,8 @@
 package com.lre.services.git;
 
-import com.lre.actions.apis.GitLabRestApis;
-import com.lre.actions.exceptions.LreException;
-import com.lre.actions.utils.CommonUtils;
+import com.lre.client.api.gitlab.GitLabRestApis;
+import com.lre.common.exceptions.LreException;
+import com.lre.common.utils.CommonUtils;
 import com.lre.model.git.GitLabCommit;
 import lombok.extern.slf4j.Slf4j;
 
@@ -11,7 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static com.lre.actions.utils.CommonUtils.deleteFolder;
+import static com.lre.common.utils.CommonUtils.deleteFolder;
 
 /**
  * Handles packaging GitLab scripts into a zip file for upload to LRE.

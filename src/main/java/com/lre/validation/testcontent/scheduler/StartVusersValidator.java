@@ -1,6 +1,6 @@
 package com.lre.validation.testcontent.scheduler;
 
-import com.lre.actions.utils.WorkloadUtils;
+import com.lre.common.utils.WorkloadUtils;
 import com.lre.model.enums.SchedulerVusersType;
 import com.lre.model.test.testcontent.scheduler.action.Action;
 import com.lre.model.test.testcontent.scheduler.action.common.Ramp;
@@ -11,7 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.List;
 import java.util.regex.Matcher;
 
-import static com.lre.actions.utils.ConfigConstants.*;
+import static com.lre.common.constants.ConfigConstants.*;
 
 @Slf4j
 public record StartVusersValidator(String workloadType, int vusersCount) {

@@ -1,8 +1,8 @@
 package com.lre.validation.testcontent.groups;
 
-import com.lre.actions.apis.LreRestApis;
-import com.lre.actions.exceptions.LreException;
-import com.lre.actions.utils.CommonUtils;
+import com.lre.client.api.lre.LreRestApis;
+import com.lre.common.exceptions.LreException;
+import com.lre.common.utils.CommonUtils;
 import com.lre.model.test.testcontent.groups.script.Script;
 import com.lre.model.yaml.YamlGroup;
 import com.lre.services.git.LreScriptManager;

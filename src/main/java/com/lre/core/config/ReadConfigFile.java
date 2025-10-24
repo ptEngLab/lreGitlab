@@ -1,7 +1,7 @@
 package com.lre.core.config;
 
-import com.lre.actions.runmodel.LreTestRunModel;
-import com.lre.actions.runmodel.GitTestRunModel;
+import com.lre.client.runmodel.LreTestRunModel;
+import com.lre.client.runmodel.GitTestRunModel;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;

@@ -1,6 +1,6 @@
 package com.lre.validation.testcontent.globalrts;
 
-import com.lre.actions.exceptions.LreException;
+import com.lre.common.exceptions.LreException;
 import com.lre.model.test.testcontent.TestContent;
 import com.lre.model.test.testcontent.groups.rts.RTS;
 import com.lre.model.yaml.YamlRTS;

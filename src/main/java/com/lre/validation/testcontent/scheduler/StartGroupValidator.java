@@ -13,8 +13,8 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
-import static com.lre.actions.utils.ConfigConstants.START_GROUP_DELAY_PATTERN;
-import static com.lre.actions.utils.ConfigConstants.START_GROUP_FINISH_PATTERN;
+import static com.lre.common.constants.ConfigConstants.START_GROUP_DELAY_PATTERN;
+import static com.lre.common.constants.ConfigConstants.START_GROUP_FINISH_PATTERN;
 import static com.lre.model.test.testcontent.scheduler.action.common.TimeInterval.parseTimeInterval;
 
 @Slf4j

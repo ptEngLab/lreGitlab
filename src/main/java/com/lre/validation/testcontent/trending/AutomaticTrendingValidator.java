@@ -1,6 +1,6 @@
 package com.lre.validation.testcontent.trending;
 
-import com.lre.actions.exceptions.LreException;
+import com.lre.common.exceptions.LreException;
 import com.lre.model.test.testcontent.TestContent;
 import com.lre.model.test.testcontent.automatictrending.AutomaticTrending;
 import com.lre.model.yaml.YamlAutomaticTrending;

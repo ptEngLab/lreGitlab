@@ -1,6 +1,6 @@
 package com.lre.validation.testcontent.scheduler;
 
-import com.lre.actions.utils.WorkloadUtils;
+import com.lre.common.utils.WorkloadUtils;
 import com.lre.model.enums.SchedulerDurationType;
 import com.lre.model.test.testcontent.scheduler.action.Action;
 import com.lre.model.test.testcontent.scheduler.action.common.TimeInterval;
@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 
-import static com.lre.actions.utils.ConfigConstants.RUN_FOR_PATTERN;
-import static com.lre.actions.utils.ConfigConstants.RUN_UNTIL_COMPLETE_PATTERN;
+import static com.lre.common.constants.ConfigConstants.RUN_FOR_PATTERN;
+import static com.lre.common.constants.ConfigConstants.RUN_UNTIL_COMPLETE_PATTERN;
 import static com.lre.model.test.testcontent.scheduler.action.common.TimeInterval.parseTimeInterval;
 
 @Slf4j

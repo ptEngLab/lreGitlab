@@ -1,9 +1,9 @@
 package com.lre.services.git;
 
-import com.lre.actions.apis.GitLabRestApis;
-import com.lre.actions.apis.LreRestApis;
-import com.lre.actions.runmodel.LreTestRunModel;
-import com.lre.actions.utils.CommonUtils;
+import com.lre.client.api.gitlab.GitLabRestApis;
+import com.lre.client.api.lre.LreRestApis;
+import com.lre.client.runmodel.LreTestRunModel;
+import com.lre.common.utils.CommonUtils;
 import com.lre.model.git.GitLabCommit;
 import com.lre.model.git.GitToLreSyncResult;
 import com.lre.model.testplan.LreTestPlanCreationRequest;
@@ -13,8 +13,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.lre.actions.utils.CommonUtils.logTable;
-import static com.lre.actions.utils.CommonUtils.normalizePathWithSubject;
+import static com.lre.common.utils.CommonUtils.logTable;
+import static com.lre.common.utils.CommonUtils.normalizePathWithSubject;
 import static org.apache.commons.lang3.StringUtils.truncate;
 
 /**

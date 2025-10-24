@@ -1,11 +1,11 @@
 package com.lre.core.http;
 
-import com.lre.actions.utils.JsonUtils;
-import com.lre.actions.utils.LreErrorResponse;
+import com.lre.common.utils.JsonUtils;
+import com.lre.model.errors.LreErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.commons.lang3.StringUtils;
-import com.lre.actions.exceptions.LreException;
+import com.lre.common.exceptions.LreException;
 
 import java.util.List;
 

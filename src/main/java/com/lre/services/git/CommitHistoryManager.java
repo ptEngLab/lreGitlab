@@ -1,8 +1,8 @@
 package com.lre.services.git;
 
-import com.lre.actions.apis.GitLabRestApis;
-import com.lre.actions.exceptions.LreException;
-import com.lre.actions.utils.JsonUtils;
+import com.lre.client.api.gitlab.GitLabRestApis;
+import com.lre.common.exceptions.LreException;
+import com.lre.common.utils.JsonUtils;
 import com.lre.model.git.GitLabCommit;
 import lombok.extern.slf4j.Slf4j;
 

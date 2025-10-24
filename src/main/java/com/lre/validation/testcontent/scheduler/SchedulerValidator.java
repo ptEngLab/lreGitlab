@@ -1,6 +1,6 @@
 package com.lre.validation.testcontent.scheduler;
 
-import com.lre.actions.utils.WorkloadUtils;
+import com.lre.common.utils.WorkloadUtils;
 import com.lre.model.test.testcontent.TestContent;
 import com.lre.model.test.testcontent.scheduler.Scheduler;
 import com.lre.model.test.testcontent.scheduler.action.Action;
@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 
-import static com.lre.actions.utils.ConfigConstants.*;
+import static com.lre.common.constants.ConfigConstants.*;
 
 @Slf4j
 public class SchedulerValidator {

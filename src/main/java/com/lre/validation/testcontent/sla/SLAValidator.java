@@ -1,6 +1,6 @@
 package com.lre.validation.testcontent.sla;
 
-import com.lre.actions.exceptions.LreException;
+import com.lre.common.exceptions.LreException;
 import com.lre.model.enums.SlaLoadCriteria;
 import com.lre.model.test.testcontent.TestContent;
 import com.lre.model.test.testcontent.sla.SLA;

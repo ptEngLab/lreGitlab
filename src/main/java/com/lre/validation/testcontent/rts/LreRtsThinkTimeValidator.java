@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
-import static com.lre.actions.utils.CommonUtils.parsePositive;
+import static com.lre.common.utils.CommonUtils.parsePositive;
 
 
 @Slf4j

@@ -3,14 +3,14 @@ package com.lre.model.test.testcontent.scheduler.action.duration;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
-import com.lre.actions.utils.ConfigConstants;
+import com.lre.common.constants.ConfigConstants;
 import com.lre.model.enums.SchedulerDurationType;
 import com.lre.model.test.testcontent.scheduler.action.common.TimeInterval;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import static com.lre.actions.utils.ConfigConstants.LRE_API_XMLNS;
+import static com.lre.common.constants.ConfigConstants.LRE_API_XMLNS;
 
 @Data
 @NoArgsConstructor

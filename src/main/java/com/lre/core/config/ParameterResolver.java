@@ -6,7 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.lre.actions.utils.CommonUtils.convertToType;
+import static com.lre.common.utils.CommonUtils.convertToType;
 
 public class ParameterResolver {
     private final JsonNode configContent;

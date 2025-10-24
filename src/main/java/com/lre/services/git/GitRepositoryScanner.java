@@ -1,6 +1,6 @@
 package com.lre.services.git;
 
-import com.lre.actions.apis.GitLabRestApis;
+import com.lre.client.api.gitlab.GitLabRestApis;
 import com.lre.model.git.GitLabCommit;
 import com.lre.model.git.GitLabTreeItem;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +9,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
-import static com.lre.actions.apis.ApiUrlBuilderGitLab.GITLAB_PER_PAGE_RECORDS;
+import static com.lre.client.api.builder.ApiUrlBuilderGitLab.GITLAB_PER_PAGE_RECORDS;
 
 @Slf4j
 public record GitRepositoryScanner(GitLabRestApis gitLabRestApis, int threadPoolSize) {

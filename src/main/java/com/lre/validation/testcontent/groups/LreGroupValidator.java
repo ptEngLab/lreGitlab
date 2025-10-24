@@ -1,8 +1,8 @@
 package com.lre.validation.testcontent.groups;
 
-import com.lre.actions.apis.LreRestApis;
-import com.lre.actions.exceptions.LreException;
-import com.lre.actions.utils.WorkloadUtils;
+import com.lre.client.api.lre.LreRestApis;
+import com.lre.common.exceptions.LreException;
+import com.lre.common.utils.WorkloadUtils;
 import com.lre.model.test.testcontent.TestContent;
 import com.lre.model.test.testcontent.groups.Group;
 import com.lre.model.test.testcontent.groups.commandline.CommandLine;

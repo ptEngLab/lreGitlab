@@ -8,8 +8,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import static com.lre.actions.utils.CommonUtils.normalizePathWithSubject;
-import static com.lre.actions.utils.ConfigConstants.LRE_API_XMLNS;
+import static com.lre.common.utils.CommonUtils.normalizePathWithSubject;
+import static com.lre.common.constants.ConfigConstants.LRE_API_XMLNS;
 
 @Data
 @NoArgsConstructor
@@ -45,10 +45,6 @@ public class Test {
         this.name = name;
         this.testFolderPath = testFolderPath;
         this.content = content;
-    }
-
-    public void setTestFolderPath(String testFolderPath) {
-        this.testFolderPath = normalizePathWithSubject(testFolderPath);
     }
 
     public void normalizeAfterDeserialization() {

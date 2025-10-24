@@ -1,7 +1,7 @@
 package com.lre.validation.testcontent.groups;
 
-import com.lre.actions.apis.LreRestApis;
-import com.lre.actions.exceptions.LreException;
+import com.lre.client.api.lre.LreRestApis;
+import com.lre.common.exceptions.LreException;
 import com.lre.model.enums.HostType;
 import com.lre.model.enums.LGDistributionType;
 import com.lre.model.test.testcontent.TestContent;

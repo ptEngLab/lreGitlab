@@ -1,10 +1,10 @@
 package com.lre.services.git;
 
-import com.lre.actions.apis.LreRestApis;
-import com.lre.actions.exceptions.LreException;
-import com.lre.actions.runmodel.LreTestRunModel;
+import com.lre.client.api.lre.LreRestApis;
+import com.lre.common.exceptions.LreException;
+import com.lre.client.runmodel.LreTestRunModel;
 import com.lre.model.test.testcontent.groups.script.Script;
-import com.lre.services.LreTestManager;
+import com.lre.services.lre.LreTestManager;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Path;

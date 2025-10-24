@@ -1,2 +1,69 @@
-2025-10-20 15:26:57 INFO  c.l.m.Main:44                            - Starting operation: SYNC_GITLAB_WITH_LRE
-2025-10-20 15:26:57 INFO  c.l.m.Main:103                           - Starting GitLab and LRE synchronization...
+2025-10-20 17:02:45 INFO  c.l.m.Main:44                            - Starting operation: SYNC_GITLAB_WITH_LRE
+2025-10-20 17:02:46 INFO  c.l.m.Main:103                           - Starting GitLab and LRE synchronization...
+2025-10-20 17:02:49 INFO  c.l.s.g.CommitHistoryManager:23          - No commit history found, starting fresh
+2025-10-20 17:02:49 INFO  c.l.a.r.GitSyncClient:48                 - Performing INITIAL sync with 7 scripts
+2025-10-20 17:02:49 INFO  c.l.s.g.LreSyncService:61                - Preparing script for upload: DevWebScripts/EmptyScript/DevWeb_EmptyScript
+2025-10-20 17:02:50 INFO  c.l.s.LreTestManager:161                 - Script Generate_Transactions, Folder path Subject/e2e uploaded successfully
+2025-10-20 17:02:50 INFO  c.l.s.g.LreSyncService:61                - Preparing script for upload: WebScriptsSample/ExtractStringFromString
+2025-10-20 17:02:50 INFO  c.l.s.LreTestManager:161                 - Script Generate_Transactions, Folder path Subject/e2e uploaded successfully
+2025-10-20 17:02:50 INFO  c.l.s.g.LreSyncService:61                - Preparing script for upload: DevWebScripts/AuthExample/DevWeb_HttpBearerAuthorization
+2025-10-20 17:02:51 INFO  c.l.s.LreTestManager:161                 - Script Generate_Transactions, Folder path Subject/e2e uploaded successfully
+2025-10-20 17:02:51 INFO  c.l.s.g.LreSyncService:61                - Preparing script for upload: WebScriptsSample/DNSQuery
+2025-10-20 17:02:51 INFO  c.l.s.LreTestManager:161                 - Script Generate_Transactions, Folder path Subject/e2e uploaded successfully
+2025-10-20 17:02:51 INFO  c.l.s.g.LreSyncService:61                - Preparing script for upload: DevWebScripts/ShoppingCartExample/DevWeb_AdvantageOnlineShopping
+2025-10-20 17:02:52 INFO  c.l.s.LreTestManager:161                 - Script Generate_Transactions, Folder path Subject/e2e uploaded successfully
+2025-10-20 17:02:52 INFO  c.l.s.g.LreSyncService:61                - Preparing script for upload: WebScriptsSample/ChangeCase
+2025-10-20 17:02:54 ERROR c.l.s.g.LreSyncService:71                - Failed to upload script 'WebScriptsSample/ChangeCase': Error executing request to https://gitlab.com/api/v4/projects/75391932/repository/archive.zip?sha=2a366a2e27862fc96a73885f5e2fc868c7930dc0&path=WebScriptsSample%2FChangeCase
+com.lre.client.exceptions.LreException: Error executing request to https://gitlab.com/api/v4/projects/75391932/repository/archive.zip?sha=2a366a2e27862fc96a73885f5e2fc868c7930dc0&path=WebScriptsSample%2FChangeCase
+	at com.lre.core.http.HttpRequestExecutor.executeRequest(HttpRequestExecutor.java:96)
+	at com.lre.core.http.HttpRequestExecutor.downloadFile(HttpRequestExecutor.java:47)
+	at com.lre.client.api.base.ApiRequestExecutor.downloadApi(ApiRequestExecutor.java:113)
+	at com.lre.client.api.base.ApiRequestExecutor.download(ApiRequestExecutor.java:54)
+	at com.lre.client.api.gitlab.GitLabRestApis.downloadRepositoryArchive(GitLabRestApis.java:50)
+	at com.lre.services.git.GitScriptPackager.prepare(GitScriptPackager.java:55)
+	at com.lre.services.git.LreSyncService.uploadScripts(LreSyncService.java:62)
+	at com.lre.client.runclient.GitSyncClient.sync(GitSyncClient.java:49)
+	at com.lre.app.Main.syncGitlabWithLre(Main.java:106)
+	at com.lre.app.Main.main(Main.java:56)
+Caused by: com.lre.client.exceptions.LreException: Request failed: URL=https://gitlab.com/api/v4/projects/75391932/repository/archive.zip?sha=2a366a2e27862fc96a73885f5e2fc868c7930dc0&path=WebScriptsSample%2FChangeCase, Status=429 (Too Many Requests), Content={"message":{"error":"This archive has been requested too many times. Try again later."}}
+	at com.lre.core.http.HttpErrorHandler.handleError(HttpErrorHandler.java:41)
+	at com.lre.core.http.HttpRequestExecutor.lambda$executeRequest$2(HttpRequestExecutor.java:82)
+	at org.apache.hc.client5.http.impl.classic.CloseableHttpClient.execute(CloseableHttpClient.java:247)
+	at org.apache.hc.client5.http.impl.classic.CloseableHttpClient.execute(CloseableHttpClient.java:188)
+	at org.apache.hc.client5.http.impl.classic.CloseableHttpClient.execute(CloseableHttpClient.java:162)
+	at com.lre.core.http.HttpRequestExecutor.executeRequest(HttpRequestExecutor.java:68)
+	... 9 common frames omitted
+2025-10-20 17:02:54 INFO  c.l.s.g.LreSyncService:61                - Preparing script for upload: WebScriptsSample/DateTime
+2025-10-20 17:02:56 ERROR c.l.s.g.LreSyncService:71                - Failed to upload script 'WebScriptsSample/DateTime': Error executing request to https://gitlab.com/api/v4/projects/75391932/repository/archive.zip?sha=bb45963498c2daf5a132affc1e1150f33b38c508&path=WebScriptsSample%2FDateTime
+com.lre.client.exceptions.LreException: Error executing request to https://gitlab.com/api/v4/projects/75391932/repository/archive.zip?sha=bb45963498c2daf5a132affc1e1150f33b38c508&path=WebScriptsSample%2FDateTime
+	at com.lre.core.http.HttpRequestExecutor.executeRequest(HttpRequestExecutor.java:96)
+	at com.lre.core.http.HttpRequestExecutor.downloadFile(HttpRequestExecutor.java:47)
+	at com.lre.client.api.base.ApiRequestExecutor.downloadApi(ApiRequestExecutor.java:113)
+	at com.lre.client.api.base.ApiRequestExecutor.download(ApiRequestExecutor.java:54)
+	at com.lre.client.api.gitlab.GitLabRestApis.downloadRepositoryArchive(GitLabRestApis.java:50)
+	at com.lre.services.git.GitScriptPackager.prepare(GitScriptPackager.java:55)
+	at com.lre.services.git.LreSyncService.uploadScripts(LreSyncService.java:62)
+	at com.lre.client.runclient.GitSyncClient.sync(GitSyncClient.java:49)
+	at com.lre.app.Main.syncGitlabWithLre(Main.java:106)
+	at com.lre.app.Main.main(Main.java:56)
+Caused by: com.lre.client.exceptions.LreException: Request failed: URL=https://gitlab.com/api/v4/projects/75391932/repository/archive.zip?sha=bb45963498c2daf5a132affc1e1150f33b38c508&path=WebScriptsSample%2FDateTime, Status=429 (Too Many Requests), Content={"message":{"error":"This archive has been requested too many times. Try again later."}}
+	at com.lre.core.http.HttpErrorHandler.handleError(HttpErrorHandler.java:41)
+	at com.lre.core.http.HttpRequestExecutor.lambda$executeRequest$2(HttpRequestExecutor.java:82)
+	at org.apache.hc.client5.http.impl.classic.CloseableHttpClient.execute(CloseableHttpClient.java:247)
+	at org.apache.hc.client5.http.impl.classic.CloseableHttpClient.execute(CloseableHttpClient.java:188)
+	at org.apache.hc.client5.http.impl.classic.CloseableHttpClient.execute(CloseableHttpClient.java:162)
+	at com.lre.core.http.HttpRequestExecutor.executeRequest(HttpRequestExecutor.java:68)
+	... 9 common frames omitted
+2025-10-20 17:02:56 INFO  c.l.s.g.LreSyncService:142               - 
++---+-------------------------------------------+--------------------------------+----------+---------+----------------------------------------------------------------------------------+
+| # | Test Folder Path                          | Script Name                    | Commit   | Status  | Message                                                                          |
++---+-------------------------------------------+--------------------------------+----------+---------+----------------------------------------------------------------------------------+
+| 1 | Subject\DevWebScripts\EmptyScript         | DevWeb_EmptyScript             | 2a366a2e | SUCCESS | Uploaded successfully                                                            |
+| 2 | Subject\WebScriptsSample                  | ExtractStringFromString        | 2a366a2e | SUCCESS | Uploaded successfully                                                            |
+| 3 | Subject\DevWebScripts\AuthExample         | DevWeb_HttpBearerAuthorization | 31f14873 | SUCCESS | Uploaded successfully                                                            |
+| 4 | Subject\WebScriptsSample                  | DNSQuery                       | bb459634 | SUCCESS | Uploaded successfully                                                            |
+| 5 | Subject\DevWebScripts\ShoppingCartExample | DevWeb_AdvantageOnlineShopping | 2a366a2e | SUCCESS | Uploaded successfully                                                            |
+| 6 | Subject\WebScriptsSample                  | ChangeCase                     | 2a366a2e | FAILED  | Error executing request to https://gitlab.com/api/v4/projects/75391932/repositor |
+| 7 | Subject\WebScriptsSample                  | DateTime                       | bb459634 | FAILED  | Error executing request to https://gitlab.com/api/v4/projects/75391932/repositor |
++---+-------------------------------------------+--------------------------------+----------+---------+----------------------------------------------------------------------------------+
+

@@ -1,9 +1,9 @@
 package com.lre.core.config;
 
-import com.lre.actions.utils.CommonUtils;
-import com.lre.actions.utils.TestFileHelper;
-import com.lre.actions.runmodel.LreTestRunModel;
-import com.lre.actions.runmodel.GitTestRunModel;
+import com.lre.common.utils.CommonUtils;
+import com.lre.common.utils.TestFileHelper;
+import com.lre.client.runmodel.LreTestRunModel;
+import com.lre.client.runmodel.GitTestRunModel;
 import com.lre.model.enums.PostRunAction;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;

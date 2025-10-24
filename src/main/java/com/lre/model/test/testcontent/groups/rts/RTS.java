@@ -14,7 +14,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import static com.lre.actions.utils.ConfigConstants.LRE_API_XMLNS;
+import static com.lre.common.constants.ConfigConstants.LRE_API_XMLNS;
 
 @Slf4j
 @AllArgsConstructor

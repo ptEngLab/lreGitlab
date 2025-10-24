@@ -10,7 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.List;
 import java.util.regex.Matcher;
 
-import static com.lre.actions.utils.ConfigConstants.*;
+import static com.lre.common.constants.ConfigConstants.*;
 import static com.lre.model.test.testcontent.scheduler.action.common.TimeInterval.parseTimeInterval;
 
 @Slf4j
