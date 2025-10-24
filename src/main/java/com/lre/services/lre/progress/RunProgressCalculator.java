@@ -3,47 +3,35 @@ package com.lre.services.lre.progress;
 import com.lre.model.enums.RunState;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class RunProgressCalculator {
-    private final Map<RunState, Long> stateStartTimes = new HashMap<>();
     private final long timeslotDurationMillis;
 
-    public RunProgressCalculator(long timeslotDurationMillis) {
-        this.timeslotDurationMillis = timeslotDurationMillis;
-    }
+    // Percentage of total timeslot allocated to each state
+    private final Map<RunState, Double> stateTimeAllocations = Map.of(
+            RunState.INITIALIZING, 0.05,      // 5% of timeslot
+            RunState.RUNNING, 0.85,           // 85% of timeslot (main execution)
+            RunState.BEFORE_COLLATING_RESULTS, 0.02,  // 2% of timeslot
+            RunState.COLLATING_RESULTS, 0.04, // 4% of timeslot
+            RunState.BEFORE_CREATING_ANALYSIS_DATA, 0.02, // 2% of timeslot
+            RunState.CREATING_ANALYSIS_DATA, 0.02     // 2% of timeslot
+    );
 
-    public void recordStateTransition(RunState state) {
-        stateStartTimes.put(state, System.currentTimeMillis());
-        log.debug("Recorded state transition to: {}", state);
-    }
-
-    public int calculateProgress(RunState state) {
-        // Historical state duration patterns
-        Map<RunState, Long> typicalStateDurations = Map.of(
-            RunState.INITIALIZING, TimeUnit.MINUTES.toMillis(2),
-            RunState.RUNNING, timeslotDurationMillis,
-            RunState.BEFORE_COLLATING_RESULTS, TimeUnit.MINUTES.toMillis(1),
-            RunState.COLLATING_RESULTS, TimeUnit.MINUTES.toMillis(3),
-            RunState.BEFORE_CREATING_ANALYSIS_DATA, TimeUnit.MINUTES.toMillis(1),
-            RunState.CREATING_ANALYSIS_DATA, TimeUnit.MINUTES.toMillis(2)
-        );
-
-        // Progress milestones for each state
-        Map<RunState, Integer> stateStartProgress = Map.of(
+    // Base progress when entering each state
+    private final Map<RunState, Integer> stateStartProgress = Map.of(
             RunState.INITIALIZING, 0,
             RunState.RUNNING, 10,
             RunState.BEFORE_COLLATING_RESULTS, 85,
             RunState.COLLATING_RESULTS, 87,
             RunState.BEFORE_CREATING_ANALYSIS_DATA, 92,
-            RunState.CREATING_ANALYSIS_DATA, 94,
+            RunState.CREATING_ANALYSIS_DATA, 95,
             RunState.FINISHED, 100
-        );
+    );
 
-        Map<RunState, Integer> stateEndProgress = Map.of(
+    // Target progress when completing each state
+    private final Map<RunState, Integer> stateEndProgress = Map.of(
             RunState.INITIALIZING, 10,
             RunState.RUNNING, 85,
             RunState.BEFORE_COLLATING_RESULTS, 87,
@@ -51,30 +39,71 @@ public class RunProgressCalculator {
             RunState.BEFORE_CREATING_ANALYSIS_DATA, 94,
             RunState.CREATING_ANALYSIS_DATA, 98,
             RunState.FINISHED, 100
-        );
+    );
 
+    public RunProgressCalculator(long timeslotDurationMillis) {
+        this.timeslotDurationMillis = timeslotDurationMillis;
+    }
+
+    public int calculateProgress(RunState state, long totalElapsedMillis) {
         if (state == RunState.FINISHED) return 100;
 
-        if (!stateStartProgress.containsKey(state)) {
-            log.warn("Unknown state: {}, returning 0% progress", state);
-            return 0;
+        // For RUNNING state, use time-based progress
+        if (state == RunState.RUNNING) {
+            return calculateRunningProgress(totalElapsedMillis);
         }
 
-        Long stateStartTime = stateStartTimes.get(state);
-        if (stateStartTime == null) {
-            return stateStartProgress.get(state);
+        // For other states, calculate based on elapsed time within state allocation
+        return calculateStateProgress(state, totalElapsedMillis);
+    }
+
+    private int calculateRunningProgress(long totalElapsedMillis) {
+        if (timeslotDurationMillis <= 0) return 10;
+
+        // Progress from 10% to 85% based on elapsed time
+        int runningProgress = 10 + (int) ((totalElapsedMillis * 75) / timeslotDurationMillis);
+        return Math.min(runningProgress, 85);
+    }
+
+    private int calculateStateProgress(RunState state, long totalElapsedMillis) {
+        Double stateAllocation = stateTimeAllocations.get(state);
+        Integer startProgress = stateStartProgress.get(state);
+        Integer endProgress = stateEndProgress.get(state);
+
+        if (stateAllocation == null || startProgress == null || endProgress == null) {
+            return startProgress != null ? startProgress : 0;
         }
 
-        long stateElapsed = System.currentTimeMillis() - stateStartTime;
-        Long typicalDuration = typicalStateDurations.get(state);
+        // Calculate how much time should be allocated to this state
+        long stateAllocatedTime = (long) (timeslotDurationMillis * stateAllocation);
 
-        if (typicalDuration != null && typicalDuration > 0) {
-            int progressRange = stateEndProgress.get(state) - stateStartProgress.get(state);
-            int stateInternalProgress = (int) ((stateElapsed * progressRange) / typicalDuration);
-            return stateStartProgress.get(state) + Math.min(stateInternalProgress, progressRange);
+        // Estimate when this state should start (cumulative of previous states)
+        long stateStartTime = calculateStateStartTime(state);
+
+        // Calculate progress within this state
+        long timeInState = Math.max(0, totalElapsedMillis - stateStartTime);
+        int progressRange = endProgress - startProgress;
+
+        if (stateAllocatedTime > 0) {
+            int stateInternalProgress = (int) ((timeInState * progressRange) / stateAllocatedTime);
+            return startProgress + Math.min(stateInternalProgress, progressRange);
         }
 
-        return stateStartProgress.get(state);
+        return startProgress;
+    }
+
+    private long calculateStateStartTime(RunState state) {
+        // Calculate cumulative time of all states before this one
+        long cumulativeTime = 0;
+
+        for (Map.Entry<RunState, Double> entry : stateTimeAllocations.entrySet()) {
+            if (entry.getKey() == state) {
+                break;
+            }
+            cumulativeTime += (long) (timeslotDurationMillis * entry.getValue());
+        }
+
+        return cumulativeTime;
     }
 
     public String buildProgressBar(int percent) {

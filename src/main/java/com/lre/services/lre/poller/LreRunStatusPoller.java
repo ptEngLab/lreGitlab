@@ -58,7 +58,6 @@ public class LreRunStatusPoller {
                 RunState currentState = RunState.fromValue(currentStatus.getRunState());
                 lastKnownStatus = currentStatus;
 
-                progressCalculator.recordStateTransition(currentState);
                 logStatus(currentState, startTime);
 
                 if (isTerminalState(currentState)) return currentStatus;
@@ -111,9 +110,9 @@ public class LreRunStatusPoller {
 
         if (shouldLog(state, now)) {
             long remainingMillis = Math.max(0, timeslotDurationMillis - elapsedMillis);
-            int progress = progressCalculator.calculateProgress(state);
-            String progressBar = progressCalculator.buildProgressBar(progress);
+            int progress = progressCalculator.calculateProgress(state, elapsedMillis); // Pass elapsed time
 
+            String progressBar = progressCalculator.buildProgressBar(progress);
             String logMessage = statusFormatter.formatStatusLog(state, elapsedMillis, remainingMillis, progress, progressBar);
             log.info(logMessage);
 
