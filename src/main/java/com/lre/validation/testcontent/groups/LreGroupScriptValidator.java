@@ -5,20 +5,19 @@ import com.lre.actions.exceptions.LreException;
 import com.lre.actions.utils.CommonUtils;
 import com.lre.model.test.testcontent.groups.script.Script;
 import com.lre.model.yaml.YamlGroup;
+import com.lre.services.git.LreScriptManager;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-
-import java.util.List;
 
 @Slf4j
 public class LreGroupScriptValidator {
 
     private final LreRestApis restApis;
-    private final List<Script> scriptCache;
+    private final LreScriptManager scriptManager;
 
     public LreGroupScriptValidator(LreRestApis restApis) {
         this.restApis = restApis;
-        this.scriptCache = restApis.fetchAllScripts();
+        this.scriptManager = new LreScriptManager(restApis);
     }
 
     public Script validateYamlGroupScript(YamlGroup group) {
@@ -51,21 +50,7 @@ public class LreGroupScriptValidator {
         String folderPath = normalizedPath.substring(0, lastBackslash);
         String fileName = normalizedPath.substring(lastBackslash + 1);
 
-        return getScriptByName(folderPath, fileName);
-    }
-
-    private Script getScriptByName(String testFolderPath, String scriptName) {
-        log.debug("Searching for script - Folder: {}, Name: {}", testFolderPath, scriptName);
-        for (Script script : scriptCache) {
-            String scriptFolderPath = script.getTestFolderPath();
-            String scriptFileName = script.getName();
-            if (testFolderPath.equalsIgnoreCase(scriptFolderPath) && scriptName.equalsIgnoreCase(scriptFileName)) {
-                return script;
-            }
-        }
-        String msg = String.format("No Script named '%s' was found under folder %s", scriptName, testFolderPath);
-        log.warn(msg);
-        throw new LreException(msg);
+        return scriptManager.getScriptByName(folderPath, fileName);
     }
 
 }

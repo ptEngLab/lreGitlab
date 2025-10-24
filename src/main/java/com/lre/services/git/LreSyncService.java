@@ -1,11 +1,9 @@
 package com.lre.services.git;
 
-import com.lre.actions.apis.GitLabRestApis;
-import com.lre.actions.apis.LreRestApis;
 import com.lre.actions.runmodel.LreTestRunModel;
 import com.lre.actions.utils.CommonUtils;
 import com.lre.model.git.GitLabCommit;
-import com.lre.model.git.GitToLreUploadResult;
+import com.lre.model.git.GitToLreSyncResult;
 import com.lre.model.testplan.LreTestPlanCreationRequest;
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,19 +20,8 @@ import static org.apache.commons.lang3.StringUtils.truncate;
  * Delegates packaging and upload logic to smaller, focused helpers.
  */
 @Slf4j
-public class LreSyncService {
-
-    private final LreTestRunModel lreModel;
-
-    private final GitScriptPackager scriptPackager;
-    private final LreScriptManager scriptManager; //
-
-    public LreSyncService(GitLabRestApis gitLabRestApis, LreTestRunModel lreModel, LreRestApis lreRestApis) {
-        this.lreModel = lreModel;
-        this.scriptPackager = new GitScriptPackager(gitLabRestApis);
-        this.scriptManager = new LreScriptManager(lreRestApis); // updated
-    }
-
+public record LreSyncService(GitScriptPackager scriptPackager, LreTestRunModel lreModel,
+                             LreScriptManager scriptManager) {
     /**
      * Uploads scripts to LRE. Each script is fetched from GitLab, packaged, and uploaded.
      */
@@ -45,7 +32,7 @@ public class LreSyncService {
         }
 
         boolean allSuccessful = true;
-        List<GitToLreUploadResult> results = new ArrayList<>();
+        List<GitToLreSyncResult> results = new ArrayList<>();
 
         for (GitLabCommit commit : commits) {
             String scriptName = commit.getPath();
@@ -57,21 +44,20 @@ public class LreSyncService {
                 Path scriptZip = scriptPackager.prepare(commit);
                 scriptManager.upload(lreModel, scriptZip);
                 log.debug("Successfully uploaded script: {}", lreModel.getTestName());
-                results.add(new GitToLreUploadResult(lreModel.getTestFolderPath(), lreModel.getTestName(), commitSha,
-                        "SUCCESS", "Uploaded successfully"));
+                results.add(new GitToLreSyncResult(lreModel.getTestFolderPath(), lreModel.getTestName(), commitSha,
+                        "UPLOAD", "SUCCESS", "Uploaded successfully"));
 
                 scriptPackager.cleanupCommitTempDir(scriptZip.getParent().getParent());
 
             } catch (Exception e) {
                 log.error("Failed to upload script '{}': {}", commit.getPath(), e.getMessage(), e);
-                results.add(new GitToLreUploadResult(lreModel.getTestFolderPath(), lreModel.getTestName(), commitSha,
-                        "FAILED", e.getMessage()));
-
+                results.add(new GitToLreSyncResult(lreModel.getTestFolderPath(), lreModel.getTestName(), commitSha,
+                        "UPLOAD", "FAILED", e.getMessage()));
                 allSuccessful = false;
             }
         }
 
-        logUploadSummary(results);
+        logSyncSummary(results);
 
         return allSuccessful;
     }
@@ -86,18 +72,27 @@ public class LreSyncService {
         }
 
         boolean allDeleted = true;
+        List<GitToLreSyncResult> results = new ArrayList<>();
+
         for (GitLabCommit commit : commits) {
+            String commitSha = commit.getSha().substring(0, Math.min(8, commit.getSha().length()));
+
             try {
                 LreTestPlanCreationRequest info = CommonUtils.fromGitPath(commit.getPath());
                 String normalizedPath = normalizePathWithSubject(info.getPath());
-
                 scriptManager.delete(normalizedPath, info.getName()); // using the new method
-                log.info("Deleted script from LRE: {} \\ {}", normalizedPath, info.getName());
+                results.add(new GitToLreSyncResult(lreModel.getTestFolderPath(), lreModel.getTestName(), commitSha,
+                        "DELETE", "SUCCESS", "Deleted successfully"));
             } catch (Exception e) {
-                log.warn("Failed to delete script '{}' from LRE: {}", commit.getPath(), e.getMessage());
+                log.error("Failed to delete script '{}' from LRE: {}", commit.getPath(), e.getMessage());
+                results.add(new GitToLreSyncResult(lreModel.getTestFolderPath(), lreModel.getTestName(), commitSha,
+                        "DELETE", "FAILED", e.getMessage()));
                 allDeleted = false;
             }
         }
+
+        logSyncSummary(results);
+
         return allDeleted;
     }
 
@@ -110,24 +105,25 @@ public class LreSyncService {
     }
 
 
-    private void logUploadSummary(List<GitToLreUploadResult> results) {
+    private void logSyncSummary(List<GitToLreSyncResult> results) {
         if (results == null || results.isEmpty()) {
-            log.info("No script uploads to summarize.");
+            log.info("No script uploads / delete to summarize.");
             return;
         }
 
         // Define header with serial number
-        String[] header = {"#", "Test Folder Path", "Script Name", "Commit", "Status", "Message"};
+        String[] header = {"#", "Test Folder Path", "Script Name", "Commit", "Action", "Status", "Message"};
 
         // Prepare data rows
         String[][] dataRows = new String[results.size()][header.length];
         int i = 0;
-        for (GitToLreUploadResult result : results) {
+        for (GitToLreSyncResult result : results) {
             dataRows[i] = new String[]{
                     String.valueOf(i + 1),
                     result.testFolderPath(),
                     result.scriptName(),
                     result.commitSha(),
+                    result.action(),
                     result.status(),
                     truncate(result.message(), 80)
             };

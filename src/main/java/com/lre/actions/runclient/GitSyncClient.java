@@ -34,7 +34,7 @@ public class GitSyncClient implements AutoCloseable {
         this.scanner = new GitRepositoryScanner(gitApis, 5);
         this.historyManager = new CommitHistoryManager(gitApis, getHistoryPath());
         this.analyzer = new SyncAnalyzer();
-        this.lreService = new LreSyncService(gitApis, lreModel, lreApis);
+        this.lreService = new LreSyncService(new GitScriptPackager(gitApis), lreModel, new LreScriptManager(lreApis));
 
         this.authManager.login();
     }

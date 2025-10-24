@@ -40,7 +40,7 @@ public class LreScriptManager {
     }
 
 
-    private Script getScriptByName(String testFolderPath, String scriptName) {
+    public Script getScriptByName(String testFolderPath, String scriptName) {
         log.debug("Searching for script - Folder: {}, Name: {}", testFolderPath, scriptName);
         for (Script script : scriptCache) {
             String scriptFolderPath = script.getTestFolderPath();
