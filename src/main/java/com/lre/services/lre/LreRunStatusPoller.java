@@ -2,11 +2,12 @@ package com.lre.services.lre;
 
 import com.lre.client.api.lre.LreRestApis;
 import com.lre.client.runmodel.LreTestRunModel;
-import com.lre.model.run.LreRunStatus;
 import com.lre.model.enums.PostRunAction;
 import com.lre.model.enums.RunState;
+import com.lre.model.run.LreRunStatus;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 import static com.lre.common.constants.ConfigConstants.*;
@@ -14,9 +15,7 @@ import static com.lre.common.constants.ConfigConstants.*;
 @Slf4j
 public class LreRunStatusPoller {
     private long lastLogTime = 0;
-    private static final long LOG_INTERVAL_MILLIS = TimeUnit.MINUTES.toMillis(5); // every 5 minutes
-
-    private RunState lastState = RunState.UNDEFINED; // track globally
+    private RunState lastState = RunState.UNDEFINED;
 
     private final LreRestApis apiClient;
     private final LreAuthenticationManager authManager;
@@ -36,6 +35,15 @@ public class LreRunStatusPoller {
             RunState.FINISHED
     };
 
+    // Dynamic logging intervals based on run duration
+    private static final long SHORT_RUN_THRESHOLD = TimeUnit.MINUTES.toMillis(30);  // < 30 minutes
+    private static final long MEDIUM_RUN_THRESHOLD = TimeUnit.HOURS.toMillis(2);    // 30 mins - 2 hours
+    // Long runs: > 2 hours
+
+    private static final long LOG_INTERVAL_SHORT = TimeUnit.MINUTES.toMillis(1);    // Every 1 minute
+    private static final long LOG_INTERVAL_MEDIUM = TimeUnit.MINUTES.toMillis(3);   // Every 3 minutes
+    private static final long LOG_INTERVAL_LONG = TimeUnit.MINUTES.toMillis(5);     // Every 5 minutes
+
     public LreRunStatusPoller(LreRestApis apiClient, LreTestRunModel model, int timeslotDurationInMinutes) {
         this.apiClient = apiClient;
         this.model = model;
@@ -48,35 +56,30 @@ public class LreRunStatusPoller {
 
     public LreRunStatus pollUntilDone() {
         long startTime = System.currentTimeMillis();
-//        RunState lastState = RunState.UNDEFINED;
         int consecutiveFailures = 0;
         LreRunStatus lastKnownStatus = new LreRunStatus();
         lastKnownStatus.setRunState(RunState.UNDEFINED.getValue());
 
         while (!Thread.currentThread().isInterrupted()) {
             try {
-                // 🔹 Fetch current status
                 LreRunStatus currentStatus = fetchStatusAndLogTransition(startTime);
                 RunState currentState = RunState.fromValue(currentStatus.getRunState());
-                lastKnownStatus = currentStatus; // store last known status
+                lastKnownStatus = currentStatus;
                 lastState = currentState;
 
-                // 🔹 Handle terminal completion
                 if (isTerminalState(currentState)) return currentStatus;
 
-                // 🔹 Monitor error thresholds
                 if (shouldAbortDueToErrors(currentStatus, currentState)) {
                     abortRunDueToErrors(currentStatus);
                     break;
                 }
 
-                // 🔹 Handle timeslot expiry
                 if (isTimeslotExceeded(startTime)) {
-                    log.info("Timeslot duration ended for run [{}], stopping monitoring", runId);
+                    log.info("Run [{}] reached timeslot limit ({}). Stopping monitoring.", runId, formatDuration(timeslotDurationMillis));
                     break;
                 }
 
-                consecutiveFailures = 0; // reset after successful fetch
+                consecutiveFailures = 0;
                 sleep(pollIntervalSeconds);
 
             } catch (Exception e) {
@@ -84,7 +87,6 @@ public class LreRunStatusPoller {
             }
         }
 
-        // Return the last known status if loop exited due to timeslot expiration
         log.debug("Returning last known status for run [{}]: {}", runId, lastKnownStatus.getRunState());
         return lastKnownStatus;
     }
@@ -92,10 +94,9 @@ public class LreRunStatusPoller {
     private LreRunStatus fetchStatusAndLogTransition(long startTime) {
         LreRunStatus currentStatus = apiClient.fetchRunStatus(runId);
         RunState currentState = RunState.fromValue(currentStatus.getRunState());
-        logHybrid(currentState, startTime);
+        logStatus(currentState, startTime);
         return currentStatus;
     }
-
 
     private boolean isTerminalState(RunState currentState) {
         if (!postRunAction.isTerminal(currentState)) return false;
@@ -154,7 +155,8 @@ public class LreRunStatusPoller {
 
     private int handleFailure(int consecutiveFailures, Exception e) {
         consecutiveFailures++;
-        log.warn("Failed to fetch status for run [{}]: {} (Attempt {}/{})", runId, e.getMessage(), consecutiveFailures, MAX_RETRIES);
+        String msg = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
+        log.warn("Failed to fetch status for run [{}]: {} (Attempt {}/{})", runId, msg, consecutiveFailures, MAX_RETRIES);
 
         if (consecutiveFailures >= MAX_RETRIES) {
             log.info("Max retries reached. Reauthenticating for run [{}].", runId);
@@ -170,13 +172,15 @@ public class LreRunStatusPoller {
         return System.currentTimeMillis() - startTime > timeslotDurationMillis;
     }
 
-    private void logHybrid(RunState state, long startTime) {
+    private void logStatus(RunState state, long startTime) {
         long now = System.currentTimeMillis();
+        long elapsedMillis = now - startTime;
 
-        if (state != lastState || now - lastLogTime >= LOG_INTERVAL_MILLIS) {
-            long elapsedMillis = now - startTime;
+        // Determine dynamic log interval based on expected run duration
+        long logInterval = getDynamicLogInterval();
+
+        if (state != lastState || now - lastLogTime >= logInterval) {
             long remainingMillis = Math.max(0, timeslotDurationMillis - elapsedMillis);
-
             int progress = calculateProgress(state, elapsedMillis);
 
             String formattedLog = String.format(
@@ -192,6 +196,22 @@ public class LreRunStatusPoller {
             log.info(formattedLog);
             lastState = state;
             lastLogTime = now;
+        }
+    }
+
+    /**
+     * Dynamic log interval based on expected run duration
+     * - Short runs (< 30 min): log every 1 minute
+     * - Medium runs (30 min - 2 hours): log every 3 minutes
+     * - Long runs (> 2 hours): log every 5 minutes
+     */
+    private long getDynamicLogInterval() {
+        if (timeslotDurationMillis <= SHORT_RUN_THRESHOLD) {
+            return LOG_INTERVAL_SHORT;
+        } else if (timeslotDurationMillis <= MEDIUM_RUN_THRESHOLD) {
+            return LOG_INTERVAL_MEDIUM;
+        } else {
+            return LOG_INTERVAL_LONG;
         }
     }
 
@@ -215,14 +235,11 @@ public class LreRunStatusPoller {
         return Math.max(progressByState, progressByTime);
     }
 
-
     private String formatDuration(long millis) {
-        long totalSeconds = millis / 1000;
-        long hours = totalSeconds / 3600;
-        long minutes = (totalSeconds % 3600) / 60;
-        long seconds = totalSeconds % 60;
-        return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+        Duration d = Duration.ofMillis(millis);
+        return String.format("%02d:%02d:%02d", d.toHoursPart(), d.toMinutesPart(), d.toSecondsPart());
     }
+
 
     private String buildProgressBar(int percent) {
         int barWidth = 20;
@@ -238,5 +255,4 @@ public class LreRunStatusPoller {
             log.warn("Polling interrupted for run [{}]", runId);
         }
     }
-
 }
