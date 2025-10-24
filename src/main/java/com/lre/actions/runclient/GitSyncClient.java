@@ -25,19 +25,19 @@ public class GitSyncClient implements AutoCloseable {
     private final CommitHistoryManager historyManager;
     private final SyncAnalyzer analyzer;
     private final LreSyncService lreService;
-    private static final int THREADPOOL_SIZE = 5;
+    private static final int THREAD_POOL_SIZE = 5;
 
     public GitSyncClient(GitTestRunModel gitModel, LreTestRunModel lreModel) {
         LreRestApis lreApis = new LreRestApis(lreModel);
         GitLabRestApis gitApis = new GitLabRestApis(gitModel);
 
         this.authManager = new LreAuthenticationManager(lreApis, lreModel);
-        this.scanner = new GitRepositoryScanner(gitApis, THREADPOOL_SIZE);
+        this.authManager.login();
+        this.scanner = new GitRepositoryScanner(gitApis, THREAD_POOL_SIZE);
         this.historyManager = new CommitHistoryManager(gitApis, getHistoryPath());
         this.analyzer = new SyncAnalyzer();
         this.lreService = new LreSyncService(gitApis, lreModel, lreApis);
 
-        this.authManager.login();
     }
 
     public boolean sync() throws LreException {
@@ -48,6 +48,7 @@ public class GitSyncClient implements AutoCloseable {
         if (previous.isEmpty()) {
             log.info("Performing INITIAL sync with {} scripts", current.size());
             success = lreService.uploadScripts(current);
+            lreService.logCombinedSummary();
         } else {
             log.info("Performing INCREMENTAL sync");
             SyncResult diff = analyzer.analyze(previous, current);
