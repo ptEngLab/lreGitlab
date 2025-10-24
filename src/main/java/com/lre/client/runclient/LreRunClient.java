@@ -70,10 +70,17 @@ public class LreRunClient implements AutoCloseable {
     }
 
     public void printRunSummary() {
+        LreRunStatusExtended runStatus = fetchRunStatusExtended();
+        String[][] summaryRows = prepareRunSummary(runStatus);
+        log.info(logTable(summaryRows));
+    }
+
+    private LreRunStatusExtended fetchRunStatusExtended() {
         LreRunStatusReqWeb runStatusReq = LreRunStatusReqWeb.createRunStatusPayloadForRunId(model.getRunId());
-        LreRunStatusExtended runStatusExtended = lreRestApis
-                .fetchRunResultsExtended(JsonUtils.toJson(runStatusReq))
-                .get(0);
+        return lreRestApis.fetchRunResultsExtended(JsonUtils.toJson(runStatusReq)).get(0);
+    }
+
+    private String[][] prepareRunSummary(LreRunStatusExtended runStatusExtended) {
 
         // Determine if thresholds were exceeded
         long errorThreshold = model.getMaxErrors();
@@ -94,7 +101,7 @@ public class LreRunClient implements AutoCloseable {
                 ? "❌ FAILED"
                 : "✅ PASSED";
 
-        String[][] rows = {
+        return new String[][]{
                 {
                         "Domain: " + model.getDomain(),
                         "Project: " + model.getProject(),
@@ -127,7 +134,6 @@ public class LreRunClient implements AutoCloseable {
                 },
         };
 
-        log.info(logTable(rows));
     }
 
     private LreRunStatus executeRunWorkflow() {
@@ -166,21 +172,18 @@ public class LreRunClient implements AutoCloseable {
     private LreRunStatus monitorRunCompletion(LreTimeslotManager timeslotManager) {
         int timeslotDuration = timeslotManager.getTotalMinutes();
         log.debug("Starting run monitoring with timeslot duration: {} minutes", timeslotDuration);
+
         LreRunStatusPoller runStatusPoller = new LreRunStatusPoller(lreRestApis, model, timeslotDuration);
         LreRunStatus runStatus = runStatusPoller.pollUntilDone();
+
         log.debug("Run monitoring completed. {}", runStatus.getRunState());
         return runStatus;
 
     }
 
     private static String calculateTestDuration(LocalDateTime start, LocalDateTime end) {
-
         Duration duration = (start == null || end == null) ? Duration.ZERO : Duration.between(start, end);
-        long hours = duration.toHours();
-        long minutes = duration.toMinutesPart();
-        long seconds = duration.toSecondsPart();
-
-        return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+        return String.format("%02d:%02d:%02d", duration.toHours(), duration.toMinutesPart(), duration.toSecondsPart());
     }
 
 

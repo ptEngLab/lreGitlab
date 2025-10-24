@@ -13,6 +13,10 @@ import static com.lre.common.constants.ConfigConstants.*;
 
 @Slf4j
 public class LreRunStatusPoller {
+    private long lastLogTime = 0;
+    private static final long LOG_INTERVAL_MILLIS = TimeUnit.MINUTES.toMillis(5); // every 5 minutes
+
+    private RunState lastState = RunState.UNDEFINED; // track globally
 
     private final LreRestApis apiClient;
     private final LreAuthenticationManager authManager;
@@ -20,8 +24,17 @@ public class LreRunStatusPoller {
     private final PostRunAction postRunAction;
     private final long pollIntervalSeconds;
     private final long timeslotDurationMillis;
-    private final long timeslotDurationInMinutes;
     private final LreTestRunModel model;
+
+    private static final RunState[] PROGRESS_STATES = {
+            RunState.INITIALIZING,
+            RunState.RUNNING,
+            RunState.BEFORE_COLLATING_RESULTS,
+            RunState.COLLATING_RESULTS,
+            RunState.BEFORE_CREATING_ANALYSIS_DATA,
+            RunState.CREATING_ANALYSIS_DATA,
+            RunState.FINISHED
+    };
 
     public LreRunStatusPoller(LreRestApis apiClient, LreTestRunModel model, int timeslotDurationInMinutes) {
         this.apiClient = apiClient;
@@ -30,13 +43,12 @@ public class LreRunStatusPoller {
         this.runId = model.getRunId();
         this.postRunAction = model.getLrePostRunAction();
         this.pollIntervalSeconds = DEFAULT_POLL_INTERVAL_SECONDS;
-        this.timeslotDurationInMinutes = timeslotDurationInMinutes;
         this.timeslotDurationMillis = TimeUnit.MINUTES.toMillis(timeslotDurationInMinutes);
     }
 
     public LreRunStatus pollUntilDone() {
         long startTime = System.currentTimeMillis();
-        RunState lastState = RunState.UNDEFINED;
+//        RunState lastState = RunState.UNDEFINED;
         int consecutiveFailures = 0;
         LreRunStatus lastKnownStatus = new LreRunStatus();
         lastKnownStatus.setRunState(RunState.UNDEFINED.getValue());
@@ -44,7 +56,7 @@ public class LreRunStatusPoller {
         while (!Thread.currentThread().isInterrupted()) {
             try {
                 // 🔹 Fetch current status
-                LreRunStatus currentStatus = fetchStatusAndLogTransition(startTime, lastState);
+                LreRunStatus currentStatus = fetchStatusAndLogTransition(startTime);
                 RunState currentState = RunState.fromValue(currentStatus.getRunState());
                 lastKnownStatus = currentStatus; // store last known status
                 lastState = currentState;
@@ -77,12 +89,13 @@ public class LreRunStatusPoller {
         return lastKnownStatus;
     }
 
-    private LreRunStatus fetchStatusAndLogTransition(long startTime, RunState lastLoggedState) {
+    private LreRunStatus fetchStatusAndLogTransition(long startTime) {
         LreRunStatus currentStatus = apiClient.fetchRunStatus(runId);
         RunState currentState = RunState.fromValue(currentStatus.getRunState());
-        if (currentState != lastLoggedState) logStateChange(currentState, startTime);
+        logHybrid(currentState, startTime);
         return currentStatus;
     }
+
 
     private boolean isTerminalState(RunState currentState) {
         if (!postRunAction.isTerminal(currentState)) return false;
@@ -139,7 +152,6 @@ public class LreRunStatusPoller {
         }
     }
 
-
     private int handleFailure(int consecutiveFailures, Exception e) {
         consecutiveFailures++;
         log.warn("Failed to fetch status for run [{}]: {} (Attempt {}/{})", runId, e.getMessage(), consecutiveFailures, MAX_RETRIES);
@@ -158,23 +170,65 @@ public class LreRunStatusPoller {
         return System.currentTimeMillis() - startTime > timeslotDurationMillis;
     }
 
-    private void logStateChange(RunState state, long startTime) {
+    private void logHybrid(RunState state, long startTime) {
         long now = System.currentTimeMillis();
-        long elapsedSeconds = (now - startTime) / 1000;
-        long remainingMinutes = TimeUnit.MILLISECONDS.toMinutes(Math.max(0, timeslotDurationMillis - (now - startTime)));
 
-        String formattedLog = String.format(
-                "| %-10s | %-40s | %-25s | %-14s | %-14s |",
-                "RunId: " + runId,
-                "State: " + state.getValue(),
-                "Elapsed: " + elapsedSeconds + " seconds",
-                "Timeslot duration: " + timeslotDurationInMinutes + " minutes",
-                "Time remaining: " + remainingMinutes + " minutes"
-        );
+        if (state != lastState || now - lastLogTime >= LOG_INTERVAL_MILLIS) {
+            long elapsedMillis = now - startTime;
+            long remainingMillis = Math.max(0, timeslotDurationMillis - elapsedMillis);
 
-        log.info(formattedLog);
+            int progress = calculateProgress(state, elapsedMillis);
+
+            String formattedLog = String.format(
+                    "| %-10s | %-40s | %-25s | %-14s | %-14s | %-20s |",
+                    "RunId: " + runId,
+                    "State: " + state.getValue(),
+                    "Elapsed: " + formatDuration(elapsedMillis),
+                    "Timeslot: " + formatDuration(timeslotDurationMillis),
+                    "Time remaining: " + formatDuration(remainingMillis),
+                    String.format("%3d%% %s", progress, buildProgressBar(progress))
+            );
+
+            log.info(formattedLog);
+            lastState = state;
+            lastLogTime = now;
+        }
     }
 
+    private int calculateProgress(RunState state, long elapsedMillis) {
+        // Find index of current state in ordered list
+        int index = 0;
+        for (int i = 0; i < PROGRESS_STATES.length; i++) {
+            if (PROGRESS_STATES[i] == state) {
+                index = i;
+                break;
+            }
+        }
+
+        // Progress by state fraction
+        int progressByState = (int) ((index + 1) * 100.0 / PROGRESS_STATES.length);
+
+        // Progress by timeslot (optional for long runs)
+        int progressByTime = (int) Math.min(100, (elapsedMillis * 100) / timeslotDurationMillis);
+
+        // Use whichever is greater for a meaningful progress bar
+        return Math.max(progressByState, progressByTime);
+    }
+
+
+    private String formatDuration(long millis) {
+        long totalSeconds = millis / 1000;
+        long hours = totalSeconds / 3600;
+        long minutes = (totalSeconds % 3600) / 60;
+        long seconds = totalSeconds % 60;
+        return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+    }
+
+    private String buildProgressBar(int percent) {
+        int barWidth = 20;
+        int filledBlocks = (percent * barWidth) / 100;
+        return "█".repeat(filledBlocks) + "░".repeat(barWidth - filledBlocks);
+    }
 
     private void sleep(long seconds) {
         try {
@@ -184,4 +238,5 @@ public class LreRunStatusPoller {
             log.warn("Polling interrupted for run [{}]", runId);
         }
     }
+
 }
