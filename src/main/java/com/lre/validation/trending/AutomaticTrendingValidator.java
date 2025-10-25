@@ -1,4 +1,4 @@
-package com.lre.validation.testcontent.trending;
+package com.lre.validation.trending;
 
 import com.lre.common.exceptions.LreException;
 import com.lre.model.test.testcontent.TestContent;

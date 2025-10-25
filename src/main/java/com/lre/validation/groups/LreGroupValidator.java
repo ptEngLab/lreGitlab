@@ -1,4 +1,4 @@
-package com.lre.validation.testcontent.groups;
+package com.lre.validation.groups;
 
 import com.lre.client.api.lre.LreRestApis;
 import com.lre.common.exceptions.LreException;
@@ -10,9 +10,9 @@ import com.lre.model.test.testcontent.groups.rts.RTS;
 import com.lre.model.test.testcontent.scheduler.Scheduler;
 import com.lre.model.yaml.YamlGroup;
 import com.lre.model.yaml.YamlTest;
-import com.lre.validation.testcontent.rts.*;
-import com.lre.validation.testcontent.scheduler.SchedulerValidator;
-import com.lre.validation.testcontent.scheduler.StartGroupValidator;
+import com.lre.validation.rts.*;
+import com.lre.validation.scheduler.SchedulerValidator;
+import com.lre.validation.scheduler.StartGroupValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 

@@ -1,4 +1,4 @@
-package com.lre.validation.testcontent.sla;
+package com.lre.validation.sla;
 
 import com.lre.common.exceptions.LreException;
 import com.lre.model.enums.SlaLoadCriteria;

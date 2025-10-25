@@ -1,4 +1,4 @@
-package com.lre.validation.testcontent.scheduler;
+package com.lre.validation.scheduler;
 
 import com.lre.common.utils.WorkloadUtils;
 import com.lre.model.test.testcontent.TestContent;

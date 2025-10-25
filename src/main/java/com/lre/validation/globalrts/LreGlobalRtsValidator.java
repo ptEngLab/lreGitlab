@@ -1,11 +1,11 @@
-package com.lre.validation.testcontent.globalrts;
+package com.lre.validation.globalrts;
 
 import com.lre.common.exceptions.LreException;
 import com.lre.model.test.testcontent.TestContent;
 import com.lre.model.test.testcontent.groups.rts.RTS;
 import com.lre.model.yaml.YamlRTS;
 import com.lre.model.yaml.YamlTest;
-import com.lre.validation.testcontent.rts.*;
+import com.lre.validation.rts.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 

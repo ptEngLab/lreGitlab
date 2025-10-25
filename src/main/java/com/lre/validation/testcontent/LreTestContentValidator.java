@@ -20,11 +20,11 @@ import com.lre.model.test.testcontent.scheduler.Scheduler;
 import com.lre.model.test.testcontent.workloadtype.WorkloadType;
 import com.lre.model.yaml.YamlCommandLine;
 import com.lre.model.yaml.YamlTest;
-import com.lre.validation.testcontent.globalrts.LreGlobalRtsValidator;
-import com.lre.validation.testcontent.groups.LreGroupValidator;
-import com.lre.validation.testcontent.scheduler.SchedulerValidator;
-import com.lre.validation.testcontent.sla.SLAValidator;
-import com.lre.validation.testcontent.trending.AutomaticTrendingValidator;
+import com.lre.validation.globalrts.LreGlobalRtsValidator;
+import com.lre.validation.groups.LreGroupValidator;
+import com.lre.validation.scheduler.SchedulerValidator;
+import com.lre.validation.sla.SLAValidator;
+import com.lre.validation.trending.AutomaticTrendingValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 

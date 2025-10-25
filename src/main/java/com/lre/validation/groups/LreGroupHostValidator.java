@@ -1,4 +1,4 @@
-package com.lre.validation.testcontent.groups;
+package com.lre.validation.groups;
 
 import com.lre.client.api.lre.LreRestApis;
 import com.lre.common.exceptions.LreException;
