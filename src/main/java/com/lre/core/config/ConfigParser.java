@@ -13,21 +13,52 @@ public record ConfigParser(ParameterResolver resolver) {
         Map<String, Object> params = new HashMap<>();
         log.debug("Starting parameter parsing");
 
+        // -------------------------
         // First pass: non-conditional parameters
+        // -------------------------
         for (ParameterDefinitions.ConfigParameter<?> def : definitions) {
-            if (!def.conditional()) parseAndPut(params, def, def.required());
+            if (!def.conditional()) {
+                parseAndPut(params, def, def.required());
+            }
         }
 
-        // Determine if GitLab sync is enabled
-        boolean syncGitlab = (Boolean) params.get(ParameterDefinitions.Keys.SYNC_GITLAB_WITH_LRE_FLAG);
+        // -------------------------
+        // Evaluate conditional flags (after first pass)
+        // -------------------------
+        boolean syncGitlab = Boolean.TRUE.equals(params.get(ParameterDefinitions.Keys.SYNC_GITLAB_WITH_LRE_FLAG));
+        boolean sendEmail = Boolean.TRUE.equals(params.get(ParameterDefinitions.Keys.SEND_EMAIL_FLAG));
 
+        // -------------------------
         // Second pass: conditional parameters
+        // -------------------------
         for (ParameterDefinitions.ConfigParameter<?> def : definitions) {
-            if (def.conditional()) parseAndPut(params, def, def.required() && syncGitlab);
+            if (def.conditional()) {
+                boolean required = isRequired(def, sendEmail, syncGitlab);
+
+                parseAndPut(params, def, required);
+            }
         }
 
         log.debug("Completed parameter parsing");
         return params;
+    }
+
+    private static boolean isRequired(ParameterDefinitions.ConfigParameter<?> def, boolean sendEmail, boolean syncGitlab) {
+        boolean required = def.required();
+
+        // Make EMAIL_TO required if sendEmail = true
+        if (def.key().equals(ParameterDefinitions.Keys.EMAIL_TO)) {
+            required = sendEmail;
+        }
+
+        // Make GitLab conditionals required if syncGitlab = true
+        if (List.of(
+                ParameterDefinitions.Keys.GITLAB_TOKEN,
+                ParameterDefinitions.Keys.GITLAB_PROJECT_ID
+        ).contains(def.key())) {
+            required = syncGitlab;
+        }
+        return required;
     }
 
     private <T> void parseAndPut(Map<String, Object> map, ParameterDefinitions.ConfigParameter<T> def, boolean required) {
@@ -35,18 +66,23 @@ public record ConfigParser(ParameterResolver resolver) {
 
         if (value == null) {
             map.put(def.key(), def.defaultValue());
-            log.warn("Parameter '{}' is {} , using default: {}", def.key(), def.defaultValue(), "missing");
+            log.warn("Parameter '{}' is missing, using default: {}", def.key(), def.defaultValue());
             return;
         }
 
         try {
-            if (def.defaultValue() instanceof Integer) map.put(def.key(), Integer.parseInt(value));
-            else if (def.defaultValue() instanceof Boolean) map.put(def.key(), Boolean.parseBoolean(value.toLowerCase()));
-            else if (def.defaultValue() instanceof Long) map.put(def.key(), Long.parseLong(value.toLowerCase()));
-            else map.put(def.key(), value);
+            if (def.defaultValue() instanceof Integer) {
+                map.put(def.key(), Integer.parseInt(value));
+            } else if (def.defaultValue() instanceof Boolean) {
+                map.put(def.key(), Boolean.parseBoolean(value.toLowerCase()));
+            } else if (def.defaultValue() instanceof Long) {
+                map.put(def.key(), Long.parseLong(value.toLowerCase()));
+            } else {
+                map.put(def.key(), value);
+            }
         } catch (NumberFormatException e) {
             map.put(def.key(), def.defaultValue());
-            log.warn("Invalid integer value '{}' for parameter '{}', using default: {}", value, def.key(), def.defaultValue());
+            log.warn("Invalid numeric value '{}' for parameter '{}', using default: {}", value, def.key(), def.defaultValue());
         } catch (Exception e) {
             map.put(def.key(), def.defaultValue());
             log.warn("Unexpected error parsing parameter '{}', using default: {}", def.key(), def.defaultValue(), e);

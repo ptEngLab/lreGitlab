@@ -1,12 +1,14 @@
 package com.lre.core.config;
 
-import com.lre.client.runmodel.LreTestRunModel;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.lre.client.runmodel.EmailConfigModel;
 import com.lre.client.runmodel.GitTestRunModel;
+import com.lre.client.runmodel.LreTestRunModel;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ReadConfigFile {
 
@@ -44,6 +46,13 @@ public class ReadConfigFile {
      */
     public GitTestRunModel buildGitTestRunModel() {
         return configMapper.mapToGitModel(getParameters());
+    }
+
+    /**
+     * Builds the Email Config model
+     */
+    public EmailConfigModel buildEmailConfigModel() {
+        return configMapper.mapToEmailModel(getParameters());
     }
 
     /**

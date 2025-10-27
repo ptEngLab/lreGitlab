@@ -1,12 +1,14 @@
 package com.lre.app;
 
+import com.lre.client.runclient.EmailClient;
 import com.lre.client.runclient.GitSyncClient;
-import com.lre.core.config.ReadConfigFile;
-import com.lre.common.utils.LogHelper;
 import com.lre.client.runclient.LreRunClient;
+import com.lre.client.runmodel.EmailConfigModel;
 import com.lre.client.runmodel.GitTestRunModel;
 import com.lre.client.runmodel.LreTestRunModel;
 import com.lre.common.exceptions.LreException;
+import com.lre.common.utils.LogHelper;
+import com.lre.core.config.ReadConfigFile;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -48,13 +50,14 @@ public class Main {
             ReadConfigFile configFileData = new ReadConfigFile(configFilePath);
             LreTestRunModel lreTestRunModel = configFileData.buildLreTestRunModel();
             GitTestRunModel gitTestRunModel = configFileData.buildGitTestRunModel();
+            EmailConfigModel emailConfigModel = configFileData.buildEmailConfigModel();
 
 
             // Run requested operation
             boolean operationResult = switch (operation) {
                 case RUN_LRE_TEST -> runLreTest(lreTestRunModel);
                 case SYNC_GITLAB_WITH_LRE -> syncGitlabWithLre(gitTestRunModel, lreTestRunModel);
-                case SEND_EMAIL -> sendEmail();
+                case SEND_EMAIL -> sendEmail(emailConfigModel);
                 default -> false;
             };
 
@@ -107,11 +110,17 @@ public class Main {
         }
     }
 
-    private static boolean sendEmail() {
+    private static boolean sendEmail(EmailConfigModel emailConfigModel) {
         log.info("Starting email sending process...");
-        // TODO: add actual email logic
-        return true;
+
+        try (EmailClient emailClient = new EmailClient(emailConfigModel)) {
+            return emailClient.send();
+        } catch (Exception e) {
+            log.error("Error during email send operation: {}", e.getMessage(), e);
+            return false;
+        }
     }
+
 
     private static void printHelp() {
         System.out.println("Usage: java -jar lre-actions.jar <operation> [--config <path>]");

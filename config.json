@@ -6,9 +6,17 @@
   "LRE_PROJECT": "test-project",
   "LRE_TEST": "yamlTest/CreateTestFromYaml.yaml",
   "MAX_ERROR_COUNT": 20000,
-  "SYNC_GITLAB_WITH_LRE_FLAG": "false",
+  "SYNC_GITLAB_WITH_LRE_FLAG1": "true",
   "GITLAB_SERVER": "https://gitlab.com",
   "GITLAB_JOB_NAME": "sync-jobs",
-  "GITLAB_PROJECT_ID": 75391932
+  "GITLAB_PROJECT_ID": 75391932,
 
+  "EMAIL_SMTP_HOST": "smtp.gmail.com",
+  "EMAIL_SMTP_PORT": 587,
+  "EMAIL_USERNAME": "automation@company.com",
+  "EMAIL_PASSWORD": "super-secret",
+  "EMAIL_FROM": "automation@company.com",
+  "EMAIL_TO": "qa-team@company.com,devops@company.com",
+  "EMAIL_SUBJECT": "LRE Test Execution Results",
+  "EMAIL_BODY": "The LRE test execution has completed. Please check the attached report."
 }

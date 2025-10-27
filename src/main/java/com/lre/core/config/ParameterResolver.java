@@ -1,6 +1,7 @@
 package com.lre.core.config;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -8,6 +9,7 @@ import java.util.List;
 
 import static com.lre.common.utils.CommonUtils.convertToType;
 
+@Slf4j
 public class ParameterResolver {
     private final JsonNode configContent;
     private final List<String> missingRequiredParams;
@@ -25,12 +27,11 @@ public class ParameterResolver {
         String parameterValue = System.getenv(envKey);
 
         // Fall back to config.json
-        if (StringUtils.isBlank(parameterValue)) {
-            JsonNode node = configContent.get(parameterKey);
-            if (node != null && !node.isNull()) {
-                parameterValue = node.asText();
-            }
-        }
+        if (StringUtils.isBlank(parameterValue)) parameterValue = getFromConfigJson(parameterKey);
+
+        // Special case for EMAIL ID
+        if (StringUtils.isBlank(parameterValue)) parameterValue = handleSpecialCases(parameterKey);
+
 
         // If found, try to convert
         if (StringUtils.isNotBlank(parameterValue)) {
@@ -47,5 +48,20 @@ public class ParameterResolver {
 
     public List<String> getMissingRequiredParams() {
         return new ArrayList<>(missingRequiredParams);
+    }
+
+    private String getFromConfigJson(String parameterKey) {
+        JsonNode node = configContent.get(parameterKey);
+        if (node != null && !node.isNull()) return node.asText();
+        return null;
+    }
+
+    private String handleSpecialCases(String parameterKey) {
+        if ("EMAIL_TO".equalsIgnoreCase(parameterKey)) {
+            String gitlabEmail = System.getenv("GITLAB_USER_EMAIL");
+            if (StringUtils.isNotBlank(gitlabEmail)) return gitlabEmail;
+            log.error("No recipient email found. Provide 'EMAIL_TO' in config.json or set GITLAB_USER_EMAIL in the environment.");
+        }
+        return null;
     }
 }

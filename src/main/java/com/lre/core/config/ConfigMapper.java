@@ -1,9 +1,10 @@
 package com.lre.core.config;
 
+import com.lre.client.runmodel.EmailConfigModel;
+import com.lre.client.runmodel.GitTestRunModel;
+import com.lre.client.runmodel.LreTestRunModel;
 import com.lre.common.utils.CommonUtils;
 import com.lre.common.utils.TestFileHelper;
-import com.lre.client.runmodel.LreTestRunModel;
-import com.lre.client.runmodel.GitTestRunModel;
 import com.lre.model.enums.PostRunAction;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -54,13 +55,26 @@ public class ConfigMapper {
 
     public GitTestRunModel mapToGitModel(Map<String, Object> params) {
         return GitTestRunModel.builder()
-                .syncGitLabWithLre((Boolean) params.get(ParameterDefinitions.Keys.SYNC_GITLAB_WITH_LRE_FLAG))
                 .gitServerUrl((String) params.get(ParameterDefinitions.Keys.GITLAB_SERVER))
                 .branch((String) params.get(ParameterDefinitions.Keys.GITLAB_BRANCH))
                 .jobName((String) params.get(ParameterDefinitions.Keys.GITLAB_JOB_NAME))
                 .outputDir((String) params.get(ParameterDefinitions.Keys.GITLAB_OUTPUT_DIR))
                 .projectId((Integer) params.get(ParameterDefinitions.Keys.GITLAB_PROJECT_ID))
                 .gitlabToken((String) params.get(ParameterDefinitions.Keys.GITLAB_TOKEN))
+                .build();
+    }
+
+    public EmailConfigModel mapToEmailModel(Map<String, Object> params) {
+        return EmailConfigModel.builder()
+                .smtpHost((String) params.get(ParameterDefinitions.Keys.EMAIL_SMTP_HOST))
+                .smtpPort((int) params.get(ParameterDefinitions.Keys.EMAIL_SMTP_PORT))
+                .username((String) params.get(ParameterDefinitions.Keys.EMAIL_USERNAME))
+                .password((String) params.get(ParameterDefinitions.Keys.EMAIL_PASSWORD))
+                .from((String) params.get(ParameterDefinitions.Keys.EMAIL_FROM))
+                .to((String) params.get(ParameterDefinitions.Keys.EMAIL_TO))
+                .subject((String) params.get(ParameterDefinitions.Keys.EMAIL_SUBJECT))
+                .body((String) params.get(ParameterDefinitions.Keys.EMAIL_BODY))
+                .attachmentPath((String) params.get(ParameterDefinitions.Keys.EMAIL_ATTACHMENT_PATH))
                 .build();
     }
 

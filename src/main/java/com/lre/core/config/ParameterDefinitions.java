@@ -40,6 +40,18 @@ public class ParameterDefinitions {
         public static final String GITLAB_OUTPUT_DIR = System.getProperty("user.dir");
         public static final int GITLAB_PROJECT_ID = 0;
         public static final String GITLAB_TOKEN = "";
+
+        // Email Parameters
+        public static final boolean SEND_EMAIL_FLAG = true;
+        public static final String EMAIL_SMTP_HOST = "smtp.gmail.com";
+        public static final int EMAIL_SMTP_PORT = 587;
+        public static final String EMAIL_USERNAME = "";
+        public static final String EMAIL_PASSWORD = "";
+        public static final String EMAIL_FROM = "";
+        public static final String EMAIL_TO = "";
+        public static final String EMAIL_SUBJECT = "LRE Test Execution Report";
+        public static final String EMAIL_BODY = "LRE test execution completed. Please check the attached report.";
+        public static final String EMAIL_ATTACHMENT_PATH = "";
     }
 
     /**
@@ -75,6 +87,20 @@ public class ParameterDefinitions {
         public static final String GITLAB_TOKEN = "gitlab_token";
         public static final String GITLAB_OUTPUT_DIR = "gitlab_output_dir";
         public static final String GITLAB_PROJECT_ID = "gitlab_project_id";
+
+
+
+        // Email Parameters
+        public static final String SEND_EMAIL_FLAG = "send_email_flag";
+        public static final String EMAIL_SMTP_HOST = "email_smtp_host";
+        public static final String EMAIL_SMTP_PORT = "email_smtp_port";
+        public static final String EMAIL_USERNAME = "email_username";
+        public static final String EMAIL_PASSWORD = "email_password";
+        public static final String EMAIL_FROM = "email_from";
+        public static final String EMAIL_TO = "email_to";
+        public static final String EMAIL_SUBJECT = "email_subject";
+        public static final String EMAIL_BODY = "email_body";
+        public static final String EMAIL_ATTACHMENT_PATH = "email_attachment_path";
     }
 
     /**
@@ -127,7 +153,25 @@ public class ParameterDefinitions {
                 new ConfigParameter<>(Keys.GITLAB_OUTPUT_DIR, false, Defaults.GITLAB_OUTPUT_DIR)
         );
 
-        // Combine LRE + GitLab
-        return Stream.concat(lreParams.stream(), gitlabParams.stream()).toList();
+
+        // Email Parameters
+        List<ConfigParameter<?>> emailParams = Arrays.asList(
+                new ConfigParameter<>(Keys.SEND_EMAIL_FLAG, false, Defaults.SEND_EMAIL_FLAG),
+                new ConfigParameter<>(Keys.EMAIL_SMTP_HOST, false, Defaults.EMAIL_SMTP_HOST),
+                new ConfigParameter<>(Keys.EMAIL_SMTP_PORT, false, Defaults.EMAIL_SMTP_PORT),
+                new ConfigParameter<>(Keys.EMAIL_USERNAME, false, Defaults.EMAIL_USERNAME),
+                new ConfigParameter<>(Keys.EMAIL_PASSWORD, false, Defaults.EMAIL_PASSWORD),
+                new ConfigParameter<>(Keys.EMAIL_FROM, false, Defaults.EMAIL_FROM),
+                new ConfigParameter<>(Keys.EMAIL_TO, false, Defaults.EMAIL_TO, true),
+                new ConfigParameter<>(Keys.EMAIL_SUBJECT, false, Defaults.EMAIL_SUBJECT),
+                new ConfigParameter<>(Keys.EMAIL_BODY, false, Defaults.EMAIL_BODY),
+                new ConfigParameter<>(Keys.EMAIL_ATTACHMENT_PATH, false, Defaults.EMAIL_ATTACHMENT_PATH)
+        );
+
+
+        // Combine LRE + GitLab + Email
+        return Stream.of(lreParams, gitlabParams, emailParams)
+                .flatMap(List::stream)
+                .toList();
     }
 }

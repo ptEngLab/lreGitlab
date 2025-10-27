@@ -4,6 +4,7 @@
       <w>ating</w>
       <w>authenticateclient</w>
       <w>automatch</w>
+      <w>connectiontimeout</w>
       <w>pcweb</w>
       <w>startgroup</w>
       <w>startvusers</w>
@@ -15,6 +16,7 @@
       <w>vuds</w>
       <w>vuser</w>
       <w>vusers</w>
+      <w>writetimeout</w>
       <w>xmlns</w>
     </words>
   </dictionary>
