@@ -4,76 +4,70 @@
     <meta charset="UTF-8">
     <title>LoadRunner Enterprise Test Report</title>
 </head>
-<body style="margin:0; padding:20px; font-family:Tahoma, Geneva, Verdana, sans-serif; background:#f5f7f9; color:#333;">
+<body style="margin:0; padding:20px; font-family:Segoe UI, Tahoma, Geneva, Verdana, sans-serif; background:#f5f7f9; color:#333;">
 <table width="100%" cellpadding="0" cellspacing="0" border="0" align="center" style="max-width:800px; margin:0 auto; background:#ffffff; border-radius:12px;">
+
     <!-- Header -->
     <tr>
-        <td bgcolor="#764ba2" style="padding:30px; text-align:center; color:#ffffff; border-top-left-radius:12px; border-top-right-radius:12px;">
-            <h1 style="margin:0; font-size:24px;">LoadRunner Enterprise Test Report - Run ID 12</h1>
-            <div style="display:inline-block; padding:8px 20px; border-radius:20px; font-weight:bold; margin-top:10px; background:#dc3545;">Finished | ❌ FAILED</div>
+        <td bgcolor="#764ba2" style="padding:32px; text-align:center; color:#ffffff; border-top-left-radius:12px; border-top-right-radius:12px;">
+            <h1 style="margin:0; font-size:24px; font-weight:600;">LoadRunner Enterprise Test Report - Run ID 14</h1>
+            <div style="display:inline-block; padding:8px 20px; border-radius:20px; font-weight:600; margin-top:12px; background:#28a745; font-size:14px;">
+                Finished | ✅ PASSED
+            </div>
         </td>
     </tr>
 
-    <!-- Content -->
+    <!-- Summary -->
     <tr>
-        <td style="padding:25px; font-size:14px; line-height:1.5; color:#2c3e50;">
+        <td style="padding:28px; font-size:14px; line-height:1.6; color:#2c3e50;">
             <p>Hello Team,</p>
             <p>The performance test run for <strong>CreateTestFromYaml (Run Id 14)</strong> has completed. Below is a high-level summary of the results.</p>
-            <p>For detailed analysis, including transaction breakdowns, error details, and system resource graphs, please visit the full report in LoadRunner Enterprise.</p>
+            <p>For detailed analysis and system resource graphs, please view the full report in LoadRunner Enterprise.</p>
         </td>
     </tr>
 
-    <!-- Metrics Grid -->
-    <!-- Metrics Grid (Outlook-Friendly & Modern) -->
+    <!-- Metrics -->
     <tr>
         <td style="padding:25px;">
+            <h3 style="margin-bottom:15px; color:#2c3e50;">High level metrics</h3>
+
             <table width="100%" cellpadding="0" cellspacing="0" border="0">
-                <!-- First Row of Metrics -->
+
+                <!-- Row 1 -->
                 <tr>
-                    <!-- Metric 1 -->
-                    <td width="32%" bgcolor="#e6f9f0" style="border-left:4px solid #28a745; padding:20px; text-align:center;">
-                        <div style="font-size:20px; font-weight:bold; color:#28a745;">379</div>
-                        <div style="font-size:12px; color:#2c3e50; font-weight:400;">Transactions Passed ✅</div>
+                    <td width="32%" bgcolor="#e6f9f0" style="border-left:5px solid #28a745; padding:22px; text-align:center; border-radius:6px;">
+                        <div style="font-size:22px; font-weight:700; color:#28a745;">379</div>
+                        <div style="font-size:12px; color:#34495e; font-weight:500;">Transactions Passed</div>
                     </td>
-                    <!-- Spacer -->
                     <td width="2%"></td>
-                    <!-- Metric 2 -->
-                    <td width="32%" bgcolor="#fdecea" style="border-left:4px solid #dc3545; padding:20px; text-align:center;">
-                        <div style="font-size:20px; font-weight:bold; color:#dc3545;">0</div>
-                        <div style="font-size:12px; color:#2c3e50; font-weight:400;">Transactions Failed ❌</div>
+                    <td width="32%" bgcolor="#fdecea" style="border-left:5px solid #dc3545; padding:22px; text-align:center; border-radius:6px;">
+                        <div style="font-size:22px; font-weight:700; color:#dc3545;">0</div>
+                        <div style="font-size:12px; color:#34495e; font-weight:500;">Transactions Failed</div>
                     </td>
-                    <!-- Spacer -->
                     <td width="2%"></td>
-                    <!-- Metric 3 -->
-                    <td width="32%" bgcolor="#e7f1ff" style="border-left:4px solid #007bff; padding:20px; text-align:center;">
-                        <div style="font-size:20px; font-weight:bold; color:#007bff;">9</div>
-                        <div style="font-size:12px; color:#2c3e50; font-weight:400;">Virtual Users 👥</div>
+                    <td width="32%" bgcolor="#e7f1ff" style="border-left:5px solid #007bff; padding:22px; text-align:center; border-radius:6px;">
+                        <div style="font-size:22px; font-weight:700; color:#007bff;">9</div>
+                        <div style="font-size:12px; color:#34495e; font-weight:500;">Virtual Users</div>
                     </td>
                 </tr>
 
-                <!-- Spacer Row -->
-                <tr><td colspan="7" height="10"></td></tr>
+                <tr><td colspan="7" height="14"></td></tr>
 
-                <!-- Second Row of Metrics -->
+                <!-- Row 2 -->
                 <tr>
-                    <!-- Metric 4 -->
-                    <td width="32%" bgcolor="#fff7e6" style="border-left:4px solid #ff9800; padding:20px; text-align:center;">
-                        <div style="font-size:20px; font-weight:bold; color:#ff9800;">1</div>
-                        <div style="font-size:12px; color:#2c3e50; font-weight:400;">Transactions/Sec ⚡</div>
+                    <td width="32%" bgcolor="#fff7e6" style="border-left:5px solid #ff9800; padding:22px; text-align:center; border-radius:6px;">
+                        <div style="font-size:22px; font-weight:700; color:#ff9800;">1</div>
+                        <div style="font-size:12px; color:#34495e; font-weight:500;">Transactions/Sec</div>
                     </td>
-                    <!-- Spacer -->
                     <td width="2%"></td>
-                    <!-- Metric 5 -->
-                    <td width="32%" bgcolor="#f0f0f0" style="border-left:4px solid #6c757d; padding:20px; text-align:center;">
-                        <div style="font-size:20px; font-weight:bold; color:#6c757d;">1</div>
-                        <div style="font-size:12px; color:#2c3e50; font-weight:400;">Hits/Sec 📈</div>
+                    <td width="32%" bgcolor="#f0f0f0" style="border-left:5px solid #6c757d; padding:22px; text-align:center; border-radius:6px;">
+                        <div style="font-size:22px; font-weight:700; color:#6c757d;">0</div>
+                        <div style="font-size:12px; color:#34495e; font-weight:500;">Hits/Sec</div>
                     </td>
-                    <!-- Spacer -->
                     <td width="2%"></td>
-                    <!-- Metric 6 -->
-                    <td width="32%" bgcolor="#f9f0ff" style="border-left:4px solid #9c27b0; padding:20px; text-align:center;">
-                        <div style="font-size:20px; font-weight:bold; color:#9c27b0;">10</div>
-                        <div style="font-size:12px; color:#2c3e50; font-weight:400;">Avg Throughput 🚀</div>
+                    <td width="32%" bgcolor="#f9f0ff" style="border-left:5px solid #9c27b0; padding:22px; text-align:center; border-radius:6px;">
+                        <div style="font-size:22px; font-weight:700; color:#9c27b0;">0</div>
+                        <div style="font-size:12px; color:#34495e; font-weight:500;">Avg Throughput</div>
                     </td>
                 </tr>
             </table>
@@ -83,123 +77,120 @@
     <!-- Info Grid -->
     <tr>
         <td style="padding:25px;">
-            <table width="100%" cellpadding="10" cellspacing="0" border="0">
-                <!-- First Row -->
+            <h3 style="margin-bottom:15px; color:#2c3e50;">Test Details</h3>
+
+            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+
+                <!-- Each row follows same format, so we preserve your spacing -->
+                <!-- Row 1 -->
                 <tr>
                     <td bgcolor="#f8f9fa" style="border-left:4px solid #667eea; padding:15px;">
-                        <div style="font-size:8px; color:#6c757d; font-weight:600; text-transform:uppercase;">Start Time</div>
-                        <div style="font-size:13px; color:#8737e2; font-weight:500;margin-top:6px;">2025-10-14T11:15:30</div>
+                        <div style="font-size:10px; color:#6c757d; font-weight:600; text-transform:uppercase;">Start Time</div>
+                        <div style="font-size:13px; color:#8737e2; font-weight:500; margin-top:6px;">2025-10-14T11:15:30.438561</div>
                     </td>
                     <td width="2%"></td>
                     <td bgcolor="#f8f9fa" style="border-left:4px solid #667eea; padding:15px;">
-                        <div style="font-size:8px; color:#6c757d; font-weight:600; text-transform:uppercase;">End Time</div>
-                        <div style="font-size:13px; color:#8737e2; font-weight:500;margin-top:6px;">2025-10-14T11:21:46</div>
+                        <div style="font-size:10px; color:#6c757d; font-weight:600; text-transform:uppercase;">End Time</div>
+                        <div style="font-size:13px; color:#8737e2; font-weight:500; margin-top:6px;">2025-10-14T11:21:46.925386600</div>
                     </td>
                     <td width="2%"></td>
                     <td bgcolor="#f8f9fa" style="border-left:4px solid #667eea; padding:15px;">
-                        <div style="font-size:8px; color:#6c757d; font-weight:600; text-transform:uppercase;">Test Duration</div>
-                        <div style="font-size:13px; color:#8737e2; font-weight:500;margin-top:6px;">00:06:16</div>
+                        <div style="font-size:10px; color:#6c757d; font-weight:600; text-transform:uppercase;">Test Duration</div>
+                        <div style="font-size:13px; color:#8737e2; font-weight:500; margin-top:6px;">00:06:16</div>
                     </td>
                 </tr>
 
-                <!-- Spacer Row -->
-                <tr><td colspan="1" height="1"></td></tr>
+                <!-- Additional rows (same pattern) -->
+                <tr><td colspan="1" height="8"></td></tr>
 
-                <!-- Second Row -->
                 <tr>
                     <td bgcolor="#f8f9fa" style="border-left:4px solid #667eea; padding:15px;">
-                        <div style="font-size:8px; color:#6c757d; font-weight:600; text-transform:uppercase;">Errors</div>
+                        <div style="font-size:10px; color:#6c757d; font-weight:600; text-transform:uppercase;">Errors</div>
                         <div style="font-size:13px; color:#8737e2; font-weight:500; margin-top:6px;">0</div>
                     </td>
                     <td width="2%"></td>
                     <td bgcolor="#f8f9fa" style="border-left:4px solid #667eea; padding:15px;">
-                        <div style="font-size:8px; color:#6c757d; font-weight:600; text-transform:uppercase;">Domain</div>
-                        <div style="font-size:13px; color:#8737e2; font-weight:500;margin-top:6px;">example</div>
+                        <div style="font-size:10px; color:#6c757d; font-weight:600; text-transform:uppercase;">Domain</div>
+                        <div style="font-size:13px; color:#8737e2; font-weight:500; margin-top:6px;">example</div>
                     </td>
                     <td width="2%"></td>
                     <td bgcolor="#f8f9fa" style="border-left:4px solid #667eea; padding:15px;">
-                        <div style="font-size:8px; color:#6c757d; font-weight:600; text-transform:uppercase;">Project</div>
-                        <div style="font-size:13px; color:#8737e2; font-weight:500;margin-top:6px;">test-project</div>
+                        <div style="font-size:10px; color:#6c757d; font-weight:600; text-transform:uppercase;">Project</div>
+                        <div style="font-size:13px; color:#8737e2; font-weight:500; margin-top:6px;">test-project</div>
                     </td>
                 </tr>
 
-                <!-- Spacer Row -->
-                <tr><td colspan="1" height="1"></td></tr>
+                <tr><td colspan="1" height="8"></td></tr>
 
-                <!-- third Row -->
                 <tr>
                     <td bgcolor="#f8f9fa" style="border-left:4px solid #667eea; padding:15px;">
-                        <div style="font-size:8px; color:#6c757d; font-weight:600; text-transform:uppercase;">Test Name</div>
+                        <div style="font-size:10px; color:#6c757d; font-weight:600; text-transform:uppercase;">Test Name</div>
                         <div style="font-size:13px; color:#8737e2; font-weight:500; margin-top:6px;">CreateTestFromYaml</div>
                     </td>
                     <td width="2%"></td>
                     <td bgcolor="#f8f9fa" style="border-left:4px solid #667eea; padding:15px;">
-                        <div style="font-size:8px; color:#6c757d; font-weight:600; text-transform:uppercase;">Run name</div>
-                        <div style="font-size:13px; color:#8737e2; font-weight:500;margin-top:6px;">AdhocRun_2025-10-14 11:14:56</div>
+                        <div style="font-size:10px; color:#6c757d; font-weight:600; text-transform:uppercase;">Run Name</div>
+                        <div style="font-size:13px; color:#8737e2; font-weight:500; margin-top:6px;">AdhocRun_2025-10-14 11:14:56</div>
                     </td>
                     <td width="2%"></td>
                     <td bgcolor="#f8f9fa" style="border-left:4px solid #667eea; padding:15px;">
-                        <div style="font-size:8px; color:#6c757d; font-weight:600; text-transform:uppercase;">Test Id</div>
-                        <div style="font-size:13px; color:#8737e2; font-weight:500;margin-top:6px;">176</div>
+                        <div style="font-size:10px; color:#6c757d; font-weight:600; text-transform:uppercase;">Test ID</div>
+                        <div style="font-size:13px; color:#8737e2; font-weight:500; margin-top:6px;">176</div>
                     </td>
                 </tr>
 
-                <!-- Spacer Row -->
-                <tr><td colspan="1" height="1"></td></tr>
+                <tr><td colspan="1" height="8"></td></tr>
 
-                <!-- third Row -->
                 <tr>
                     <td bgcolor="#f8f9fa" style="border-left:4px solid #667eea; padding:15px;">
-                        <div style="font-size:8px; color:#6c757d; font-weight:600; text-transform:uppercase;">Test Folder</div>
+                        <div style="font-size:10px; color:#6c757d; font-weight:600; text-transform:uppercase;">Test Folder</div>
                         <div style="font-size:13px; color:#8737e2; font-weight:500; margin-top:6px;">Subject\yamlTest</div>
                     </td>
                     <td width="2%"></td>
                     <td bgcolor="#f8f9fa" style="border-left:4px solid #667eea; padding:15px;">
-                        <div style="font-size:8px; color:#6c757d; font-weight:600; text-transform:uppercase;">Test Instance Id</div>
-                        <div style="font-size:13px; color:#8737e2; font-weight:500;margin-top:6px;">14</div>
+                        <div style="font-size:10px; color:#6c757d; font-weight:600; text-transform:uppercase;">Test Instance ID</div>
+                        <div style="font-size:13px; color:#8737e2; font-weight:500; margin-top:6px;">14</div>
                     </td>
                     <td width="2%"></td>
                     <td bgcolor="#f8f9fa" style="border-left:4px solid #667eea; padding:15px;">
-                        <div style="font-size:8px; color:#6c757d; font-weight:600; text-transform:uppercase;">Controller</div>
-                        <div style="font-size:13px; color:#8737e2; font-weight:500;margin-top:6px;">vm011.net</div>
+                        <div style="font-size:10px; color:#6c757d; font-weight:600; text-transform:uppercase;">Controller</div>
+                        <div style="font-size:13px; color:#8737e2; font-weight:500; margin-top:6px;">vm011.net</div>
                     </td>
                 </tr>
 
-                <!-- Add more rows for remaining info items similarly -->
             </table>
         </td>
     </tr>
 
     <!-- Load Generators -->
     <tr>
-        <td style="padding:25px; text-align:center;">
+        <td style="padding:25px;">
             <h3 style="margin-bottom:15px; color:#2c3e50;">Load Generators Used</h3>
-            <table align="center" cellpadding="5" cellspacing="0" border="0">
-                <tr>
-                    <td bgcolor="#eef4ff" style="border:1px solid #cad8ff; border-radius:18px; padding:10px 16px; font-size:14px; font-weight:500; color:#2b3a55;">
-                        vm012.net
-                        <span style="background:#0fbe0f; color:white; padding:2px 8px; border-radius:12px; font-size:12px; margin-left:6px;">9 Vusers</span>
-                    </td>
-                </tr>
-                <!-- Add more load generators as needed -->
+
+            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>   <td bgcolor="#f8f9fa" style="border-left:4px solid #9c27b0; padding:14px;">       <div style="font-size:10px; color:#6c757d; font-weight:600; text-transform:uppercase;">Load Generator</div>       <div style="font-size:13px; color:#9c27b0; font-weight:600; margin-top:6px;">vm012.net</div>   </td>   <td width="2%"></td>   <td bgcolor="#f8f9fa" style="border-left:4px solid #9c27b0; padding:14px;">       <div style="font-size:10px; color:#6c757d; font-weight:600; text-transform:uppercase;">Vusers Allocated</div>       <div style="font-size:13px; color:#9c27b0; font-weight:600; margin-top:6px;">9</div>   </td></tr><tr><td colspan="3" height="8"></td></tr><tr>   <td bgcolor="#f8f9fa" style="border-left:4px solid #9c27b0; padding:14px;">       <div style="font-size:10px; color:#6c757d; font-weight:600; text-transform:uppercase;">Load Generator</div>       <div style="font-size:13px; color:#9c27b0; font-weight:600; margin-top:6px;">vm013.net</div>   </td>   <td width="2%"></td>   <td bgcolor="#f8f9fa" style="border-left:4px solid #9c27b0; padding:14px;">       <div style="font-size:10px; color:#6c757d; font-weight:600; text-transform:uppercase;">Vusers Allocated</div>       <div style="font-size:13px; color:#9c27b0; font-weight:600; margin-top:6px;">9</div>   </td></tr><tr><td colspan="3" height="8"></td></tr><tr>   <td bgcolor="#f8f9fa" style="border-left:4px solid #9c27b0; padding:14px;">       <div style="font-size:10px; color:#6c757d; font-weight:600; text-transform:uppercase;">Load Generator</div>       <div style="font-size:13px; color:#9c27b0; font-weight:600; margin-top:6px;">vm014.net</div>   </td>   <td width="2%"></td>   <td bgcolor="#f8f9fa" style="border-left:4px solid #9c27b0; padding:14px;">       <div style="font-size:10px; color:#6c757d; font-weight:600; text-transform:uppercase;">Vusers Allocated</div>       <div style="font-size:13px; color:#9c27b0; font-weight:600; margin-top:6px;">9</div>   </td></tr><tr><td colspan="3" height="8"></td></tr><tr>   <td bgcolor="#f8f9fa" style="border-left:4px solid #9c27b0; padding:14px;">       <div style="font-size:10px; color:#6c757d; font-weight:600; text-transform:uppercase;">Load Generator</div>       <div style="font-size:13px; color:#9c27b0; font-weight:600; margin-top:6px;">vm015.net</div>   </td>   <td width="2%"></td>   <td bgcolor="#f8f9fa" style="border-left:4px solid #9c27b0; padding:14px;">       <div style="font-size:10px; color:#6c757d; font-weight:600; text-transform:uppercase;">Vusers Allocated</div>       <div style="font-size:13px; color:#9c27b0; font-weight:600; margin-top:6px;">9</div>   </td></tr><tr><td colspan="3" height="8"></td></tr><tr>   <td bgcolor="#f8f9fa" style="border-left:4px solid #9c27b0; padding:14px;">       <div style="font-size:10px; color:#6c757d; font-weight:600; text-transform:uppercase;">Load Generator</div>       <div style="font-size:13px; color:#9c27b0; font-weight:600; margin-top:6px;">vm016.net</div>   </td>   <td width="2%"></td>   <td bgcolor="#f8f9fa" style="border-left:4px solid #9c27b0; padding:14px;">       <div style="font-size:10px; color:#6c757d; font-weight:600; text-transform:uppercase;">Vusers Allocated</div>       <div style="font-size:13px; color:#9c27b0; font-weight:600; margin-top:6px;">9</div>   </td></tr><tr><td colspan="3" height="8"></td></tr><tr>   <td bgcolor="#f8f9fa" style="border-left:4px solid #9c27b0; padding:14px;">       <div style="font-size:10px; color:#6c757d; font-weight:600; text-transform:uppercase;">Load Generator</div>       <div style="font-size:13px; color:#9c27b0; font-weight:600; margin-top:6px;">vm017.net</div>   </td>   <td width="2%"></td>   <td bgcolor="#f8f9fa" style="border-left:4px solid #9c27b0; padding:14px;">       <div style="font-size:10px; color:#6c757d; font-weight:600; text-transform:uppercase;">Vusers Allocated</div>       <div style="font-size:13px; color:#9c27b0; font-weight:600; margin-top:6px;">9</div>   </td></tr><tr><td colspan="3" height="8"></td></tr><tr>   <td bgcolor="#f8f9fa" style="border-left:4px solid #9c27b0; padding:14px;">       <div style="font-size:10px; color:#6c757d; font-weight:600; text-transform:uppercase;">Load Generator</div>       <div style="font-size:13px; color:#9c27b0; font-weight:600; margin-top:6px;">vm018.net</div>   </td>   <td width="2%"></td>   <td bgcolor="#f8f9fa" style="border-left:4px solid #9c27b0; padding:14px;">       <div style="font-size:10px; color:#6c757d; font-weight:600; text-transform:uppercase;">Vusers Allocated</div>       <div style="font-size:13px; color:#9c27b0; font-weight:600; margin-top:6px;">9</div>   </td></tr><tr><td colspan="3" height="8"></td></tr>
             </table>
         </td>
     </tr>
 
 
-    <!-- CTA and Footer -->
+
+    <!-- CTA -->
     <tr>
-        <td style="padding:25px; text-align:center;">
-            <a href="http://localhost:3000/Loadtest/pcx-tab/run/12/dashboard" style="display:inline-block; background:#810ece; color:white; text-decoration:none; padding:12px 24px; border-radius:6px; font-weight:bold; font-size:14px;">View Full Report in LRE</a>
-            <p style="margin-top:15px;">Best regards,<br>The Performance Engineering Team</p>
+        <td style="padding:28px; text-align:center;">
+            <a href="http://localhost:3000/Loadtest/pcx-tab/run/12/dashboard" style="display:inline-block; background:#810ece; color:white; text-decoration:none; padding:13px 26px; border-radius:6px; font-weight:600; font-size:14px;">View Full Report in LRE</a>
+            <p style="margin-top:18px; line-height:1.4;">Best regards,<br>The Performance Engineering Team</p>
         </td>
     </tr>
+
+    <!-- Footer -->
     <tr>
         <td style="background:#f8f9fa; padding:20px; text-align:center; border-top:1px solid #e9ecef; color:#6c757d; font-size:12px; border-bottom-left-radius:12px; border-bottom-right-radius:12px;">
-            <p>This is an automated message. Please do not reply.</p>
-            <p>Test Run ID: 14 | Duration: 00:06:16</p>
+            <p style="margin:0;">This is an automated message. Please do not reply.</p>
+            <p style="margin-top:5px;">Test Run ID: 14 | Duration: 00:06:16</p>
         </td>
     </tr>
+
 </table>
 </body>
 </html>

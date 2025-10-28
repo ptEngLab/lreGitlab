@@ -47,11 +47,10 @@ public record RunSummaryData(String htmlContent, String[][] textSummary) {
 
         testData.put("RunStatus", runStatusExtended.getState());
         testData.put("RunResult", thresholds.runResult());
-        testData.put("StatusBadgeClass", getStatusBadgeClass(thresholds.runResult()));
+        testData.put("StatusBadgeColor", getStatusBadgeClass(thresholds.runResult()));
 
         return testData;
     }
-
     private static String generateLgHtml(String lgsData) {
         StringBuilder lgHtml = new StringBuilder();
         String[] lgList = lgsData.split(";");
@@ -59,16 +58,28 @@ public record RunSummaryData(String htmlContent, String[][] textSummary) {
         for (String lg : lgList) {
             String[] parts = lg.split("\\(");
             String name = parts[0].trim();
-            String vusers = parts[1].replace(")", "").trim() + " Vusers";
+            String vusers = parts[1].replace(")", "").trim();
 
-            lgHtml.append("<div class=\"lg-chip\">")
-                    .append("<span class=\"lg-name\">").append(name).append("</span>")
-                    .append("<span class=\"vuser-badge\">").append(vusers).append("</span>")
-                    .append("</div>\n");
+            lgHtml.append("<tr>" + "   <td bgcolor=\"#f8f9fa\" style=\"border-left:4px solid #9c27b0; padding:14px;\">"
+                            + "       <div style=\"font-size:10px; color:#6c757d; font-weight:600; text-transform:uppercase;\">Load Generator</div>"
+                            + "       <div style=\"font-size:13px; color:#9c27b0; font-weight:600; margin-top:6px;\">")
+                    .append(name)
+                    .append("</div>")
+                    .append("   </td>")
+                    .append("   <td width=\"2%\"></td>")
+                    .append("   <td bgcolor=\"#f8f9fa\" style=\"border-left:4px solid #9c27b0; padding:14px;\">")
+                    .append("       <div style=\"font-size:10px; color:#6c757d; font-weight:600; text-transform:uppercase;\">Vusers Allocated</div>")
+                    .append("       <div style=\"font-size:13px; color:#9c27b0; font-weight:600; margin-top:6px;\">")
+                    .append(vusers)
+                    .append("</div>")
+                    .append("   </td>")
+                    .append("</tr>")
+                    .append("<tr><td colspan=\"3\" height=\"8\"></td></tr>");
         }
 
         return lgHtml.toString();
     }
+
 
     private static String[][] generateTextSummary(LreTestRunModel model, LreRunStatusExtended runStatusExtended, ThresholdResult thresholds) {
         return new String[][]{
@@ -111,8 +122,8 @@ public record RunSummaryData(String htmlContent, String[][] textSummary) {
     }
 
     private static String getStatusBadgeClass(String runResult) {
-        if (runResult.contains("✅ PASSED")) return "status-passed";
-        else if (runResult.contains("❌ FAILED")) return "status-failed";
-        else return "status-warning";
+        if (runResult.contains("✅ PASSED")) return "#28a745";
+        else if (runResult.contains("❌ FAILED")) return "#dc3545";
+        else return "#ffc107";
     }
 }
