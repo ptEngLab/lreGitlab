@@ -1,22 +1,28 @@
 package com.lre.client.runclient;
 
 import com.lre.client.api.lre.LreRestApis;
-import com.lre.common.exceptions.LreException;
 import com.lre.client.runmodel.LreTestRunModel;
+import com.lre.common.exceptions.LreException;
 import com.lre.common.utils.JsonUtils;
 import com.lre.model.run.LreRunStatus;
 import com.lre.model.run.LreRunStatusExtended;
 import com.lre.model.run.LreRunStatusReqWeb;
-import com.lre.services.lre.*;
+import com.lre.services.lre.LreTestExecutor;
+import com.lre.services.lre.LreTestInstanceManager;
+import com.lre.services.lre.LreTestManager;
+import com.lre.services.lre.LreTimeslotManager;
 import com.lre.services.lre.auth.LreAuthenticationManager;
 import com.lre.services.lre.poller.LreRunStatusPoller;
 import com.lre.services.lre.report.LreReportPublisher;
+import com.lre.services.lre.summary.RunSummaryData;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Duration;
-import java.time.LocalDateTime;
+import java.nio.file.Paths;
 
+import static com.lre.common.constants.ConfigConstants.ARTIFACTS_DIR;
 import static com.lre.common.utils.CommonUtils.logTable;
 
 @Slf4j
@@ -84,58 +90,12 @@ public class LreRunClient implements AutoCloseable {
     }
 
     private String[][] prepareRunSummary(LreRunStatusExtended runStatusExtended) {
+        RunSummaryData summary = RunSummaryData.createFrom(model, runStatusExtended);
+        String htmlReport = summary.htmlContent();
+        Path reportDir = Paths.get(model.getWorkspace(), ARTIFACTS_DIR, "LreReports/email.html");
+        saveHtmlReport(htmlReport, reportDir.toString());
 
-        // Determine if thresholds were exceeded
-        long errorThreshold = model.getMaxErrors();
-        long failedTxnThreshold = model.getMaxFailedTxns();
-
-        boolean errorExceeded = runStatusExtended.getErrors() >= errorThreshold;
-        boolean failedTxnExceeded = runStatusExtended.getTransFailed() >= failedTxnThreshold;
-
-        String errorStr = errorExceeded
-                ? runStatusExtended.getErrors() + " ⚠ (limit: " + errorThreshold + ") — Exceeded"
-                : runStatusExtended.getErrors() + " (limit: " + errorThreshold + ")";
-
-        String failedTxnStr = failedTxnExceeded
-                ? runStatusExtended.getTransFailed() + " ⚠ (limit: " + failedTxnThreshold + ") — Exceeded"
-                : runStatusExtended.getTransFailed() + " (limit: " + failedTxnThreshold + ")";
-
-        String runResult = (errorExceeded || failedTxnExceeded || model.isTestFailed())
-                ? "❌ FAILED"
-                : "✅ PASSED";
-
-        return new String[][]{
-                {
-                        "Domain: " + model.getDomain(),
-                        "Project: " + model.getProject(),
-                        "Test Name: " + model.getTestName(),
-                        "Test Id: " + model.getTestId()
-                },
-                {
-                        "Test Folder: " + model.getTestFolderPath(),
-                        "Test Instance Id: " + model.getTestInstanceId(),
-                        "Run Name: " + runStatusExtended.getName(),
-                        "Run Status: " + runStatusExtended.getState() + ", Result: " + runResult
-                },
-                {
-                        "Start Time: " + runStatusExtended.getStart(),
-                        "End Time: " + runStatusExtended.getEnd(),
-                        "Test Duration: " + calculateTestDuration(runStatusExtended.getStart(), runStatusExtended.getEnd()),
-                        "Vusers involved: " + runStatusExtended.getVusersInvolved()
-                },
-                {
-                        "Transaction Passed: " + runStatusExtended.getTransPassed(),
-                        "Transaction Failed: " + failedTxnStr,
-                        "Errors: " + errorStr,
-                        "Transaction per Sec: " + runStatusExtended.getTransPerSec()
-                },
-                {
-                        "Hits per Sec: " + runStatusExtended.getHitsPerSec(),
-                        "Throughput (avg): " + runStatusExtended.getThroughputAvg(),
-                        "Controller used: " + runStatusExtended.getController(),
-                        "LGs used: " + runStatusExtended.getLgs()
-                },
-        };
+        return summary.textSummary();
 
     }
 
@@ -184,12 +144,21 @@ public class LreRunClient implements AutoCloseable {
 
     }
 
-    private static String calculateTestDuration(LocalDateTime start, LocalDateTime end) {
-        Duration duration = (start == null || end == null) ? Duration.ZERO : Duration.between(start, end);
-        return String.format("%02d:%02d:%02d", duration.toHours(), duration.toMinutesPart(), duration.toSecondsPart());
+    private void saveHtmlReport(String htmlContent, String filePath) {
+        try {
+            Path path = Paths.get(filePath);
+
+            // Create parent directories if they don't exist
+            if (path.getParent() != null) {
+                Files.createDirectories(path.getParent());
+            }
+
+            Files.writeString(path, htmlContent);
+
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to save HTML report to: " + filePath, e);
+        }
     }
-
-
     @Override
     public void close() {
         try {

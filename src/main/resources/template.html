@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>LoadRunner Enterprise Test Report</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:#f5f7f9; margin:0; padding:20px; color:#333; }
+        .email-container { max-width:800px; margin:0 auto; background:white; border-radius:12px; box-shadow:0 4px 6px rgba(0,0,0,0.1); overflow:hidden; }
+        .header { background: linear-gradient(135deg, #5f0692 0%, #764ba2 100%); color:white; padding:30px; text-align:center; }
+        .header h1 { margin:0; font-size:24px; }
+        .status-badge { display:inline-block; padding:8px 20px; border-radius:20px; font-weight:bold; margin-top:10px; }
+        .status-passed { background:#28a745; }
+        .status-failed { background:#dc3545; }
+        .status-warning { background:#ffc107; color:#212529; }
+        .content { padding:25px; font-size:14px; line-height:1.5; color:#2c3e50; }
+        .content p { margin:10px 0; }
+
+        .dashboard-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:15px; padding:25px; }
+        .metric-tile { border-radius:8px; padding:10px 15px; text-align:center; transition: transform 0.2s, box-shadow 0.2s; color: #2c3e50; }
+        .metric-tile:hover { transform:translateY(-2px); box-shadow:0 4px 8px rgba(0,0,0,0.1); }
+        .tile-pass { background:#e6f9f0; border-left:4px solid #28a745; }
+        .tile-fail { background:#fdecea; border-left:4px solid #dc3545; }
+        .tile-vusers { background:#e7f1ff; border-left:4px solid #007bff; }
+        .tile-tps { background:#fff7e6; border-left:4px solid #ff9800; }
+        .tile-hits { background:#f0f0f0; border-left:4px solid #6c757d; }
+        .tile-throughput { background:#f9f0ff; border-left:4px solid #9c27b0; }
+        .metric-value { font-size:20px; font-weight:bold; margin-bottom:5px; }
+        .metric-label { font-size:11px; color:#6c757d; font-weight:500; }
+        .metric-icon svg {    display: inline-block;    vertical-align: middle;    stroke: currentColor;    width: 22px;    height: 22px; }
+
+        .info-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; padding:0 25px 25px; }
+        .info-item { background:#f8f9fa; padding:15px; border-radius:6px; border-left:3px solid #667eea; }
+        .info-label { font-size:10px; color:#6c757d; font-weight:600; text-transform:uppercase; margin-bottom:5px; }
+        .info-value { font-size:14px; color:#8737e2; font-weight:500; }
+        .lg-grid { padding:0 25px 25px; }
+        .lg-chip-container { display:flex; flex-wrap:wrap; gap:10px; justify-content: center; gap: 10px;    margin-top: 12px;}
+        .lg-chip { display:flex; align-items:center; background:#eef4ff; border:1px solid #cad8ff; border-radius:18px; padding:8px 14px; font-size:14px; font-weight:500; color:#2b3a55; }
+        .lg-chip .vuser-badge { background:#0fbe0f; color:white; padding:2px 8px; border-radius:12px; font-size:12px; margin-left:10px; }
+        .lg-chip svg {    vertical-align: middle;    display: inline-block;    fill: #007bff; }
+
+        .cta-button { display:inline-block; background:#810ece; color:white; text-decoration:none; padding:12px 24px; border-radius:6px; font-weight:bold; font-size:14px; box-shadow:0 3px 6px rgba(0,0,0,0.1); transition: background 0.3s, transform 0.2s; margin-top:20px; }
+        .cta-button:hover { background:#0056b3; transform:translateY(-2px); }
+        .footer { background:#f8f9fa; padding:20px; text-align:center; border-top:1px solid #e9ecef; color:#6c757d; font-size:12px; }
+        @media (max-width:600px){ .dashboard-grid,.info-grid{grid-template-columns:1fr;} }
+    </style>
+</head>
+<body>
+<div class="email-container">
+
+    <div class="header">
+        <h1>LoadRunner Enterprise Test Report - Run ID ${RunId}</h1>
+        <div class="status-badge ${StatusBadgeClass}">${RunStatus} | ${RunResult}</div>
+    </div>
+
+    <div class="content">
+        <p>Hello Team,</p>
+        <p>The performance test run for <strong>${TestName} (Run Id ${RunID})</strong> has completed. Below is a high-level summary of the results.</p>
+        <p>For detailed analysis, including transaction breakdowns, error details, and system resource graphs, please visit the full report in LoadRunner Enterprise.</p>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="metric-tile tile-pass"><div class="metric-value">${TransactionPassed}</div><div class="metric-label">Transactions Passed</div></div>
+        <div class="metric-tile tile-fail"><div class="metric-value">${TransactionFailed}</div><div class="metric-label">Transactions Failed</div></div>
+        <div class="metric-tile tile-vusers"><div class="metric-value">${Vusers}</div><div class="metric-label">Virtual Users</div></div>
+        <div class="metric-tile tile-tps"><div class="metric-value">${TransactionPerSec}</div><div class="metric-label">Transactions/Sec</div></div>
+        <div class="metric-tile tile-hits"><div class="metric-value">${HitsPerSec}</div><div class="metric-label">Hits/Sec</div></div>
+        <div class="metric-tile tile-throughput"><div class="metric-value">${AvgThroughput}</div><div class="metric-label">Avg Throughput</div></div>
+    </div>
+
+    <div class="info-grid">
+        <div class="info-item"><div class="info-label">Start Time</div><div class="info-value">${StartTime}</div></div>
+        <div class="info-item"><div class="info-label">End Time</div><div class="info-value">${EndTime}</div></div>
+        <div class="info-item"><div class="info-label">Test Duration</div><div class="info-value">${TestDuration}</div></div>
+        <div class="info-item"><div class="info-label">Errors</div><div class="info-value">${Errors}</div></div>
+        <div class="info-item"><div class="info-label">Domain</div><div class="info-value">${Domain}</div></div>
+        <div class="info-item"><div class="info-label">Project</div><div class="info-value">${Project}</div></div>
+        <div class="info-item"><div class="info-label">Test Name</div><div class="info-value">${TestName}</div></div>
+        <div class="info-item"><div class="info-label">Run Name</div><div class="info-value">${RunName}</div></div>
+        <div class="info-item"><div class="info-label">Test ID</div><div class="info-value">${TestID}</div></div>
+        <div class="info-item"><div class="info-label">Test Folder</div><div class="info-value">${TestFolder}</div></div>
+        <div class="info-item"><div class="info-label">Test Instance ID</div><div class="info-value">${TestInstanceID}</div></div>
+        <div class="info-item"><div class="info-label">Controller</div><div class="info-value">${Controller}</div></div>
+    </div>
+
+    <div class="lg-grid">
+        <h3 style="margin-bottom:15px;color:#2c3e50;">Load Generators Used</h3>
+        <div class="lg-chip-container">
+            ${LGsUsed}
+        </div>
+    </div>
+
+    <div class="content" style="text-align:center;">
+        <a href="${ReportLink}" class="cta-button">View Full Report in LRE</a>
+        <p style="margin-top:15px;">Best regards,<br>The Performance Engineering Team</p>
+    </div>
+
+    <div class="footer">
+        <p>This is an automated message. Please do not reply.</p>
+        <p>Test Run ID: ${RunID} | Duration: ${TestDuration}</p>
+    </div>
+
+</div>
+</body>
+</html>
