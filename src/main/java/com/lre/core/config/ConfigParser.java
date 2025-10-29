@@ -1,5 +1,6 @@
 package com.lre.core.config;
 
+import com.lre.model.enums.Operation;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
@@ -7,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
-public record ConfigParser(ParameterResolver resolver) {
+public record ConfigParser(ParameterResolver resolver, Operation operation) {
 
     public Map<String, Object> parseParameters(List<ParameterDefinitions.ConfigParameter<?>> definitions) {
         Map<String, Object> params = new HashMap<>();
@@ -28,6 +29,9 @@ public record ConfigParser(ParameterResolver resolver) {
         boolean syncGitlab = Boolean.TRUE.equals(params.get(ParameterDefinitions.Keys.SYNC_GITLAB_WITH_LRE_FLAG));
         boolean sendEmail = Boolean.TRUE.equals(params.get(ParameterDefinitions.Keys.SEND_EMAIL_FLAG));
 
+        if(operation == Operation.SYNC_GITLAB_WITH_LRE) syncGitlab = true;
+        if(operation == Operation.SEND_EMAIL) sendEmail = true;
+
         // -------------------------
         // Second pass: conditional parameters
         // -------------------------
@@ -44,22 +48,15 @@ public record ConfigParser(ParameterResolver resolver) {
     }
 
     private static boolean isRequired(ParameterDefinitions.ConfigParameter<?> def, boolean sendEmail, boolean syncGitlab) {
-        boolean required = def.required();
-
-        // Make EMAIL_TO required if sendEmail = true
         if (def.key().equals(ParameterDefinitions.Keys.EMAIL_TO)) {
-            required = sendEmail;
+            return sendEmail;
         }
-
-        // Make GitLab conditionals required if syncGitlab = true
-        if (List.of(
-                ParameterDefinitions.Keys.GITLAB_TOKEN,
-                ParameterDefinitions.Keys.GITLAB_PROJECT_ID
-        ).contains(def.key())) {
-            required = syncGitlab;
+        if (def.key().equals(ParameterDefinitions.Keys.GITLAB_TOKEN)) {
+            return syncGitlab;
         }
-        return required;
+        return def.required();
     }
+
 
     private <T> void parseAndPut(Map<String, Object> map, ParameterDefinitions.ConfigParameter<T> def, boolean required) {
         String value = resolver.getParameterValue(def.key().toUpperCase(), required, String.valueOf(def.defaultValue()));

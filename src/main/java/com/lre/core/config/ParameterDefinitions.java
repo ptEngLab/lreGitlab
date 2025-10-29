@@ -33,7 +33,7 @@ public class ParameterDefinitions {
 
 
         // GitLab Parameters
-        public static final boolean SYNC_GITLAB_WITH_LRE_FLAG = true;
+        public static final boolean SYNC_GITLAB_WITH_LRE_FLAG = false;
         public static final String GITLAB_SERVER = "https://gitlab.example.com";
         public static final String GITLAB_BRANCH = "main";
         public static final String GITLAB_JOB_NAME = "lre-test-job";
@@ -42,7 +42,7 @@ public class ParameterDefinitions {
         public static final String GITLAB_TOKEN = "";
 
         // Email Parameters
-        public static final boolean SEND_EMAIL_FLAG = true;
+        public static final boolean SEND_EMAIL_FLAG = false;
         public static final String EMAIL_SMTP_HOST = "smtp.gmail.com";
         public static final int EMAIL_SMTP_PORT = 587;
         public static final String EMAIL_USERNAME = "";

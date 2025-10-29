@@ -9,6 +9,7 @@ import com.lre.client.runmodel.LreTestRunModel;
 import com.lre.common.exceptions.LreException;
 import com.lre.common.utils.LogHelper;
 import com.lre.core.config.ReadConfigFile;
+import com.lre.model.enums.Operation;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -25,12 +26,7 @@ public class Main {
     private static final int EXIT_UNHANDLED_FAILURE = 3;
     private static final int EXIT_LRE_FAILURE = 4;
 
-    private enum Operation {
-        RUN_LRE_TEST,
-        SYNC_GITLAB_WITH_LRE,
-        SEND_EMAIL,
-        HELP
-    }
+
 
     public static void main(String[] args) {
         try {
@@ -47,7 +43,7 @@ public class Main {
 
             // Load configuration
             String configFilePath = getConfigFilePath(args);
-            ReadConfigFile configFileData = new ReadConfigFile(configFilePath);
+            ReadConfigFile configFileData = new ReadConfigFile(configFilePath, operation);
             LreTestRunModel lreTestRunModel = configFileData.buildLreTestRunModel();
             GitTestRunModel gitTestRunModel = configFileData.buildGitTestRunModel();
             EmailConfigModel emailConfigModel = configFileData.buildEmailConfigModel();

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lre.client.runmodel.EmailConfigModel;
 import com.lre.client.runmodel.GitTestRunModel;
 import com.lre.client.runmodel.LreTestRunModel;
+import com.lre.model.enums.Operation;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,7 +18,7 @@ public class ReadConfigFile {
     private final ConfigMapper configMapper;
     private Map<String, Object> cachedParameters;
 
-    public ReadConfigFile(String configFilePath) throws IOException {
+    public ReadConfigFile(String configFilePath, Operation operation) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         File configFile = new File(configFilePath);
         JsonNode configContent = configFile.exists()
@@ -25,9 +26,9 @@ public class ReadConfigFile {
                 : mapper.createObjectNode();
 
         ParameterResolver resolver = new ParameterResolver(configContent);
-        this.configParser = new ConfigParser(resolver);
+        this.configParser = new ConfigParser(resolver, operation);
         this.configValidator = new ConfigValidator(resolver);
-        this.configMapper = new ConfigMapper(); // Changed from LreConfigMapper to ConfigMapper
+        this.configMapper = new ConfigMapper();
     }
 
     /**
