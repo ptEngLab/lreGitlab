@@ -189,28 +189,43 @@
         </td>
     </tr>
 
-    <!-- CTA (clean Outlook-compatible version, no bad characters) -->
+    <!-- CTA (Bulletproof Outlook-safe button) -->
     <tr>
         <td align="center" style="padding:28px; text-align:center;">
             <table border="0" cellspacing="0" cellpadding="0" align="center" style="margin:auto;">
                 <tr>
-                    <td align="center" bgcolor="#810ece" style="border-radius:6px;">
+                    <td align="center" bgcolor="#810ece"
+                        style="border-radius:6px; mso-padding-alt:13px 26px; background:#810ece;">
+                        <!--[if mso]>
+                        <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml"
+                                     xmlns:w="urn:schemas-microsoft-com:office:word"
+                                     href="http://localhost:3000/Loadtest/pcx-tab/run/12/dashboard"
+                                     style="height:40px;v-text-anchor:middle;width:220px;"
+                                     arcsize="10%"
+                                     strokecolor="#810ece"
+                                     fillcolor="#810ece">
+                            <w:anchorlock/>
+                            <center style="color:#ffffff;font-family:Segoe UI, Tahoma, Geneva, Verdana, sans-serif;font-size:14px;font-weight:600;">
+                                View Full Report in LRE
+                            </center>
+                        </v:roundrect>
+                        <![endif]-->
+                        <!--[if !mso]><!-- -->
                         <a href="http://localhost:3000/Loadtest/pcx-tab/run/12/dashboard"
                            style="background:#810ece;
-                    border:1px solid #810ece;
                     border-radius:6px;
                     color:#ffffff;
-                    display:block;
+                    display:inline-block;
                     font-family:Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
                     font-size:14px;
                     font-weight:600;
                     line-height:40px;
                     text-align:center;
                     text-decoration:none;
-                    width:220px;
-                    mso-padding-alt:0;">
-                            <span style="color:#ffffff; text-decoration:none;">View Full Report in LRE</span>
+                    width:220px;">
+                            View Full Report in LRE
                         </a>
+                        <!--<![endif]-->
                     </td>
                 </tr>
             </table>
@@ -220,6 +235,7 @@
             </p>
         </td>
     </tr>
+
 
 
     <!-- Footer -->
