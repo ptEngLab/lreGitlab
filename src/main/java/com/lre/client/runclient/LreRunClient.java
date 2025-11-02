@@ -7,6 +7,7 @@ import com.lre.common.utils.JsonUtils;
 import com.lre.model.run.LreRunStatus;
 import com.lre.model.run.LreRunStatusExtended;
 import com.lre.model.run.LreRunStatusReqWeb;
+import com.lre.model.transactions.LreTransactionMetrics;
 import com.lre.services.lre.LreTestExecutor;
 import com.lre.services.lre.LreTestInstanceManager;
 import com.lre.services.lre.LreTestManager;
@@ -14,6 +15,7 @@ import com.lre.services.lre.LreTimeslotManager;
 import com.lre.services.lre.auth.LreAuthenticationManager;
 import com.lre.services.lre.poller.LreRunStatusPoller;
 import com.lre.services.lre.report.LreReportPublisher;
+import com.lre.services.lre.summary.LreTxnSummaryFetcher;
 import com.lre.services.lre.summary.RunSummaryData;
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,6 +23,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 import static com.lre.common.constants.ConfigConstants.ARTIFACTS_DIR;
 import static com.lre.common.utils.CommonUtils.logTable;
@@ -80,7 +83,8 @@ public class LreRunClient implements AutoCloseable {
 
     public void printRunSummary() {
         LreRunStatusExtended runStatus = fetchRunStatusExtended();
-        String[][] summaryRows = prepareRunSummary(runStatus);
+        List<LreTransactionMetrics> txns = new LreTxnSummaryFetcher(lreRestApis, model).fetchTransactionSummary();
+        String[][] summaryRows = prepareRunSummary(runStatus, txns);
         log.info(logTable(summaryRows));
     }
 
@@ -89,14 +93,12 @@ public class LreRunClient implements AutoCloseable {
         return lreRestApis.fetchRunResultsExtended(JsonUtils.toJson(runStatusReq)).get(0);
     }
 
-    private String[][] prepareRunSummary(LreRunStatusExtended runStatusExtended) {
-        RunSummaryData summary = RunSummaryData.createFrom(model, runStatusExtended);
+    private String[][] prepareRunSummary(LreRunStatusExtended runStatusExtended, List<LreTransactionMetrics> txns) {
+        RunSummaryData summary = RunSummaryData.createFrom(model, runStatusExtended, txns);
         String htmlReport = summary.htmlContent();
         Path reportDir = Paths.get(model.getWorkspace(), ARTIFACTS_DIR, "LreReports/email.html");
         saveHtmlReport(htmlReport, reportDir.toString());
-
         return summary.textSummary();
-
     }
 
     private LreRunStatus executeRunWorkflow() {

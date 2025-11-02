@@ -15,8 +15,10 @@ public class ApiUrlBuilderLre {
     private final String baseUrl;
     private final String domain;
     private final String project;
+    private final String lreServerUrl;
 
     public ApiUrlBuilderLre(LreTestRunModel model) {
+        this.lreServerUrl = model.getLreServerUrl();
         this.baseUrl = String.format(LRE_API_BASE_URL, model.getLreServerUrl());
         this.domain = model.getDomain();
         this.project = model.getProject();
@@ -170,6 +172,14 @@ public class ApiUrlBuilderLre {
 
     public String getDeleteScriptUrl(int id) {
         return String.format("%s/%s/%d", lreApiUrl, SCRIPTS_RESOURCE_NAME, id);
+    }
+
+    public String getOpenRunDashboardUrl() {
+        return String.format("%s/%s", lreServerUrl, OPEN_DASHBOARD_URL);
+    }
+
+    public String getTransactionsDataUrl() {
+        return String.format("%s/%s", lreServerUrl, TRANSACTIONS_DATA_URL);
     }
 
 }

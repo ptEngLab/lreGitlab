@@ -23,6 +23,8 @@ public class ConfigConstants {
     public static final String LRE_API_WEB_URL = "%s/loadTest/rest-pcweb";
     public static final String LRE_API_RESOURCES = "%s/domains/%s/projects/%s"; // Fixed
     public static final String DASHBOARD_URL = "%s/Loadtest/pcx-tab/run/%d/dashboard";
+    public static final String OPEN_DASHBOARD_URL = "loadtest/Services/DashboardService.asmx/OpenRunDashboard";
+    public static final String TRANSACTIONS_DATA_URL = "loadtest/Services/OnlineGraphsService.asmx/GetRunTransactionsData";
 
     // Authentication Endpoints
     public static final String LRE_AUTHENTICATE_WITH_USERNAME = "authentication-point/authenticate";

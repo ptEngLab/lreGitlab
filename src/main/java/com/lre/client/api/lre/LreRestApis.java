@@ -5,20 +5,18 @@ import com.lre.client.api.base.AuthenticationService;
 import com.lre.client.api.builder.ApiUrlBuilderLre;
 import com.lre.client.runmodel.LreTestRunModel;
 import com.lre.core.http.HttpClientUtils;
-import com.lre.model.run.LreRunResponse;
-import com.lre.model.run.LreRunResult;
-import com.lre.model.run.LreRunStatus;
-import com.lre.model.run.LreRunStatusExtended;
+import com.lre.model.run.*;
 import com.lre.model.script.LreScript;
 import com.lre.model.test.Test;
 import com.lre.model.test.testcontent.groups.hosts.CloudTemplate;
 import com.lre.model.test.testcontent.groups.hosts.HostResponse;
 import com.lre.model.test.testcontent.groups.script.Script;
-import com.lre.model.testset.LreTestSet;
-import com.lre.model.testset.LreTestSetFolder;
 import com.lre.model.testinstance.LreTestInstance;
 import com.lre.model.testplan.LreTestPlan;
+import com.lre.model.testset.LreTestSet;
+import com.lre.model.testset.LreTestSetFolder;
 import com.lre.model.timeslot.TimeslotCheckResponse;
+import com.lre.model.transactions.LreTransactionMetricsResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.core5.http.ContentType;
@@ -180,5 +178,15 @@ public class LreRestApis implements AutoCloseable {
     public void deleteScript(int id) {
         String url = urlBuilder.getDeleteScriptUrl(id);
         executor.deleteById(url, "delete");
+    }
+
+    public LreOpenRunDashboardResponse getPCRunId(String payload) {
+        String url = urlBuilder.getOpenRunDashboardUrl();
+        return executor.create(url, payload, ContentType.APPLICATION_JSON,  LreOpenRunDashboardResponse.class, "Open Dashboard");
+    }
+
+    public LreTransactionMetricsResponse fetchTransactions(String payload) {
+        String url = urlBuilder.getTransactionsDataUrl();
+        return executor.create(url, payload, ContentType.APPLICATION_JSON, LreTransactionMetricsResponse.class, "transaction list");
     }
 }

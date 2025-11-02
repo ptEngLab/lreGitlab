@@ -1,13 +1,20 @@
 package com.lre.client.runclient;
 
 import com.lre.client.runmodel.EmailConfigModel;
+import com.lre.common.constants.ConfigConstants;
 import jakarta.mail.*;
 import jakarta.mail.internet.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
+
+import static com.lre.common.constants.ConfigConstants.ARTIFACTS_DIR;
 
 @Slf4j
 public record EmailClient(EmailConfigModel emailConfig) implements AutoCloseable {
@@ -136,17 +143,15 @@ public record EmailClient(EmailConfigModel emailConfig) implements AutoCloseable
     private MimeBodyPart createTextBodyPart() throws MessagingException {
         MimeBodyPart textBodyPart = new MimeBodyPart();
 
-        if (emailConfig.isHtml()) {
-            // HTML content
-            textBodyPart.setContent(
-                    emailConfig.getBody() != null ? emailConfig.getBody() : "", "text/html; charset=utf-8"
-            );
-        } else {
-            // Plain text content
-            textBodyPart.setText(
-                    emailConfig.getBody() != null ? emailConfig.getBody() : ""
-            );
+        String body = "";
+        try {
+            Path reportDir = Paths.get(ConfigConstants.DEFAULT_OUTPUT_DIR, ARTIFACTS_DIR, "LreReports/email.html");
+            body = Files.readString(reportDir, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            log.error("Failed to read email body from file", e);
         }
+
+        textBodyPart.setContent(body, "text/html; charset=utf-8");
 
         return textBodyPart;
     }
