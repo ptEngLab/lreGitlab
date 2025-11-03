@@ -135,23 +135,22 @@ public record RunSummaryData(String htmlContent, String[][] textSummary) {
     private static String generateTransactionHtml(List<LreTransactionMetrics> txns) {
         StringBuilder html = new StringBuilder();
 
-        // Start with a cleaner wrapper and modern fonts/colors
-        html.append("<div style='font-family:Arial, sans-serif; color:#333; margin:20px;'>")
-                .append("<h3 style='color:#2c3e50; border-bottom:2px solid #3498db; padding-bottom:6px;'>Transaction Summary</h3>")
-                .append("<table width='100%' cellpadding='8' cellspacing='0' border='0' ")
-                .append("style='border-collapse:collapse; font-size:14px; width:100%; box-shadow:0 4px 12px rgba(0, 0, 0, 0.1); border-radius:8px; overflow:hidden;'>")
-                // Header
-                .append("<thead>")
-                .append("<tr style='background:linear-gradient(180deg, #4d055b, #3b7093); color:#fff; text-align:left;'>")
-                .append("<th style='padding:15px; border:none; text-transform:uppercase; font-weight:600;'>Name</th>")
-                .append("<th style='padding:15px; border:none; text-transform:uppercase; font-weight:600;'># Passed</th>")
-                .append("<th style='padding:15px; border:none; text-transform:uppercase; font-weight:600;'># Failed</th>")
-                .append("<th style='padding:15px; border:none; text-transform:uppercase; font-weight:600;'># Stopped</th>")
-                .append("<th style='padding:15px; border:none; text-transform:uppercase; font-weight:600;'>Success Rate %</th>")
-                .append("<th style='padding:15px; border:none; text-transform:uppercase; font-weight:600;'>TPS</th>")
-                .append("</tr>")
-                .append("</thead>")
-                .append("<tbody>");
+        // Start with a wrapper and add more sophisticated styles for clarity and elegance
+        html.append("<div style='font-family:Arial, sans-serif; color:#333; margin:20px;'>").append("\n")
+                .append("<h3 style='color:#2c3e50; border-bottom:2px solid #667eea; padding-bottom:8px; '>Transaction Summary</h3>").append("\n")
+                .append("<table width='100%' cellpadding='8' cellspacing='0' border='0' style='border-collapse:collapse; font-size:12px; width:100%; background-color:#ffffff;'>").append("\n")
+                // Header with purple gradient
+                .append("<thead>").append("\n")
+                .append("<tr style='background-color: #810ece; color: #fff; text-align: left; font-weight: 600;' font-size:12px;>").append("\n")
+                .append("<th style='padding:15px; border-top:2px solid #6f2b8f; text-transform:uppercase;'>Name</th>").append("\n")
+                .append("<th style='padding:15px; border-top:2px solid #6f2b8f; text-transform:uppercase;'># Passed</th>").append("\n")
+                .append("<th style='padding:15px; border-top:2px solid #6f2b8f; text-transform:uppercase;'># Failed</th>").append("\n")
+                .append("<th style='padding:15px; border-top:2px solid #6f2b8f; text-transform:uppercase;'># Stopped</th>").append("\n")
+                .append("<th style='padding:15px; border-top:2px solid #6f2b8f; text-transform:uppercase;'>Success Rate %</th>").append("\n")
+                .append("<th style='padding:15px; border-top:2px solid #6f2b8f; text-transform:uppercase;'>TPS</th>").append("\n")
+                .append("</tr>").append("\n")
+                .append("</thead>").append("\n")
+                .append("<tbody>").append("\n");
 
         // Define total variables
         int totalPassed = 0, totalFailed = 0, totalStopped = 0;
@@ -160,30 +159,29 @@ public record RunSummaryData(String htmlContent, String[][] textSummary) {
 
         // Loop through each transaction metric
         for (LreTransactionMetrics txn : txns) {
-            String rowBg = alternate ? "#f9f9f9" : "#ffffff"; // Zebra striping
+            String rowBg = alternate ? "#f7f7f7" : "#ffffff"; // Zebra striping effect for rows
             alternate = !alternate;
 
-            html.append("<tr style='background:").append(rowBg)
-                    .append("; transition:background 0.3s, transform 0.3s;'>")
+            html.append("<tr style='background-color:").append(rowBg).append("; border-bottom:1px solid #ddd;'>").append("\n")
                     // Transaction Name
-                    .append("<td style='padding:12px; border-bottom:1px solid #e1e1e1; font-weight:500;'>")
-                    .append(txn.getTransactionName()).append("</td>")
+                    .append("<td style='padding:12px; font-weight:500;'>")
+                    .append(txn.getTransactionName()).append("</td>").append("\n")
                     // Passed Count
-                    .append("<td style='padding:12px; border-bottom:1px solid #e1e1e1; color:#28a745; font-weight:500;'>")
-                    .append(txn.getPassedCount()).append("</td>")
+                    .append("<td style='padding:12px; color:#28a745; font-weight:500;'>")
+                    .append(txn.getPassedCount()).append("</td>").append("\n")
                     // Failed Count
-                    .append("<td style='padding:12px; border-bottom:1px solid #e1e1e1; color:#e74c3c; font-weight:500;'>")
-                    .append(txn.getFailedCount()).append("</td>")
+                    .append("<td style='padding:12px; color:#e74c3c; font-weight:500;'>")
+                    .append(txn.getFailedCount()).append("</td>").append("\n")
                     // Stopped Count
-                    .append("<td style='padding:12px; border-bottom:1px solid #e1e1e1; color:#f39c12; font-weight:500;'>")
-                    .append(txn.getStoppedCount()).append("</td>")
+                    .append("<td style='padding:12px; color:#f39c12; font-weight:500;'>")
+                    .append(txn.getStoppedCount()).append("</td>").append("\n")
                     // Success Rate %
-                    .append("<td style='padding:12px; border-bottom:1px solid #e1e1e1; font-weight:500;'>")
-                    .append(txn.getSuccessRatePercentage()).append("%</td>")
+                    .append("<td style='padding:12px; font-weight:500;'>")
+                    .append(txn.getSuccessRatePercentage()).append("%</td>").append("\n")
                     // TPS (Transactions Per Second)
-                    .append("<td style='padding:12px; border-bottom:1px solid #e1e1e1; font-weight:500;'>")
-                    .append(txn.getTps()).append("</td>")
-                    .append("</tr>");
+                    .append("<td style='padding:12px; font-weight:500;'>")
+                    .append(txn.getTps()).append("</td>").append("\n")
+                    .append("</tr>").append("\n");
 
             // Calculate totals
             totalPassed += txn.getPassedCount();
@@ -193,21 +191,20 @@ public record RunSummaryData(String htmlContent, String[][] textSummary) {
         }
 
         // Totals row
-        html.append("<tr style='font-weight:700; background:#ecf0f1; color:#333;'>")
-                .append("<td style='padding:15px; border-top:2px solid #ccc;'>Total</td>")
-                .append("<td style='padding:15px; border-top:2px solid #ccc;'>").append(totalPassed).append("</td>")
-                .append("<td style='padding:15px; border-top:2px solid #ccc;'>").append(totalFailed).append("</td>")
-                .append("<td style='padding:15px; border-top:2px solid #ccc;'>").append(totalStopped).append("</td>")
+        html.append("<tr style='font-weight:700; background-color:#ecf0f1; color:#333;'>").append("\n")
+                .append("<td style='padding:15px; border-top:2px solid #ccc;'>Total</td>").append("\n")
+                .append("<td style='padding:15px; border-top:2px solid #ccc;'>").append(totalPassed).append("</td>").append("\n")
+                .append("<td style='padding:15px; border-top:2px solid #ccc;'>").append(totalFailed).append("</td>").append("\n")
+                .append("<td style='padding:15px; border-top:2px solid #ccc;'>").append(totalStopped).append("</td>").append("\n")
                 .append("<td style='padding:15px; border-top:2px solid #ccc;'>")
-                .append(totalPassed + totalFailed == 0 ? 0 :
-                        Math.round((double) totalPassed / (totalPassed + totalFailed) * 100))
-                .append("</td>")
-                .append("<td style='padding:15px; border-top:2px solid #ccc;'>").append(totalTps).append("</td>")
-                .append("</tr>")
-                .append("</tbody></table>");
+                .append(totalPassed + totalFailed == 0 ? 0 : Math.round((double) totalPassed / (totalPassed + totalFailed) * 100))
+                .append("</td>").append("\n")
+                .append("<td style='padding:15px; border-top:2px solid #ccc;'>").append(totalTps).append("</td>").append("\n")
+                .append("</tr>").append("\n")
+                .append("</tbody></table>").append("\n");
 
         // Close wrapper div
-        html.append("</div>");
+        html.append("</div>").append("\n");
 
         return html.toString();
     }
