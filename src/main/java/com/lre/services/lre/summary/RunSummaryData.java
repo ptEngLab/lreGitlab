@@ -141,7 +141,7 @@ public record RunSummaryData(String htmlContent, String[][] textSummary) {
                 .append("<table width='100%' cellpadding='8' cellspacing='0' border='0' style='border-collapse:collapse; font-size:12px; width:100%; background-color:#ffffff;'>").append("\n")
                 // Header with purple gradient
                 .append("<thead>").append("\n")
-                .append("<tr style='background-color: #810ece; color: #fff; text-align: left; font-weight: 600;' font-size:12px;>").append("\n")
+                .append("<tr style='background-color: #810ece; color: #fff; text-align: left; font-weight: 600; font-size:12px;'>").append("\n")
                 .append("<th style='padding:15px; border-top:2px solid #6f2b8f; text-transform:uppercase;'>Name</th>").append("\n")
                 .append("<th style='padding:15px; border-top:2px solid #6f2b8f; text-transform:uppercase;'># Passed</th>").append("\n")
                 .append("<th style='padding:15px; border-top:2px solid #6f2b8f; text-transform:uppercase;'># Failed</th>").append("\n")
