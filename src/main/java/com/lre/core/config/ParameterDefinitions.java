@@ -49,6 +49,8 @@ public class ParameterDefinitions {
         public static final String EMAIL_PASSWORD = "";
         public static final String EMAIL_FROM = "";
         public static final String EMAIL_TO = "";
+        public static final String EMAIL_CC = "";
+        public static final String EMAIL_BCC = "";
         public static final String EMAIL_SUBJECT = "LRE Test Execution Report";
         public static final String EMAIL_BODY = "LRE test execution completed. Please check the attached report.";
         public static final String EMAIL_ATTACHMENT_PATH = "";
@@ -98,6 +100,8 @@ public class ParameterDefinitions {
         public static final String EMAIL_PASSWORD = "email_password";
         public static final String EMAIL_FROM = "email_from";
         public static final String EMAIL_TO = "email_to";
+        public static final String EMAIL_CC= "email_cc";
+        public static final String EMAIL_BCC= "email_bcc";
         public static final String EMAIL_SUBJECT = "email_subject";
         public static final String EMAIL_BODY = "email_body";
         public static final String EMAIL_ATTACHMENT_PATH = "email_attachment_path";
@@ -163,6 +167,8 @@ public class ParameterDefinitions {
                 new ConfigParameter<>(Keys.EMAIL_PASSWORD, false, Defaults.EMAIL_PASSWORD),
                 new ConfigParameter<>(Keys.EMAIL_FROM, false, Defaults.EMAIL_FROM),
                 new ConfigParameter<>(Keys.EMAIL_TO, false, Defaults.EMAIL_TO, true),
+                new ConfigParameter<>(Keys.EMAIL_CC, false, Defaults.EMAIL_CC),
+                new ConfigParameter<>(Keys.EMAIL_BCC, false, Defaults.EMAIL_BCC),
                 new ConfigParameter<>(Keys.EMAIL_SUBJECT, false, Defaults.EMAIL_SUBJECT),
                 new ConfigParameter<>(Keys.EMAIL_BODY, false, Defaults.EMAIL_BODY),
                 new ConfigParameter<>(Keys.EMAIL_ATTACHMENT_PATH, false, Defaults.EMAIL_ATTACHMENT_PATH)
