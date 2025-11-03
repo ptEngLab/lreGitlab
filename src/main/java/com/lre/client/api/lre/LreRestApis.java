@@ -23,6 +23,8 @@ import org.apache.hc.core5.http.ContentType;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @Slf4j
 public class LreRestApis implements AutoCloseable {
@@ -182,11 +184,16 @@ public class LreRestApis implements AutoCloseable {
 
     public LreOpenRunDashboardResponse getPCRunId(String payload) {
         String url = urlBuilder.getOpenRunDashboardUrl();
-        return executor.create(url, payload, ContentType.APPLICATION_JSON,  LreOpenRunDashboardResponse.class, "Open Dashboard");
+        Map<String, String> headers = Map.of("X-XSRF-Header", UUID.randomUUID().toString());
+        return executor.createWeb(url, payload, ContentType.APPLICATION_JSON,
+                LreOpenRunDashboardResponse.class, "Open Dashboard", headers);
     }
 
     public LreTransactionMetricsResponse fetchTransactions(String payload) {
         String url = urlBuilder.getTransactionsDataUrl();
-        return executor.create(url, payload, ContentType.APPLICATION_JSON, LreTransactionMetricsResponse.class, "transaction list");
+        Map<String, String> headers = Map.of("X-XSRF-Header", UUID.randomUUID().toString());
+
+        return executor.createWeb(url, payload, ContentType.APPLICATION_JSON, LreTransactionMetricsResponse.class,
+                "transaction list", headers);
     }
 }

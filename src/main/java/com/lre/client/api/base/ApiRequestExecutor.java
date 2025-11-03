@@ -14,6 +14,7 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 public record ApiRequestExecutor(CloseableHttpClient httpClient) {
@@ -24,11 +25,11 @@ public record ApiRequestExecutor(CloseableHttpClient httpClient) {
 
     // Public API Methods
     public <T> T fetchById(String url, Class<T> clazz, String resourceName) {
-        return execute(HttpMethod.GET, url, null, null, clazz, resourceName + " by ID");
+        return execute(HttpMethod.GET, url, null, null, clazz, resourceName + " by ID", null);
     }
 
     public void deleteById(String url, String resourceName) {
-        execute(HttpMethod.DELETE, url, null, null, Void.class, resourceName + " by ID");
+        execute(HttpMethod.DELETE, url, null, null, Void.class, resourceName + " by ID", null);
     }
 
     public <T> List<T> fetchList(String url, Class<T> clazz, String resourceName) {
@@ -36,12 +37,17 @@ public record ApiRequestExecutor(CloseableHttpClient httpClient) {
     }
 
     public <T> T create(String url, String payload, ContentType contentType, Class<T> clazz, String resourceName) {
-        return execute(HttpMethod.POST, url, payload, contentType, clazz, "Create " + resourceName);
+        return execute(HttpMethod.POST, url, payload, contentType, clazz, "Create " + resourceName, null);
+    }
+
+    public <T> T createWeb(String url, String payload, ContentType contentType, Class<T> clazz, String resourceName,
+                        Map<String, String> headers) {
+        return execute(HttpMethod.POST, url, payload, contentType, clazz, "Create " + resourceName, headers);
     }
 
     public <T> List<T> createList(String url, String payload, ContentType contentType, Class<T> clazz, String resourceName) {
         try {
-            String response = sendRequest(buildRequest(HttpMethod.POST, url, payload, contentType));
+            String response = sendRequest(buildRequest(HttpMethod.POST, url, payload, contentType, null));
             return JsonUtils.fromJsonArray(response, clazz);
         } catch (URISyntaxException e) {
             throw uriError(resourceName, url, e);
@@ -49,12 +55,12 @@ public record ApiRequestExecutor(CloseableHttpClient httpClient) {
     }
 
     public void update(String url, String payload, ContentType contentType) {
-        execute(HttpMethod.PUT, url, payload, contentType, Void.class, "Update");
+        execute(HttpMethod.PUT, url, payload, contentType, Void.class, "Update", null);
     }
 
     public boolean download(String url, String destPath) {
         try {
-            ClassicRequestBuilder requestBuilder = buildRequest(HttpMethod.GET, url, null, null);
+            ClassicRequestBuilder requestBuilder = buildRequest(HttpMethod.GET, url, null, null, null);
             return downloadApi(requestBuilder, destPath);
         } catch (URISyntaxException e) {
             throw uriError("Download file", url, e);
@@ -65,9 +71,9 @@ public record ApiRequestExecutor(CloseableHttpClient httpClient) {
 
     private <T> T execute(HttpMethod method, String url, String payload,
                           ContentType contentType, Class<T> clazz,
-                          String operation) {
+                          String operation, Map<String, String> extraHeaders) {
         try {
-            String response = sendRequest(buildRequest(method, url, payload, contentType));
+            String response = sendRequest(buildRequest(method, url, payload, contentType, extraHeaders));
             log.debug("{} response: {}", operation, response);
             if (clazz == Void.class) return null;
             return JsonUtils.fromJson(response, clazz);
@@ -79,7 +85,7 @@ public record ApiRequestExecutor(CloseableHttpClient httpClient) {
 
     private <T> List<T> executeList(String url, Class<T> clazz, String operation) {
         try {
-            String response = sendRequest(buildRequest(HttpMethod.GET, url, null, null));
+            String response = sendRequest(buildRequest(HttpMethod.GET, url, null, null, null));
             log.debug("{} response : {}", operation, response);
             return JsonUtils.fromJsonArray(response, clazz);
         } catch (URISyntaxException e) {
@@ -89,8 +95,11 @@ public record ApiRequestExecutor(CloseableHttpClient httpClient) {
 
     // Request Builder
 
-    private ClassicRequestBuilder buildRequest(HttpMethod method, String url,
-                                               String payload, ContentType contentType) throws URISyntaxException {
+    private ClassicRequestBuilder buildRequest(HttpMethod method,
+                                               String url,
+                                               String payload,
+                                               ContentType contentType,
+                                               Map<String, String> extraHeaders) throws URISyntaxException {
         URI uri = new URI(url);
         ClassicRequestBuilder builder = switch (method) {
             case GET -> ClassicRequestBuilder.get(uri);
@@ -104,6 +113,11 @@ public record ApiRequestExecutor(CloseableHttpClient httpClient) {
         if (payload != null && contentType != null) {
             builder.addHeader(HttpHeaders.CONTENT_TYPE, contentType.getMimeType());
             builder.setEntity(new StringEntity(payload, contentType));
+        }
+
+        // Apply extra headers if provided
+        if (extraHeaders != null && !extraHeaders.isEmpty()) {
+            extraHeaders.forEach(builder::addHeader);
         }
 
         return builder;
