@@ -27,7 +27,7 @@ public record RunSummaryData(String htmlContent, String[][] textSummary) {
     private static Map<String, String> prepareRunResultsData(LreTestRunModel model, LreRunStatusExtended runStatusExtended, ThresholdResult thresholds) {
         Map<String, String> runData = new HashMap<>();
 
-        runData.put("RunId", String.valueOf(model.getRunId()));
+        runData.put("RunID", String.valueOf(model.getRunId()));
         runData.put("TestName", model.getTestName());
         runData.put("RunName", runStatusExtended.getName());
         runData.put("TransactionPassed", String.valueOf(runStatusExtended.getTransPassed()));
@@ -47,7 +47,6 @@ public record RunSummaryData(String htmlContent, String[][] textSummary) {
         runData.put("TestDuration", calculateTestDuration(runStatusExtended.getStart(), runStatusExtended.getEnd()));
         runData.put("Errors", String.valueOf(runStatusExtended.getErrors()));
         runData.put("ReportLink", model.getDashboardUrl());
-        runData.put("RunID", String.valueOf(model.getTestInstanceId()));
         runData.put("LGsUsed", generateLgHtml(runStatusExtended.getLgs()));
 
         runData.put("RunStatus", runStatusExtended.getState());

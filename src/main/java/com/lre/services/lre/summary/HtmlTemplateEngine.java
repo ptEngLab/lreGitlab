@@ -12,7 +12,7 @@ public class HtmlTemplateEngine {
             "Vusers", "TransactionPerSec", "HitsPerSec", "AvgThroughput",
             "Domain", "Project", "TestID", "TestFolder", "TestInstanceID",
             "Controller", "StartTime", "EndTime", "TestDuration", "Errors",
-            "ReportLink", "RunID", "LGsUsed", "RunStatus", "RunResult", "StatusBadgeColor", "RunId", "TransactionTable"
+            "ReportLink", "RunID", "LGsUsed", "RunStatus", "RunResult", "StatusBadgeColor", "TransactionTable"
     };
 
     public static String generateHtmlReport(Map<String, String> testData) {
