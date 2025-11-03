@@ -72,6 +72,8 @@ public class ConfigMapper {
                 .password((String) params.get(ParameterDefinitions.Keys.EMAIL_PASSWORD))
                 .from((String) params.get(ParameterDefinitions.Keys.EMAIL_FROM))
                 .to((String) params.get(ParameterDefinitions.Keys.EMAIL_TO))
+                .cc((String) params.get(ParameterDefinitions.Keys.EMAIL_CC))
+                .bcc((String) params.get(ParameterDefinitions.Keys.EMAIL_BCC))
                 .subject((String) params.get(ParameterDefinitions.Keys.EMAIL_SUBJECT))
                 .body((String) params.get(ParameterDefinitions.Keys.EMAIL_BODY))
                 .attachmentPath((String) params.get(ParameterDefinitions.Keys.EMAIL_ATTACHMENT_PATH))
