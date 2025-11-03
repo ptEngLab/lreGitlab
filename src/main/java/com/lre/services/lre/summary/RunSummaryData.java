@@ -137,7 +137,7 @@ public record RunSummaryData(String htmlContent, String[][] textSummary) {
 
         // Start with a wrapper and add more sophisticated styles for clarity and elegance
         html.append("<div style='font-family:Arial, sans-serif; color:#333; margin:20px;'>").append("\n")
-                .append("<h3 style='color:#2c3e50; border-bottom:2px solid #667eea; padding-bottom:8px; '>Transaction Summary</h3>").append("\n")
+                .append("<h3 style='color:#2c3e50; padding-bottom:2px; '>Transaction Summary</h3>").append("\n")
                 .append("<table width='100%' cellpadding='8' cellspacing='0' border='0' style='border-collapse:collapse; font-size:12px; width:100%; background-color:#ffffff;'>").append("\n")
                 // Header with purple gradient
                 .append("<thead>").append("\n")
