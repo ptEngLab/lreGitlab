@@ -2,11 +2,8 @@ package com.lre.client.runclient;
 
 import com.lre.client.api.lre.LreRestApis;
 import com.lre.client.runmodel.LreTestRunModel;
-import com.lre.common.constants.ConfigConstants;
 import com.lre.common.exceptions.LreException;
 import com.lre.common.utils.JsonUtils;
-import com.lre.db.SQLiteConnectionManager;
-import com.lre.db.SqlQueries;
 import com.lre.model.run.LreRunStatus;
 import com.lre.model.run.LreRunStatusExtended;
 import com.lre.model.run.LreRunStatusReqWeb;
@@ -18,11 +15,11 @@ import com.lre.services.lre.LreTimeslotManager;
 import com.lre.services.lre.auth.LreAuthenticationManager;
 import com.lre.services.lre.poller.LreRunStatusPoller;
 import com.lre.services.lre.report.LreReportPublisher;
+import com.lre.services.lre.report.ReportExtractor;
 import com.lre.services.lre.summary.LreTxnSummaryFetcher;
 import com.lre.services.lre.summary.RunSummaryData;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -101,31 +98,8 @@ public class LreRunClient implements AutoCloseable {
     }
 
     public void extractRunReportsFromDb() throws IOException {
-        String dbPath = model.getAnalysedReportPath() + "/Results_" + model.getRunId() + ".db";
-
-        // Verify database exists
-        if (!Files.exists(Paths.get(dbPath))) {
-            log.error("Database file not found: {}", dbPath);
-            throw new FileNotFoundException("Database file not found: " + dbPath);
-        }
-
-        SQLiteConnectionManager dbManager = new SQLiteConnectionManager(dbPath);
-
-        Path excelFilePath = Paths.get(ConfigConstants.DEFAULT_OUTPUT_DIR, ARTIFACTS_DIR, "output/results.xlsx");
-
-        try {
-            // Add progress logging
-            log.info("Starting database export from: {}", dbPath);
-            log.debug("Output Excel file: {}", excelFilePath);
-
-            dbManager.exportToExcelV2WithMerging(SqlQueries.TXN_SUMMARY_SQL, excelFilePath.toString(), "GenreName");
-
-            log.debug("Successfully exported results to: {}", excelFilePath);
-
-        } catch (Exception e) {
-            log.error("Failed to extract run reports from database: {}", dbPath, e);
-            throw new IOException("Database export failed", e);
-        }
+        ReportExtractor reportExtractor = new ReportExtractor(getDatabasePath(), model.getRunId());
+        reportExtractor.extractRunReports();
     }
 
 
@@ -209,6 +183,13 @@ public class LreRunClient implements AutoCloseable {
             log.error("Failed to save HTML report to: {}", filePath, e); // More specific logging
             throw new RuntimeException("Failed to save HTML report to: " + filePath, e);
         }
+    }
+
+    /**
+     * Constructs the path to the database file based on the model's path and run ID.
+     */
+    private String getDatabasePath() {
+        return model.getAnalysedReportPath() + "/Results_" + model.getRunId() + ".db";
     }
 
 
