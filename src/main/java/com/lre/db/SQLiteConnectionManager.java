@@ -32,13 +32,8 @@ public record SQLiteConnectionManager(String dbPath) {
         }
     }
 
-    public void exportToExcelV2WithMerging(String sql, String excelFilePath, String mergeColumn) {
-        exportToExcelV2WithMerging(sql, excelFilePath, mergeColumn, null);
-    }
-
-    public void exportToExcelV2WithMerging(String sql, String excelFilePath,
-                                           String mergeColumn, List<Object> parameters) {
-        exportToExcelV2WithMerging(sql, excelFilePath, "Results", mergeColumn, parameters);
+    public void exportToExcelV2WithMerging(String sql, String excelFilePath, String sheetName, String mergeColumn) {
+        exportToExcelV2WithMerging(sql, excelFilePath, sheetName, mergeColumn, null);
     }
 
     public void exportToExcelV2WithMerging(String sql, String excelFilePath, String sheetName,

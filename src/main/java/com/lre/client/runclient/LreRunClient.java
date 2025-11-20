@@ -98,7 +98,7 @@ public class LreRunClient implements AutoCloseable {
     }
 
     public void extractRunReportsFromDb() throws IOException {
-        ReportExtractor reportExtractor = new ReportExtractor(getDatabasePath(), model.getRunId());
+        ReportExtractor reportExtractor = new ReportExtractor(model.getAnalysedReportPath().toString(), model.getRunId());
         reportExtractor.extractRunReports();
     }
 
@@ -184,14 +184,6 @@ public class LreRunClient implements AutoCloseable {
             throw new RuntimeException("Failed to save HTML report to: " + filePath, e);
         }
     }
-
-    /**
-     * Constructs the path to the database file based on the model's path and run ID.
-     */
-    private String getDatabasePath() {
-        return model.getAnalysedReportPath() + "/Results_" + model.getRunId() + ".db";
-    }
-
 
     @Override
     public void close() {

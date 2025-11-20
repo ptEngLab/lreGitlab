@@ -12,50 +12,69 @@ import java.nio.file.Paths;
 import java.util.List;
 
 @Slf4j
-public record ReportExtractor(String dbPath, int runId) {
+public record ReportExtractor(String baseDbPath, int runId) {
 
-    /**
-     * Extracts run reports from the database and exports them to Excel.
-     */
     public void extractRunReports() throws IOException {
-        // Ensure the database exists
-        verifyDatabaseExists();
-
-        // Initialize the SQLiteConnectionManager
-        SQLiteConnectionManager dbManager = new SQLiteConnectionManager(dbPath);
-
-        // Get the output Excel file path
         Path excelFilePath = ReportFileManager.getExcelFilePath(runId);
-
         try {
-            // Ensure the Excel file is created fresh
             ReportFileManager.deleteFileIfExists(excelFilePath);
             ReportFileManager.createDirectoriesIfNotExist(excelFilePath.getParent());
 
-            log.info("Starting database export from: {}", dbPath);
-            log.debug("Output Excel file: {}", excelFilePath);
-
-            dbManager.exportToExcelV2WithMerging(SqlQueries.TXN_SUMMARY_SQL, excelFilePath.toString(), "GenreName");
-            dbManager.exportToExcelV2(SqlQueries.ERROR_SUMMARY_SQL, excelFilePath.toString(), "Errors");
-
-            List<Object> parameters = List.of("Alternative", "2010-03-05 00:00:00", "2013-03-05 00:00:00");
-            dbManager.exportToExcelV2(SqlQueries.TRANSACTIONS_BY_CUSTOMER_AND_DATE_SQL, excelFilePath.toString(), "Data", parameters);
+            exportSummaryReport(excelFilePath.toString());
+            exportErrorReport(excelFilePath.toString());
 
             log.info("Successfully exported results to: {}", excelFilePath);
 
         } catch (Exception e) {
-            log.error("Failed to extract run reports from database: {}", dbPath, e);
+            log.error("Failed to extract run reports", e);
             throw new IOException("Database export failed", e);
         }
     }
 
     /**
+     * Exports the summary report from the results.db database.
+     */
+    private void exportSummaryReport(String excelFilePath) throws IOException {
+        String dbPath = getResultsDbPath();
+        verifyDatabaseExists(dbPath);
+        SQLiteConnectionManager dbManager = new SQLiteConnectionManager(dbPath);
+
+        dbManager.exportToExcelV2WithMerging(SqlQueries.TXN_SUMMARY_SQL, excelFilePath, "TransactionSummary", "ScriptName");
+
+        List<Object> parameters = List.of("Alternative", "201-03-05 00:00:00", "2013-03-05 00:00:00");
+        dbManager.exportToExcelV2WithMerging(SqlQueries.ERROR_SUMMARY_SQL, excelFilePath, "summaryResults", "ScriptName",  parameters);
+    }
+
+    /**
+     * Exports the error report from the sqlitedb.db database.
+     */
+    private void exportErrorReport(String excelFilePath) throws IOException {
+        String dbPath = getErrorsDbPath();
+        verifyDatabaseExists(dbPath);
+        SQLiteConnectionManager dbManager = new SQLiteConnectionManager(dbPath);
+
+        // Export error report without merging
+        dbManager.exportToExcelV2(SqlQueries.TXN_SUMMARY_SQL, excelFilePath, "errorReports");
+    }
+
+    /**
      * Verifies that the database file exists.
      */
-    private void verifyDatabaseExists() throws IOException {
+    private void verifyDatabaseExists(String dbPath) throws IOException {
         if (!Files.exists(Paths.get(dbPath))) {
             log.error("Database file not found: {}", dbPath);
             throw new IOException("Database file not found: " + dbPath);
         }
     }
+
+
+    private String getResultsDbPath() {
+        return baseDbPath+ "/Results_" + runId + ".db";
+    }
+
+    private String getErrorsDbPath() {
+        return baseDbPath + "/sqlitedb.db";
+    }
+
 }
+
