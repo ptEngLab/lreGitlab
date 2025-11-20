@@ -118,7 +118,7 @@ public class LreRunClient implements AutoCloseable {
             log.info("Starting database export from: {}", dbPath);
             log.debug("Output Excel file: {}", excelFilePath);
 
-            dbManager.exportToExcel(SqlQueries.TXN_SUMMARY_SQL, excelFilePath.toString(), null);
+            dbManager.exportToExcelV2WithMerging(SqlQueries.TXN_SUMMARY_SQL, excelFilePath.toString(), "GenreName");
 
             log.debug("Successfully exported results to: {}", excelFilePath);
 

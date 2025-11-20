@@ -21,7 +21,7 @@ public class SqlQueries {
                            RANK() OVER (PARTITION BY GenreName ORDER BY TotalSpent DESC, TrackPurchases DESC) AS GenreRank
                     FROM GenreSpend
                 )
-                SELECT CustomerId, FirstName, LastName, GenreName, TotalSpent, TrackPurchases, LastPurchaseDate, InvoiceCount
+                SELECT GenreName, CustomerId, FirstName, LastName,  TotalSpent, TrackPurchases, LastPurchaseDate, InvoiceCount
                 FROM RankedSpend
                 WHERE GenreRank <= 3
                 ORDER BY GenreName, GenreRank;""";
