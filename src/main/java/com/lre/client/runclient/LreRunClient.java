@@ -2,8 +2,11 @@ package com.lre.client.runclient;
 
 import com.lre.client.api.lre.LreRestApis;
 import com.lre.client.runmodel.LreTestRunModel;
+import com.lre.common.constants.ConfigConstants;
 import com.lre.common.exceptions.LreException;
 import com.lre.common.utils.JsonUtils;
+import com.lre.db.SQLiteConnectionManager;
+import com.lre.db.SqlQueries;
 import com.lre.model.run.LreRunStatus;
 import com.lre.model.run.LreRunStatusExtended;
 import com.lre.model.run.LreRunStatusReqWeb;
@@ -19,13 +22,15 @@ import com.lre.services.lre.summary.LreTxnSummaryFetcher;
 import com.lre.services.lre.summary.RunSummaryData;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 
-import static com.lre.common.constants.ConfigConstants.ARTIFACTS_DIR;
+import static com.lre.common.constants.ConfigConstants.*;
 import static com.lre.common.utils.CommonUtils.logTable;
 
 @Slf4j
@@ -73,13 +78,56 @@ public class LreRunClient implements AutoCloseable {
 
 
     public void publishRunReport() {
-        if (model.isHtmlReportAvailable()) {
-            LreReportPublisher publisher = new LreReportPublisher(lreRestApis, model);
-            Path reportPath = publisher.publish();
-            if (reportPath != null) log.info("Report successfully published at: {}", reportPath.resolve("index.html"));
-            else log.warn("Report not available for run id: {}", model.getRunId());
+        if (!model.isHtmlReportAvailable()) {
+            log.warn("HTML report not available for run id: {} (Test: {})", model.getRunId(), model.getTestToRun());
+            return;
+        }
+        LreReportPublisher publisher = new LreReportPublisher(lreRestApis, model);
+        Optional<Path> reportPath = publisher.publish(HTML_REPORTS_TYPE);
+        if (reportPath.isPresent()) log.info("HTML Report extracted: {}", reportPath.get());
+        else log.warn("HTML Report extraction failed for run id: {}", model.getRunId());
+
+    }
+
+    public void publishAnalysedReports() {
+        if (!model.isAnalysedReportAvailable()) {
+            log.warn("Analysed report not available for run id: {} (Test: {})", model.getRunId(), model.getTestToRun());
+            return;
+        }
+        LreReportPublisher publisher = new LreReportPublisher(lreRestApis, model);
+        Optional<Path> reportPath = publisher.publish(ANALYSED_RESULTS_TYPE);
+        if (reportPath.isPresent()) log.info("Analysed Report extracted: {}", reportPath.get());
+        else log.warn("Analysed Report extraction failed for run id: {}", model.getRunId());
+    }
+
+    public void extractRunReportsFromDb() throws IOException {
+        String dbPath = model.getAnalysedReportPath() + "/Results_" + model.getRunId() + ".db";
+
+        // Verify database exists
+        if (!Files.exists(Paths.get(dbPath))) {
+            log.error("Database file not found: {}", dbPath);
+            throw new FileNotFoundException("Database file not found: " + dbPath);
+        }
+
+        SQLiteConnectionManager dbManager = new SQLiteConnectionManager(dbPath);
+
+        Path excelFilePath = Paths.get(ConfigConstants.DEFAULT_OUTPUT_DIR, ARTIFACTS_DIR, "output/results.xlsx");
+
+        try {
+            // Add progress logging
+            log.info("Starting database export from: {}", dbPath);
+            log.debug("Output Excel file: {}", excelFilePath);
+
+            dbManager.exportToExcel(SqlQueries.TXN_SUMMARY_SQL, excelFilePath.toString(), null);
+
+            log.debug("Successfully exported results to: {}", excelFilePath);
+
+        } catch (Exception e) {
+            log.error("Failed to extract run reports from database: {}", dbPath, e);
+            throw new IOException("Database export failed", e);
         }
     }
+
 
     public void printRunSummary() {
         LreRunStatusExtended runStatus = fetchRunStatusExtended();
@@ -158,9 +206,12 @@ public class LreRunClient implements AutoCloseable {
             Files.writeString(path, htmlContent);
 
         } catch (IOException e) {
+            log.error("Failed to save HTML report to: {}", filePath, e); // More specific logging
             throw new RuntimeException("Failed to save HTML report to: " + filePath, e);
         }
     }
+
+
     @Override
     public void close() {
         try {

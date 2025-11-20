@@ -1,0 +1,16 @@
+2025-11-20 16:21:31 INFO  c.l.a.Main:44                            - Starting operations: [EXTRACT_RESULTS]
+2025-11-20 16:21:31 INFO  c.l.a.Main:148                           - Starting the extraction of results...
+2025-11-20 16:21:32 INFO  c.l.s.l.r.LreReportPublisher:33          - Publishing ANALYZED RESULT report for Run ID: 12
+2025-11-20 16:21:32 INFO  c.l.c.r.LreRunClient:98                  - Analysed Report extracted: C:\Venkat\IntellijProjects\lre_gitlab_integration_try\artifacts\LreReports\AnalysedReports\analyzed_result_extracted
+2025-11-20 16:21:32 INFO  c.l.c.r.LreRunClient:142                 - Starting database export from: C:\Venkat\IntellijProjects\lre_gitlab_integration_try\artifacts\LreReports\AnalysedReports\analyzed_result_extracted/Results_12.db
+2025-11-20 16:21:35 INFO  c.l.d.ExcelExporter:44                   - Excel export completed successfully to: C:\Venkat\IntellijProjects\lre_gitlab_integration_try\artifacts\output\results.xlsx
+2025-11-20 16:21:35 INFO  c.l.s.l.s.LreTxnSummaryFetcher:84        - Completed fetching 5 transactions for PC Run ID 12345
+2025-11-20 16:21:35 INFO  c.l.c.r.LreRunClient:160                 - 
++----------------------------------------+-----------------------------------------+----------------------------------------+-------------------------------------------------------------------------------------------------------+
+| Domain: example                        | Project: test-project                   | Test Name: CreateTestFromYaml          | Test Id: 0                                                                                            |
+| Test Folder: Subject\yamlTest          | Test Instance Id: -1                    | Run Name: AdhocRun_2025-10-14 11:14:56 | Run Status: Finished, Result: ✅ PASSED                                                                |
+| Start Time: 2025-10-14T11:15:30.438561 | End Time: 2025-10-14T11:21:46.925386600 | Test Duration: 00:06:16                | Vusers involved: 9                                                                                    |
+| Transaction Passed: 379                | Transaction Failed: 0 (limit: 100)      | Errors: 0 (limit: 20000)               | Transaction per Sec: 1                                                                                |
+| Hits per Sec: 0                        | Throughput (avg): 0                     | Controller used: vm011.net             | LGs used: vm012.net(9);vm013.net(9);vm014.net(9);vm015.net(9);vm016.net(9);vm017.net(9);vm018.net(9); |
++----------------------------------------+-----------------------------------------+----------------------------------------+-------------------------------------------------------------------------------------------------------+
+

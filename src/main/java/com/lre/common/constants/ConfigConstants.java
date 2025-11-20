@@ -11,10 +11,15 @@ public class ConfigConstants {
     public static final String ARTIFACTS_DIR = "artifacts";
     public static final String DEFAULT_TEST_FOLDER = "default_folder";
 
-    public static final String HTML_REPORT_PATH = "%s/%s/LreReports/HtmlReport";
-    public static final String LRE_REPORT_ARCHIVE_NAME = "Reports.zip";
+    public static final String HTML_REPORT_PATH = "%s/%s/LreReports/HtmlReport";  // Path format for HTML reports
+    public static final String HTML_REPORTS_TYPE = "HTML REPORT";  // Type name for HTML reports
+    public static final String HTML_REPORT_ARCHIVE_NAME = "Reports_%d.zip";
 
-    // Logging Constants
+    public static final String ANALYSED_RESULTS_PATH = "%s/%s/LreReports/AnalysedReports";  // Path format for analyzed reports
+    public static final String ANALYSED_RESULTS_TYPE = "ANALYZED RESULT";  // Type name for analyzed reports
+    public static final String ANALYSED_REPORT_ARCHIVE_NAME = "Results_%d.zip";  // Analyzed report archive name (using runId)
+
+    // Logging Constants "Type": "ANALYZED RESULT",
     public static final String LRE_LOG_FILE = "lre_actions_%s.log";
 
     // API Constants
@@ -58,7 +63,7 @@ public class ConfigConstants {
     public static final int MINUTES_PER_HOUR = 60;
     public static final int MAX_RETRIES = 3;
     public static final int RETRY_DELAY_SECONDS = 5;
-    public static final long DEFAULT_POLL_INTERVAL_SECONDS = 1;
+    public static final long DEFAULT_POLL_INTERVAL_SECONDS = 0;
 
 
     public static final String LRE_RUN_ID_FILE = "lre_run_id.txt";
@@ -104,5 +109,10 @@ public class ConfigConstants {
     public static final String GIT_COMMIT_HISTORY_FILE = "Gitlab_Commit_History.json";
 
     public static final String COMMIT_HISTORY_ARTIFACT_PATH = ARTIFACTS_DIR + "/" + GIT_REPO_EXTRACT_PATH + "/" + GIT_COMMIT_HISTORY_FILE;
+
+
+    public static final int QUERY_TIMEOUT_SECONDS = 3600; // 1 hour for large queries
+    public static final int QUERY_BATCH_SIZE = 10000;
+
 
 }

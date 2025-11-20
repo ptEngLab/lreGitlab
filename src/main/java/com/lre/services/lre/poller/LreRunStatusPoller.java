@@ -91,7 +91,11 @@ public class LreRunStatusPoller {
     private boolean isTerminalState(RunState currentState) {
         if (!postRunAction.isTerminal(currentState)) return false;
         log.info("Run [{}] reached terminal state [{}] for PostRunAction [{}]", model.getRunId(), currentState, postRunAction);
-        if (currentState == RunState.FINISHED) model.setHtmlReportAvailable(true);
+        if (currentState == RunState.FINISHED) {
+            model.setHtmlReportAvailable(true);
+            model.setAnalysedReportAvailable(true);
+
+        }
         return true;
     }
 

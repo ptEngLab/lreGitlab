@@ -18,10 +18,10 @@ public record RunSummaryData(String htmlContent, String[][] textSummary) {
         Map<String, String> runData = prepareRunResultsData(model, runStatusExtended, thresholds);
         String transactionHtml = txns.isEmpty() ? "" : generateTransactionHtml(txns);
         runData.put("TransactionTable", transactionHtml);
-        String htmlContent = HtmlTemplateEngine.generateHtmlReport(runData);
+//        String htmlContent = HtmlTemplateEngine.generateHtmlReport(runData);
         String[][] textSummary = generateTextSummary(model, runStatusExtended, thresholds);
 
-        return new RunSummaryData(htmlContent, textSummary);
+        return new RunSummaryData("htmlContent", textSummary);
     }
 
     private static Map<String, String> prepareRunResultsData(LreTestRunModel model, LreRunStatusExtended runStatusExtended, ThresholdResult thresholds) {

@@ -47,7 +47,9 @@ public class LreTestRunModel {
     private String dashboardUrl;
     private int timeslotId;
     private boolean htmlReportAvailable;
+    private boolean analysedReportAvailable;
     private Path htmlReportPath;
+    private Path analysedReportPath;
     private boolean testFailed;
     private String failureReason;
 
