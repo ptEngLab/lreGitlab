@@ -1,6 +1,6 @@
 package com.lre.db;
 
-import com.lre.excel.ExcelExporterV2;
+import com.lre.excel.ExcelExporter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.FileNotFoundException;
@@ -21,14 +21,14 @@ public record SQLiteConnectionManager(String dbPath) {
              PreparedStatement stmt = prepareStatement(conn, sql, parameters);
              ResultSet rs = stmt.executeQuery()) {
 
-            ExcelExporterV2
+            ExcelExporter
                     .fromResultSet(rs)
                     .sheet(sheetName)
                     .writeTo(excelFilePath);
 
         } catch (Exception e) {
-            log.error("Excel V2 export failed: {}", e.getMessage(), e);
-            throw new RuntimeException("Excel V2 export failed", e);
+            log.error("Excel export failed: {}", e.getMessage(), e);
+            throw new RuntimeException("Excel export failed", e);
         }
     }
 
@@ -42,15 +42,15 @@ public record SQLiteConnectionManager(String dbPath) {
              PreparedStatement stmt = prepareStatement(conn, sql, parameters);
              ResultSet rs = stmt.executeQuery()) {
 
-            ExcelExporterV2
+            ExcelExporter
                     .fromResultSet(rs)
                     .sheet(sheetName)
                     .mergeOn(mergeColumn)
                     .writeTo(excelFilePath);
 
         } catch (Exception e) {
-            log.error("Excel V2 merging export failed: {}", e.getMessage(), e);
-            throw new RuntimeException("Excel V2 merging export failed", e);
+            log.error("Excel merging export failed: {}", e.getMessage(), e);
+            throw new RuntimeException("Excel merging export failed", e);
         }
     }
 

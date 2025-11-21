@@ -39,10 +39,10 @@ public record ReportExtractor(String baseDbPath, int runId) {
         verifyDatabaseExists(dbPath);
         SQLiteConnectionManager dbManager = new SQLiteConnectionManager(dbPath);
 
-        dbManager.exportToExcelV2WithMerging(SqlQueries.TXN_SUMMARY_SQL, excelFilePath, "TransactionSummary", "ScriptName");
+        dbManager.exportToExcelV2WithMerging(SqlQueries.TXN_SUMMARY_SQL, excelFilePath, "TransactionSummary", "GenreName");
 
         List<Object> parameters = List.of("Alternative", "201-03-05 00:00:00", "2013-03-05 00:00:00");
-        dbManager.exportToExcelV2WithMerging(SqlQueries.ERROR_SUMMARY_SQL, excelFilePath, "summaryResults", "ScriptName",  parameters);
+        dbManager.exportToExcelV2WithMerging(SqlQueries.TRANSACTIONS_BY_CUSTOMER_AND_DATE_SQL, excelFilePath, "summaryResults", "GenreName",  parameters);
     }
 
     /**

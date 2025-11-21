@@ -2,25 +2,25 @@ package com.lre.excel;
 
 import java.sql.ResultSet;
 
-public class ExcelExporterV2 {
+public class ExcelExporter {
     private final ResultSet rs;
     private String sheetName = "Results";
     private String mergeColumn = null;
 
-    private ExcelExporterV2(ResultSet rs) {
+    private ExcelExporter(ResultSet rs) {
         this.rs = rs;
     }
 
-    public static ExcelExporterV2 fromResultSet(ResultSet rs) {
-        return new ExcelExporterV2(rs);
+    public static ExcelExporter fromResultSet(ResultSet rs) {
+        return new ExcelExporter(rs);
     }
 
-    public ExcelExporterV2 sheet(String name) {
+    public ExcelExporter sheet(String name) {
         this.sheetName = name;
         return this;
     }
 
-    public ExcelExporterV2 mergeOn(String column) {
+    public ExcelExporter mergeOn(String column) {
         this.mergeColumn = column;
         return this;
     }
