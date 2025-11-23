@@ -1,82 +1,55 @@
 package com.lre.db;
 
-import com.lre.excel.ExcelExporter;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.FileNotFoundException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.sql.*;
 import java.util.List;
 
 @Slf4j
 public record SQLiteConnectionManager(String dbPath) {
 
-    public void exportToExcelV2(String sql, String excelFilePath, String sheetName) {
-        exportToExcelV2(sql, excelFilePath, sheetName, null);
-    }
+    /**
+     * Executes a SQL query with optional parameters and passes the ResultSet to the consumer.
+     * Resources (Connection, Statement, ResultSet) are automatically closed after the consumer completes.
+     */
+    public void executeQuery(String sql, List<Object> parameters, ResultSetConsumer consumer) {
+        verifyDatabaseExists();
 
-    public void exportToExcelV2(String sql, String excelFilePath, String sheetName, List<Object> parameters) {
-        try (Connection conn = getOptimizedConnection();
-             PreparedStatement stmt = prepareStatement(conn, sql, parameters);
-             ResultSet rs = stmt.executeQuery()) {
+        try (Connection conn = createOptimizedConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            ExcelExporter
-                    .fromResultSet(rs)
-                    .sheet(sheetName)
-                    .writeTo(excelFilePath);
-
-        } catch (Exception e) {
-            log.error("Excel export failed: {}", e.getMessage(), e);
-            throw new RuntimeException("Excel export failed", e);
-        }
-    }
-
-    public void exportToExcelV2WithMerging(String sql, String excelFilePath, String sheetName, String mergeColumn) {
-        exportToExcelV2WithMerging(sql, excelFilePath, sheetName, mergeColumn, null);
-    }
-
-    public void exportToExcelV2WithMerging(String sql, String excelFilePath, String sheetName,
-                                           String mergeColumn, List<Object> parameters) {
-        try (Connection conn = getOptimizedConnection();
-             PreparedStatement stmt = prepareStatement(conn, sql, parameters);
-             ResultSet rs = stmt.executeQuery()) {
-
-            ExcelExporter
-                    .fromResultSet(rs)
-                    .sheet(sheetName)
-                    .mergeOn(mergeColumn)
-                    .writeTo(excelFilePath);
-
-        } catch (Exception e) {
-            log.error("Excel merging export failed: {}", e.getMessage(), e);
-            throw new RuntimeException("Excel merging export failed", e);
-        }
-    }
-
-
-    private PreparedStatement prepareStatement(Connection conn, String sql, List<Object> parameters) throws SQLException {
-        PreparedStatement stmt = conn.prepareStatement(sql);
-        if (parameters != null) {
-            for (int i = 0; i < parameters.size(); i++) {
-                stmt.setObject(i + 1, parameters.get(i));
+            // Bind parameters if any
+            if (parameters != null) {
+                for (int i = 0; i < parameters.size(); i++) {
+                    stmt.setObject(i + 1, parameters.get(i));
+                }
             }
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                consumer.accept(rs);
+            }
+
+        } catch (Exception e) {
+            log.error("Query execution failed: {}", sql, e);
+            throw new RuntimeException("SQLite query execution failed", e);
         }
-        return stmt;
     }
 
-    private Connection getOptimizedConnection() throws SQLException, FileNotFoundException {
-
-        verifyDatabaseExists(dbPath);
-
+    /**
+     * Creates a SQLite connection with performance optimizations.
+     */
+    private Connection createOptimizedConnection() throws SQLException {
         Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
-        try (Statement s = conn.createStatement()) {
-            s.execute("PRAGMA journal_mode = MEMORY");
-            s.execute("PRAGMA synchronous = OFF");
-            s.execute("PRAGMA cache_size = 10000");
-            s.execute("PRAGMA temp_store = MEMORY");
-            s.execute("PRAGMA mmap_size = 268435456");
-            s.execute("PRAGMA busy_timeout = 30000");
+
+        try (Statement stmt = conn.createStatement()) {
+            stmt.execute("PRAGMA journal_mode = MEMORY");
+            stmt.execute("PRAGMA synchronous = OFF");
+            stmt.execute("PRAGMA cache_size = 10000");
+            stmt.execute("PRAGMA temp_store = MEMORY");
+            stmt.execute("PRAGMA mmap_size = 268435456");
+            stmt.execute("PRAGMA busy_timeout = 30000");
         } catch (SQLException e) {
             conn.close();
             throw e;
@@ -86,13 +59,20 @@ public record SQLiteConnectionManager(String dbPath) {
         return conn;
     }
 
-
-    private void verifyDatabaseExists(String dbPath) throws FileNotFoundException {
-        if (!Files.exists(Paths.get(dbPath))) {
-            log.error("Database file not found: {}", dbPath);
-            throw new FileNotFoundException("Database file not found: " + dbPath);
+    /**
+     * Verifies that the database file exists.
+     */
+    private void verifyDatabaseExists() {
+        if (!Files.exists(Path.of(dbPath))) {
+            throw new RuntimeException("Database file not found: " + dbPath);
         }
     }
 
-
+    /**
+     * Functional interface for consuming a ResultSet.
+     */
+    @FunctionalInterface
+    public interface ResultSetConsumer {
+        void accept(ResultSet rs) throws Exception;
+    }
 }

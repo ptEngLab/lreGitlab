@@ -2,7 +2,8 @@ package com.lre.excel;
 
 import com.lre.common.constants.ConfigConstants;
 import lombok.extern.slf4j.Slf4j;
-
+import org.apache.poi.ss.usermodel.Workbook;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,7 +11,7 @@ import java.nio.file.Path;
 import static com.lre.common.constants.ConfigConstants.ARTIFACTS_DIR;
 
 @Slf4j
-public class ReportFileManager {
+public class ExcelReportFileManager {
 
     /**
      * Deletes the existing Excel file if it exists.
@@ -36,8 +37,17 @@ public class ReportFileManager {
      * Creates and returns the path for the Excel file.
      */
     public static Path getExcelFilePath(int runId) {
-        return Path.of(ConfigConstants.DEFAULT_OUTPUT_DIR, ARTIFACTS_DIR, "output", "results_" + runId + ".xlsx");
+        return Path.of(ConfigConstants.DEFAULT_OUTPUT_DIR, ARTIFACTS_DIR, "output", "HighLevelTestResults_" + runId + ".xlsx");
     }
 
-
+    /**
+     * Saves the given workbook to the specified path.
+     * Overwrites existing files.
+     */
+    public static void saveWorkbook(Workbook workbook, Path filePath) throws IOException {
+        try (FileOutputStream fos = new FileOutputStream(filePath.toFile())) {
+            workbook.write(fos);
+            log.info("Workbook saved to: {}", filePath);
+        }
+    }
 }

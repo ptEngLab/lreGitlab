@@ -4,6 +4,7 @@ import com.lre.client.api.lre.LreRestApis;
 import com.lre.client.runmodel.LreTestRunModel;
 import com.lre.common.exceptions.LreException;
 import com.lre.common.utils.JsonUtils;
+import com.lre.excel.ExcelDashboardWriter;
 import com.lre.model.run.LreRunStatus;
 import com.lre.model.run.LreRunStatusExtended;
 import com.lre.model.run.LreRunStatusReqWeb;
@@ -14,10 +15,12 @@ import com.lre.services.lre.LreTestManager;
 import com.lre.services.lre.LreTimeslotManager;
 import com.lre.services.lre.auth.LreAuthenticationManager;
 import com.lre.services.lre.poller.LreRunStatusPoller;
+import com.lre.services.lre.report.ExportToExcel;
 import com.lre.services.lre.report.LreReportPublisher;
-import com.lre.services.lre.report.ReportExtractor;
+import com.lre.services.lre.summary.ExcelDataMapper;
 import com.lre.services.lre.summary.LreTxnSummaryFetcher;
 import com.lre.services.lre.summary.RunSummaryData;
+import com.lre.services.lre.summary.ThresholdResult;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -98,12 +101,15 @@ public class LreRunClient implements AutoCloseable {
     }
 
     public void extractRunReportsFromDb() throws IOException {
-        ReportExtractor reportExtractor = new ReportExtractor(model.getAnalysedReportPath().toString(), model.getRunId());
-        reportExtractor.extractRunReports();
+        LreRunStatusExtended runStatus = fetchRunStatusExtended();
+        ThresholdResult thresholds = ThresholdResult.checkThresholds(model, runStatus);
+        List<ExcelDashboardWriter.Section> sections = ExcelDataMapper.createSections(model, runStatus, thresholds);
+        ExportToExcel exportToExcel = new ExportToExcel(model.getAnalysedReportPath().toString(), model.getRunId());
+        exportToExcel.export(sections);
     }
 
 
-    public void printRunSummary() {
+    public void printRunSummary() throws IOException {
         LreRunStatusExtended runStatus = fetchRunStatusExtended();
         List<LreTransactionMetrics> txns = new LreTxnSummaryFetcher(lreRestApis, model).fetchTransactionSummary();
         String[][] summaryRows = prepareRunSummary(runStatus, txns);

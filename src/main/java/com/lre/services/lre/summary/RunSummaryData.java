@@ -85,7 +85,7 @@ public record RunSummaryData(String htmlContent, String[][] textSummary) {
         return lgHtml.toString();
     }
 
-    private static String[][] generateTextSummary(LreTestRunModel model, LreRunStatusExtended runStatusExtended, ThresholdResult thresholds) {
+    public static String[][] generateTextSummary(LreTestRunModel model, LreRunStatusExtended runStatusExtended, ThresholdResult thresholds) {
         return new String[][]{
                 {
                         "Domain: " + model.getDomain(),
