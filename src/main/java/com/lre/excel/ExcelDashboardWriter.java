@@ -2,6 +2,7 @@ package com.lre.excel;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.ss.util.RegionUtil;
 
 import java.util.List;
 
@@ -82,7 +83,14 @@ public record ExcelDashboardWriter(Workbook workbook, ExcelStyleFactory styles, 
 
     private void createMergedHeader(Row row, int startCol, int endCol, String header) {
         Sheet sheet = row.getSheet();
-        sheet.addMergedRegion(new CellRangeAddress(row.getRowNum(), row.getRowNum(), startCol, endCol));
+
+        CellRangeAddress region = new CellRangeAddress(row.getRowNum(), row.getRowNum(), startCol, endCol);
+        sheet.addMergedRegion(region);
+        // Apply borders to merged region
+        RegionUtil.setBorderTop(BorderStyle.THIN, region, sheet);
+        RegionUtil.setBorderBottom(BorderStyle.THIN, region, sheet);
+        RegionUtil.setBorderLeft(BorderStyle.THIN, region, sheet);
+        RegionUtil.setBorderRight(BorderStyle.THIN, region, sheet);
 
         Cell cell = row.createCell(startCol);
         cell.setCellValue(header);
