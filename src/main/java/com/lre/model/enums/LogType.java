@@ -6,7 +6,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public enum LogType {
     IGNORE("ignore"),
     STANDARD("standard"),
-    EXTENDED("extended");
+    EXTENDED("extended"),
+    DISABLE("disable");
 
     private final String value;
 
