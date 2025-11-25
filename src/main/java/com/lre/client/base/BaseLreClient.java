@@ -22,8 +22,9 @@ public abstract class BaseLreClient implements AutoCloseable {
 
     private void login() {
         try {
+            log.info("[{}] Logging into LRE with Domain: {}, Project: {}", this.getClass().getSimpleName(), model.getDomain(), model.getProject());
             authManager.login();
-            log.debug("[{}] Logged in successfully", this.getClass().getSimpleName());
+            log.info("[{}] Logged in successfully", this.getClass().getSimpleName());
         } catch (Exception e) {
             log.error("[{}] Login failed: {}", this.getClass().getSimpleName(), e.getMessage(), e);
             throw e;
@@ -34,7 +35,7 @@ public abstract class BaseLreClient implements AutoCloseable {
     public void close() {
         try {
             authManager.close();
-            log.debug("[{}] Resources cleaned up", this.getClass().getSimpleName());
+            log.info("[{}] Logged out from LRE", this.getClass().getSimpleName());
         } catch (Exception e) {
             log.warn("[{}] Cleanup error: {}", this.getClass().getSimpleName(), e.getMessage());
         }
