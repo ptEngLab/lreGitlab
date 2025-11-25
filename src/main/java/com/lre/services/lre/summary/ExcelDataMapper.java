@@ -62,7 +62,7 @@ public class ExcelDataMapper {
                 safeString(runStatus.getController())
         );
 
-        List<String> runKeys2 = Arrays.asList("Transaction Passed", "Transaction Failed", "Errors", "TimeslotId");
+        List<String> runKeys2 = Arrays.asList("Transaction Passed", "Transaction Failed", "Errors", "Timeslot ID");
         List<Object> runValues2 = Arrays.asList(
                 runStatus.getTransPassed(),
                 thresholds.failedTxnStr(),
