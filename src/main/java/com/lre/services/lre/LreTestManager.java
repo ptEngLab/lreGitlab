@@ -57,10 +57,11 @@ public class LreTestManager {
 
     }
 
-    private void findTestById(int testId) {
+    public void findTestById(int testId) {
         log.info("Using existing test with ID: {}", testId);
         Test test = restApis.fetchTest(testId);
         if (test == null) throw new LreException(String.format(TEST_NOT_FOUND_BY_ID, testId));
+        model.setTestId(test.getId());
         model.setTestName(test.getName());
         model.setTestFolderPath(normalizePathWithSubject(test.getTestFolderPath()));
     }

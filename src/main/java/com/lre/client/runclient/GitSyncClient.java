@@ -1,12 +1,11 @@
 package com.lre.client.runclient;
 
 import com.lre.client.api.gitlab.GitLabRestApis;
-import com.lre.client.api.lre.LreRestApis;
-import com.lre.common.exceptions.LreException;
+import com.lre.client.base.BaseLreClient;
 import com.lre.client.runmodel.GitTestRunModel;
 import com.lre.client.runmodel.LreTestRunModel;
+import com.lre.common.exceptions.LreException;
 import com.lre.model.git.GitLabCommit;
-import com.lre.services.lre.auth.LreAuthenticationManager;
 import com.lre.services.git.*;
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,64 +17,68 @@ import static com.lre.common.constants.ConfigConstants.COMMIT_HISTORY_ARTIFACT_P
 import static com.lre.common.constants.ConfigConstants.DEFAULT_OUTPUT_DIR;
 
 @Slf4j
-public class GitSyncClient implements AutoCloseable {
+public class GitSyncClient extends BaseLreClient {
 
     private static final int DEFAULT_THREAD_POOL_SIZE = 5;
 
-    private final LreAuthenticationManager authManager;
     private final GitRepositoryScanner scanner;
     private final CommitHistoryManager historyManager;
     private final SyncAnalyzer analyzer;
     private final LreSyncService lreService;
 
     public GitSyncClient(GitTestRunModel gitModel, LreTestRunModel lreModel) {
-        LreRestApis lreApis = new LreRestApis(lreModel);
-        GitLabRestApis gitApis = new GitLabRestApis(gitModel);
+        super(lreModel);
 
-        this.authManager = new LreAuthenticationManager(lreApis, lreModel);
-        this.authManager.login();
+        GitLabRestApis gitApis = new GitLabRestApis(gitModel);
 
         this.scanner = new GitRepositoryScanner(gitApis, DEFAULT_THREAD_POOL_SIZE);
         this.historyManager = new CommitHistoryManager(gitApis, getHistoryPath());
         this.analyzer = new SyncAnalyzer();
-        this.lreService = new LreSyncService(gitApis, lreModel, lreApis);
+        this.lreService = new LreSyncService(gitApis, lreModel, lreRestApis);
+
+        trace("GitSyncClient initialized");
     }
 
     public boolean sync() throws LreException {
-        List<GitLabCommit> currentCommits = scanner.scanScripts();
-        List<GitLabCommit> previousCommits = historyManager.loadHistory();
+        trace("Starting Git–LRE sync");
 
-        if (previousCommits.isEmpty()) {
-            return performInitialSync(currentCommits);
-        } else {
-            return performIncrementalSync(previousCommits, currentCommits);
+        List<GitLabCommit> current = scanner.scanScripts();
+        List<GitLabCommit> previous = historyManager.loadHistory();
+
+        if (previous.isEmpty()) {
+            return performInitialSync(current);
         }
+
+        return performIncrementalSync(previous, current);
     }
 
     private boolean performInitialSync(List<GitLabCommit> currentCommits) throws LreException {
         log.info("Performing INITIAL sync with {} scripts", currentCommits.size());
         boolean success = lreService.uploadScripts(currentCommits);
+
         lreService.logCombinedSummary();
+
         if (success) historyManager.saveHistory(currentCommits);
         return success;
     }
 
-    private boolean performIncrementalSync(List<GitLabCommit> previousCommits, List<GitLabCommit> currentCommits) throws LreException {
+    private boolean performIncrementalSync(List<GitLabCommit> previous, List<GitLabCommit> current) throws LreException {
         log.info("Performing INCREMENTAL sync");
 
-        SyncResult diff = analyzer.analyze(previousCommits, currentCommits);
+        SyncResult diff = analyzer.analyze(previous, current);
 
         if (diff.logIfNoChanges()) return true;
 
         logSyncSummary(diff);
 
-        boolean uploadSuccess = diff.scriptsToUpload().isEmpty() || lreService.uploadScripts(diff.scriptsToUpload());
-        boolean deleteSuccess = diff.scriptsToDelete().isEmpty() || lreService.deleteScripts(diff.scriptsToDelete());
+        boolean uploaded = diff.scriptsToUpload().isEmpty() || lreService.uploadScripts(diff.scriptsToUpload());
+        boolean deleted  = diff.scriptsToDelete().isEmpty() || lreService.deleteScripts(diff.scriptsToDelete());
 
         lreService.logCombinedSummary();
 
-        boolean success = uploadSuccess && deleteSuccess;
-        if (success) historyManager.saveHistory(currentCommits);
+        boolean success = uploaded && deleted;
+
+        if (success) historyManager.saveHistory(current);
 
         return success;
     }
@@ -90,14 +93,5 @@ public class GitSyncClient implements AutoCloseable {
 
     private static Path getHistoryPath() {
         return Paths.get(DEFAULT_OUTPUT_DIR, COMMIT_HISTORY_ARTIFACT_PATH);
-    }
-
-    @Override
-    public void close() {
-        try {
-            authManager.close();
-        } catch (Exception e) {
-            log.warn("Error during GitSyncClient cleanup", e);
-        }
     }
 }

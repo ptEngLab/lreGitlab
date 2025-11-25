@@ -1,10 +1,9 @@
 package com.lre.client.runclient;
 
-import com.lre.client.api.lre.LreRestApis;
+import com.lre.client.base.BaseLreClient;
 import com.lre.client.runmodel.LreTestRunModel;
 import com.lre.common.exceptions.LreException;
 import com.lre.common.utils.JsonUtils;
-import com.lre.excel.ExcelDashboardWriter;
 import com.lre.model.run.LreRunStatus;
 import com.lre.model.run.LreRunStatusExtended;
 import com.lre.model.run.LreRunStatusReqWeb;
@@ -13,14 +12,9 @@ import com.lre.services.lre.LreTestExecutor;
 import com.lre.services.lre.LreTestInstanceManager;
 import com.lre.services.lre.LreTestManager;
 import com.lre.services.lre.LreTimeslotManager;
-import com.lre.services.lre.auth.LreAuthenticationManager;
 import com.lre.services.lre.poller.LreRunStatusPoller;
-import com.lre.services.lre.report.ExportToExcel;
-import com.lre.services.lre.report.LreReportPublisher;
-import com.lre.services.lre.summary.ExcelDataMapper;
 import com.lre.services.lre.summary.LreTxnSummaryFetcher;
 import com.lre.services.lre.summary.RunSummaryData;
-import com.lre.services.lre.summary.ThresholdResult;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -28,23 +22,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Optional;
 
-import static com.lre.common.constants.ConfigConstants.*;
+import static com.lre.common.constants.ConfigConstants.ARTIFACTS_DIR;
 import static com.lre.common.utils.CommonUtils.logTable;
 
 @Slf4j
-public class LreRunClient implements AutoCloseable {
-
-    private final LreTestRunModel model;
-    private final LreRestApis lreRestApis;
-    private final LreAuthenticationManager authManager;
+public class LreRunClient extends BaseLreClient {
 
     public LreRunClient(LreTestRunModel model) {
-        this.model = model;
-        this.lreRestApis = new LreRestApis(model);
-        this.authManager = new LreAuthenticationManager(lreRestApis, model);
-        this.authManager.login();
+        super(model);
     }
 
     public void startRun() {
@@ -55,11 +41,12 @@ public class LreRunClient implements AutoCloseable {
                 throw new LreException(getErrorMsg(finalStatus));
             }
             log.info("Run completed successfully for test: {}", model.getTestToRun());
+
         } catch (LreException le) {
-            log.debug("LRE execution failed: {}", le.getMessage());
+            log.error("LRE execution failed: {}", le.getMessage());
             throw le;
         } catch (Exception ex) {
-            log.error("Unexpected error during test run [{}]: {}", model.getTestToRun(), ex.getMessage());
+            log.error("Unexpected error during test run [{}]: {}", model.getTestToRun(), ex.getMessage(), ex);
             throw new LreException("Unexpected failure during test execution", ex);
         }
     }
@@ -67,7 +54,7 @@ public class LreRunClient implements AutoCloseable {
     private String getErrorMsg(LreRunStatus finalStatus) {
         String reason = model.getFailureReason() != null ? model.getFailureReason() : "Unknown failure";
         return String.format(
-                "Test failed for [%s]: %s (Last known state: %s, Errors: %d, FailedTxns: %d)",
+                "Test failed for [%s]: %s (Last state: %s, Errors: %d, FailedTxns: %d)",
                 model.getTestToRun(),
                 reason,
                 finalStatus.getRunState(),
@@ -76,40 +63,7 @@ public class LreRunClient implements AutoCloseable {
         );
     }
 
-
-    public void publishRunReport() {
-        if (!model.isHtmlReportAvailable()) {
-            log.warn("HTML report not available for run id: {} (Test: {})", model.getRunId(), model.getTestToRun());
-            return;
-        }
-        LreReportPublisher publisher = new LreReportPublisher(lreRestApis, model);
-        Optional<Path> reportPath = publisher.publish(HTML_REPORTS_TYPE);
-        if (reportPath.isPresent()) log.info("HTML Report extracted: {}", reportPath.get());
-        else log.warn("HTML Report extraction failed for run id: {}", model.getRunId());
-
-    }
-
-    public void publishAnalysedReports() {
-        if (!model.isAnalysedReportAvailable()) {
-            log.warn("Analysed report not available for run id: {} (Test: {})", model.getRunId(), model.getTestToRun());
-            return;
-        }
-        LreReportPublisher publisher = new LreReportPublisher(lreRestApis, model);
-        Optional<Path> reportPath = publisher.publish(ANALYSED_RESULTS_TYPE);
-        if (reportPath.isPresent()) log.info("Analysed Report extracted: {}", reportPath.get());
-        else log.warn("Analysed Report extraction failed for run id: {}", model.getRunId());
-    }
-
-    public void extractRunReportsFromDb() throws IOException {
-        LreRunStatusExtended runStatus = fetchRunStatusExtended();
-        ThresholdResult thresholds = ThresholdResult.checkThresholds(model, runStatus);
-        List<ExcelDashboardWriter.Section> sections = ExcelDataMapper.createSections(model, runStatus, thresholds);
-        ExportToExcel exportToExcel = new ExportToExcel(model.getAnalysedReportPath().toString(), model.getRunId());
-        exportToExcel.export(sections);
-    }
-
-
-    public void printRunSummary() throws IOException {
+    public void printRunSummary() {
         LreRunStatusExtended runStatus = fetchRunStatusExtended();
         List<LreTransactionMetrics> txns = new LreTxnSummaryFetcher(lreRestApis, model).fetchTransactionSummary();
         String[][] summaryRows = prepareRunSummary(runStatus, txns);
@@ -117,15 +71,17 @@ public class LreRunClient implements AutoCloseable {
     }
 
     private LreRunStatusExtended fetchRunStatusExtended() {
-        LreRunStatusReqWeb runStatusReq = LreRunStatusReqWeb.createRunStatusPayloadForRunId(model.getRunId());
-        return lreRestApis.fetchRunResultsExtended(JsonUtils.toJson(runStatusReq)).get(0);
+        LreRunStatusReqWeb req = LreRunStatusReqWeb.createRunStatusPayloadForRunId(model.getRunId());
+        List<LreRunStatusExtended> results = lreRestApis.fetchRunResultsExtended(JsonUtils.toJson(req));
+        if (results.isEmpty()) throw new LreException("No run status found for Run ID " + model.getRunId());
+        return results.get(0);
     }
 
     private String[][] prepareRunSummary(LreRunStatusExtended runStatusExtended, List<LreTransactionMetrics> txns) {
         RunSummaryData summary = RunSummaryData.createFrom(model, runStatusExtended, txns);
         String htmlReport = summary.htmlContent();
-        Path reportDir = Paths.get(model.getWorkspace(), ARTIFACTS_DIR, "LreReports/email.html");
-        saveHtmlReport(htmlReport, reportDir.toString());
+        Path reportPath = Paths.get(model.getWorkspace(), ARTIFACTS_DIR, "LreReports", "email.html");
+        saveHtmlReport(htmlReport, reportPath);
         return summary.textSummary();
     }
 
@@ -138,67 +94,36 @@ public class LreRunClient implements AutoCloseable {
     }
 
     private void fetchTestDetails() {
-        LreTestManager testManager = new LreTestManager(model, lreRestApis);
-        testManager.fetchTestDetails();
-        log.debug("Fetched test details, testId: {}", model.getTestId());
+        new LreTestManager(model, lreRestApis).fetchTestDetails();
     }
 
     private void resolveTestInstance() {
-        LreTestInstanceManager instanceManager = new LreTestInstanceManager(lreRestApis, model);
-        instanceManager.resolveTestInstance();
-        log.debug("Resolved test instance, testInstanceId: {}", model.getTestInstanceId());
+        new LreTestInstanceManager(lreRestApis, model).resolveTestInstance();
     }
 
     private LreTimeslotManager checkTimeslotAvailability() {
         LreTimeslotManager timeslotManager = new LreTimeslotManager(lreRestApis, model);
         timeslotManager.checkTimeslotAvailableForTestId();
-        log.debug("Timeslot availability confirmed");
         return timeslotManager;
     }
 
     private void initiateTestRun(LreTimeslotManager timeslotManager) {
-        LreTestExecutor testExecutor = new LreTestExecutor(lreRestApis, model, timeslotManager);
-        testExecutor.executeTestRun();
-        log.info("Run started successfully. Run ID: {}, Dashboard URL: {}", model.getRunId(), model.getDashboardUrl());
+        new LreTestExecutor(lreRestApis, model, timeslotManager).executeTestRun();
+        log.info("Run started. Run ID: {}, Dashboard: {}", model.getRunId(), model.getDashboardUrl());
     }
 
     private LreRunStatus monitorRunCompletion(LreTimeslotManager timeslotManager) {
-        int timeslotDuration = timeslotManager.getTotalMinutes();
-        log.debug("Starting run monitoring with timeslot duration: {} minutes", timeslotDuration);
-
-        LreRunStatusPoller runStatusPoller = new LreRunStatusPoller(lreRestApis, model, timeslotDuration);
-        LreRunStatus runStatus = runStatusPoller.pollUntilDone();
-
-        log.debug("Run monitoring completed. {}", runStatus.getRunState());
-        return runStatus;
-
+        int duration = timeslotManager.getTotalMinutes();
+        LreRunStatusPoller poller = new LreRunStatusPoller(lreRestApis, model, duration);
+        return poller.pollUntilDone();
     }
 
-    private void saveHtmlReport(String htmlContent, String filePath) {
+    private void saveHtmlReport(String htmlContent, Path filePath) {
         try {
-            Path path = Paths.get(filePath);
-
-            // Create parent directories if they don't exist
-            if (path.getParent() != null) {
-                Files.createDirectories(path.getParent());
-            }
-
-            Files.writeString(path, htmlContent);
-
+            Files.createDirectories(filePath.getParent());
+            Files.writeString(filePath, htmlContent);
         } catch (IOException e) {
-            log.error("Failed to save HTML report to: {}", filePath, e); // More specific logging
-            throw new RuntimeException("Failed to save HTML report to: " + filePath, e);
+            throw new LreException("Failed to save HTML report: " + filePath, e);
         }
     }
-
-    @Override
-    public void close() {
-        try {
-            authManager.close();
-            log.debug("LreRunClient resources cleaned up");
-        } catch (Exception e) {
-            log.warn("Error during LreRunClient cleanup", e);
-        }
-    }
-
 }

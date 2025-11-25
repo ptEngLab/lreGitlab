@@ -66,7 +66,7 @@ public class ConfigConstants {
     public static final long DEFAULT_POLL_INTERVAL_SECONDS = 0;
 
 
-    public static final String LRE_RUN_ID_FILE = "lre_run_id.txt";
+    public static final String LRE_RUN_ID_FILE = "lre_run_id.env";
 
     public static final String basicByTest = "basic by test";
     public static final String basicByGroup = "basic by group";
@@ -109,10 +109,5 @@ public class ConfigConstants {
     public static final String GIT_COMMIT_HISTORY_FILE = "Gitlab_Commit_History.json";
 
     public static final String COMMIT_HISTORY_ARTIFACT_PATH = ARTIFACTS_DIR + "/" + GIT_REPO_EXTRACT_PATH + "/" + GIT_COMMIT_HISTORY_FILE;
-
-
-    public static final int QUERY_TIMEOUT_SECONDS = 3600; // 1 hour for large queries
-    public static final int QUERY_BATCH_SIZE = 10000;
-
 
 }

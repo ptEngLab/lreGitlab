@@ -3,6 +3,7 @@ package com.lre.app;
 import com.lre.client.runclient.EmailClient;
 import com.lre.client.runclient.GitSyncClient;
 import com.lre.client.runclient.LreRunClient;
+import com.lre.client.runclient.ResultsExtractionClient;
 import com.lre.client.runmodel.EmailConfigModel;
 import com.lre.client.runmodel.GitTestRunModel;
 import com.lre.client.runmodel.LreTestRunModel;
@@ -17,8 +18,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static com.lre.common.utils.CommonUtils.removeRunIdFile;
 
 @Slf4j
 public class Main {
@@ -115,14 +114,10 @@ public class Main {
         };
     }
 
-    private static boolean runLreTest(LreTestRunModel lreTestRunModel) throws LreException, IOException {
+    private static boolean runLreTest(LreTestRunModel lreTestRunModel) throws LreException {
         try (LreRunClient lreRunClient = new LreRunClient(lreTestRunModel)) {
             lreRunClient.startRun();
-            lreRunClient.publishRunReport();
-            lreRunClient.publishAnalysedReports();
-            lreRunClient.extractRunReportsFromDb();
             lreRunClient.printRunSummary();
-            removeRunIdFile();
             return true;
         }
     }
@@ -147,17 +142,17 @@ public class Main {
     private static boolean extractResults(LreTestRunModel lreTestRunModel) {
         log.info("Starting the extraction of results...");
 
-        try (LreRunClient lreRunClient = new LreRunClient(lreTestRunModel)) {
-            lreTestRunModel.setRunId(12);
-            lreTestRunModel.setAnalysedReportAvailable(true);
-            lreRunClient.publishAnalysedReports();
-            lreRunClient.extractRunReportsFromDb();
-            lreRunClient.printRunSummary();
+        try (ResultsExtractionClient extractClient = new ResultsExtractionClient(lreTestRunModel)) {
+            extractClient.fetchRunDetails();
+            extractClient.publishHtmlReportIfFinished();
+            extractClient.publishAnalysedReportIfFinished();
+            extractClient.extractRunReportsToExcel();
             return true;
-        } catch (LreException | IOException e) {
-            log.error("Error during extraction: {}", e.getMessage(), e);
+        } catch (Exception e) {
+            log.error("Error during results extraction for Run ID {}: {}", lreTestRunModel.getRunId(), e.getMessage(), e);
             return false;
         }
+
     }
 
     private static void printHelp() {

@@ -5,9 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.LocalDate;
@@ -58,17 +58,48 @@ public class CommonUtils {
     }
 
     public static void writeRunIdToFile(int runId) {
-        try (FileWriter writer = new FileWriter(LRE_RUN_ID_FILE)) {
-            writer.write(String.valueOf(runId));
-            log.debug("RunId {} has been updated for cleanup", runId);
+        // <cwd>/artifacts/reports/lre_run_id.env
+        Path reportDir = Paths.get(DEFAULT_OUTPUT_DIR, ARTIFACTS_DIR, "reports");
+        Path filePath = reportDir.resolve(LRE_RUN_ID_FILE);
+
+        try {
+            // Ensure directory exists
+            Files.createDirectories(reportDir);
+
+            // Write atomically
+            Path tempFile = filePath.resolveSibling(LRE_RUN_ID_FILE + ".tmp");
+
+            String content = "LRE_RUN_ID=" + runId + System.lineSeparator();
+
+            Files.writeString(
+                    tempFile,
+                    content,
+                    StandardCharsets.UTF_8,
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.TRUNCATE_EXISTING
+            );
+
+            Files.move(
+                    tempFile,
+                    filePath,
+                    StandardCopyOption.REPLACE_EXISTING,
+                    StandardCopyOption.ATOMIC_MOVE
+            );
+
+            log.info("Run ID {} written to {}", runId, filePath.toAbsolutePath());
+
         } catch (IOException e) {
-            log.error("Failed to write run id: {}", e.getMessage());
+            log.error("Failed to write run ID: {}", e.getMessage(), e);
         }
     }
+
+
+
 
     public static String logTable(String[][] data) {
         return logTable(null, data);
     }
+
     public static String logTable(String[] header, String[][] dataRows) {
         if ((header == null || header.length == 0) && (dataRows == null || dataRows.length == 0)) {
             return "";
@@ -141,9 +172,9 @@ public class CommonUtils {
         return normalized;
     }
 
-public static String replaceBackSlash(String input) {
+    public static String replaceBackSlash(String input) {
         return input.replace("\\", "/");
-}
+    }
 
     public static <T extends Number> T parsePositive(
             String value,

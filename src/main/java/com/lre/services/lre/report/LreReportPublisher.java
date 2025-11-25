@@ -34,6 +34,7 @@ public record LreReportPublisher(LreRestApis lreRestApis, LreTestRunModel model)
 
         // Fetch the relevant run result based on the report type
         Optional<LreRunResult> reportResult = findRunResults(runId, reportType);
+
         if (reportResult.isEmpty()) {
             log.warn("No {} report archive found for Run ID: {}", reportType, runId);
             return Optional.empty();
@@ -97,9 +98,15 @@ public record LreReportPublisher(LreRestApis lreRestApis, LreTestRunModel model)
         Path archivePath = reportDir.resolve(reportArchiveName);
         Path extractedDir = reportDir.resolve(reportType.toLowerCase().replace(" ", "_") + "_extracted");
 
+        log.info("Downloading result file for type: {} ", reportType);
+
         if (!downloadReportArchive(runId, result.getId(), archivePath)) {
+            log.error("Error in downloading result file");
             return Optional.empty();
         }
+
+        log.info("Result file has been downloaded successfully to: {}", extractedDir.toAbsolutePath());
+
 
         cleanOldReportDir(extractedDir);
         extractReport(archivePath, extractedDir);
@@ -113,9 +120,7 @@ public record LreReportPublisher(LreRestApis lreRestApis, LreTestRunModel model)
      */
     private boolean downloadReportArchive(int runId, int resultId, Path destination) {
         boolean success = lreRestApis.getRunResultData(runId, resultId, destination.toString());
-        if (!success) {
-            log.error("Failed to download report archive for Run ID: {}", runId);
-        }
+        if (!success) log.error("Failed to download report archive for Run ID: {}", runId);
         return success;
     }
 
