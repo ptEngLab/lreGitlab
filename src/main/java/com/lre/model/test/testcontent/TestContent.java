@@ -85,4 +85,6 @@ public class TestContent {
     @JacksonXmlProperty(localName = "AutomaticTrending", namespace = LRE_API_XMLNS)
     private AutomaticTrending automaticTrending;
 
+    @JsonProperty("HostAttributes")
+    private List<String> hostAttributes;
 }

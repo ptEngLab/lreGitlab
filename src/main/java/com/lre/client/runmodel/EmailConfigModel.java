@@ -20,7 +20,6 @@ public class EmailConfigModel {
     private String bcc;
     private String subject;
     private String body;
-    private boolean html;
     private String attachmentPath; // single attachment (backward compatibility)
     private List<String> attachmentPaths; // multiple attachments
     private String replyTo;

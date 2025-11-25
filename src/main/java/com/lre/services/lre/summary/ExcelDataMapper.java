@@ -21,7 +21,7 @@ public class ExcelDataMapper {
             LreTestRunModel model, LreRunStatusExtended runStatus, ThresholdResult thresholds) {
 
         ExcelDashboardWriter.Section testMetadataSection = createTestMetadataSection(model, runStatus, thresholds);
-        ExcelDashboardWriter.Section runDetailsSection = createRunDetailsSection(model, runStatus);
+        ExcelDashboardWriter.Section runDetailsSection = createRunDetailsSection(model, runStatus, thresholds);
         ExcelDashboardWriter.Section performanceSection = createPerformanceSection(runStatus);
 
         return Arrays.asList(testMetadataSection, runDetailsSection, performanceSection);
@@ -35,7 +35,7 @@ public class ExcelDataMapper {
                 safeString(model.getDomain()),
                 safeString(model.getProject()),
                 safeString(model.getTestName()),
-                model.getTestId()
+                runStatus.getTestId()
         );
 
         List<String> metaKeys2 = Arrays.asList("Start Time", "End Time", "Test Duration", "Run Status");
@@ -52,7 +52,7 @@ public class ExcelDataMapper {
     }
 
     private static ExcelDashboardWriter.Section createRunDetailsSection(
-            LreTestRunModel model, LreRunStatusExtended runStatus) {
+            LreTestRunModel model, LreRunStatusExtended runStatus, ThresholdResult thresholds) {
 
         List<String> runKeys1 = Arrays.asList("Test Folder", "Test Instance Id", "Run Name", "Controller used");
         List<Object> runValues1 = Arrays.asList(
@@ -65,9 +65,9 @@ public class ExcelDataMapper {
         List<String> runKeys2 = Arrays.asList("Transaction Passed", "Transaction Failed", "Errors", "TimeslotId");
         List<Object> runValues2 = Arrays.asList(
                 runStatus.getTransPassed(),
-                runStatus.getTransFailed(),
-                runStatus.getErrors(),
-                model.getTimeslotId()
+                thresholds.failedTxnStr(),
+                thresholds.errorStr(),
+                runStatus.getReservationId()
         );
 
         return new ExcelDashboardWriter.Section(
