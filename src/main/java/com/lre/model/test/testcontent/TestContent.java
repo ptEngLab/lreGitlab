@@ -10,6 +10,7 @@ import com.lre.model.test.testcontent.automatictrending.AutomaticTrending;
 import com.lre.model.test.testcontent.groups.Group;
 import com.lre.model.test.testcontent.groups.commandline.CommandLine;
 import com.lre.model.test.testcontent.groups.rts.RTS;
+import com.lre.model.test.testcontent.hostattributes.HostAttribute;
 import com.lre.model.test.testcontent.lgdistribution.LGDistribution;
 import com.lre.model.test.testcontent.monitorofw.MonitorOFW;
 import com.lre.model.test.testcontent.monitorprofile.MonitorProfile;
@@ -86,5 +87,5 @@ public class TestContent {
     private AutomaticTrending automaticTrending;
 
     @JsonProperty("HostAttributes")
-    private List<String> hostAttributes;
+    private List<HostAttribute> hostAttributes;
 }
