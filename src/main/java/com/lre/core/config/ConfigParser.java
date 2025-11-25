@@ -26,18 +26,17 @@ public record ConfigParser(ParameterResolver resolver, Operation operation) {
         // -------------------------
         // Evaluate conditional flags (after first pass)
         // -------------------------
-        boolean syncGitlab = Boolean.TRUE.equals(params.get(ParameterDefinitions.Keys.SYNC_GITLAB_WITH_LRE_FLAG));
-        boolean sendEmail = Boolean.TRUE.equals(params.get(ParameterDefinitions.Keys.SEND_EMAIL_FLAG));
 
-        if(operation == Operation.SYNC_GITLAB_WITH_LRE) syncGitlab = true;
-        if(operation == Operation.SEND_EMAIL) sendEmail = true;
+        boolean syncGitlab = operation == Operation.SYNC_GITLAB_WITH_LRE;
+        boolean sendEmail = operation == Operation.SEND_EMAIL;
+        boolean requiresRunId = operation == Operation.EXTRACT_RESULTS;
 
         // -------------------------
         // Second pass: conditional parameters
         // -------------------------
         for (ParameterDefinitions.ConfigParameter<?> def : definitions) {
             if (def.conditional()) {
-                boolean required = isRequired(def, sendEmail, syncGitlab);
+                boolean required = isRequired(def, sendEmail, syncGitlab, requiresRunId);
 
                 parseAndPut(params, def, required);
             }
@@ -47,14 +46,18 @@ public record ConfigParser(ParameterResolver resolver, Operation operation) {
         return params;
     }
 
-    private static boolean isRequired(ParameterDefinitions.ConfigParameter<?> def, boolean sendEmail, boolean syncGitlab) {
-        if (def.key().equals(ParameterDefinitions.Keys.EMAIL_TO)) {
-            return sendEmail;
-        }
-        if (def.key().equals(ParameterDefinitions.Keys.GITLAB_TOKEN)) {
-            return syncGitlab;
-        }
-        return def.required();
+    private static boolean isRequired(ParameterDefinitions.ConfigParameter<?> def,
+                                      boolean sendEmail,
+                                      boolean syncGitlab,
+                                      boolean requiresRunId) {
+
+        return switch (def.key()) {
+            case ParameterDefinitions.Keys.EMAIL_TO -> sendEmail;               // Email logic
+            case ParameterDefinitions.Keys.GITLAB_TOKEN,
+                 ParameterDefinitions.Keys.GITLAB_PROJECT_ID -> syncGitlab;     // GitLab logic
+            case ParameterDefinitions.Keys.LRE_RUN_ID -> requiresRunId;         // Run ID required for EXTRACT_RESULTS
+            default -> def.required();                                          // Everything else follows definition
+        };
     }
 
 

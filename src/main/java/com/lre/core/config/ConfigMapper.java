@@ -43,7 +43,7 @@ public class ConfigMapper {
                 .testContentToCreate(null)
                 .testFolderPath(null)
                 .testId(0)
-                .runId(0)
+                .runId((int) params.get(ParameterDefinitions.Keys.LRE_RUN_ID))
                 .lreInternalRunId(0)
                 .dashboardUrl(null)
                 .timeslotId(0)
