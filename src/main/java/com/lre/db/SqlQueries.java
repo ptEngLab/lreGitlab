@@ -73,7 +73,7 @@ public class SqlQueries {
             """;
 
 
-    public static final String TRANSACTIONS_BY_CUSTOMER_AND_DATE_SQL = """
+    public static final String TXN_SUMMARY_STEADY_STATE_SQL = """
             WITH GenreSpend AS (
                 SELECT g.Name AS GenreName, c.CustomerId, c.FirstName, c.LastName,
                        SUM(ii.Quantity * ii.UnitPrice) AS TotalSpent,

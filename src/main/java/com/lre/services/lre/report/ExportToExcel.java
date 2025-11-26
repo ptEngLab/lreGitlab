@@ -51,8 +51,8 @@ public class ExportToExcel {
                 rs -> engine.getSheetWriter().writeResultSetSheet(
                         TRANSACTION_SUMMARY_SHEET_NAME, rs, TXN_SUMMARY_MERGE_COLUMN_NAME));
 
-        resultsManager.executeQuery(TRANSACTIONS_BY_CUSTOMER_AND_DATE_SQL,
-                List.of("Alternative", "2013-03-05 00:00:00", "2013-03-05 00:00:00"),
+        resultsManager.executeQuery(TXN_SUMMARY_STEADY_STATE_SQL,
+                List.of("2013-03-05 00:00:00", "2013-03-05 00:00:00"),
                 rs -> engine.getSheetWriter().writeResultSetSheet(
                         STEADY_STATE_TRANSACTION_SUMMARY_SHEET_NAME, rs, TXN_SUMMARY_MERGE_COLUMN_NAME));
 
