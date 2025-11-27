@@ -8,6 +8,7 @@ import com.lre.model.transactions.LreTxnStats;
 import com.lre.services.lre.report.TransactionStatsFetcher;
 
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +27,7 @@ public record RunSummaryData(String htmlContent, String[][] textSummary) {
         Path dbPath = model.getAnalysedReportPath().resolve(String.format(RESULTS_DB_FORMAT, model.getRunId()));
 
         List<LreTxnStats> txnStatsAll = TransactionStatsFetcher.fetch(dbPath);
-        List<LreTxnStats> txnStatsTop5 = TransactionStatsFetcher.fetch(dbPath, SqlQueries.TOP_5_TXNS_SQL, null);
+        List<LreTxnStats> txnStatsTop5 = TransactionStatsFetcher.fetch(dbPath, SqlQueries.TXN_SUMMARY_SQL, null);
         String txnHtml = generateTxnHtmlWithThreshold(txnStatsAll, txnStatsTop5);
         runData.put("TransactionTable", txnHtml);
 
@@ -218,7 +219,6 @@ public record RunSummaryData(String htmlContent, String[][] textSummary) {
         StringBuilder html = new StringBuilder();
 
         html.append("""
-                     <h3 style='color:#2c3e50;'>Transaction Performance Summary</h3>
                      <table width='100%' cellpadding='8' cellspacing='0'
                          style='border-collapse: collapse; font-size: 12px; background: #ffffff;'>
                      <thead>
@@ -260,11 +260,40 @@ public record RunSummaryData(String htmlContent, String[][] textSummary) {
     }
 
     private static String generateTxnHtmlWithThreshold(List<LreTxnStats> stats, List<LreTxnStats> statsTop5) {
-        if (stats.size() <= 20) {
-            return generateTxnStatsHtml(stats);
+
+        if (stats == null) stats = Collections.emptyList();
+        if (statsTop5 == null) statsTop5 = Collections.emptyList();
+
+        boolean usingTop5 = stats.size() > 5;
+
+        String html = usingTop5
+                ? generateTxnStatsHtml(statsTop5)
+                : generateTxnStatsHtml(stats);
+
+        String headerHtml;
+
+        if (usingTop5) {
+            headerHtml = """
+                    <h3 style='color:#2c3e50; margin-bottom:12px;'>TOP 5 Slowest Transactions</h3>
+                    <table width='100%%' cellpadding='8' cellspacing='0' border='0'
+                           style='background-color:#fff3cd; border-left:4px solid #ffeeba;
+                                  margin-bottom:15px; font-size:12px; color:#856404;'>
+                        <tr>
+                            <td>
+                                Only the top 5 slowest transactions are displayed.
+                                Total transactions: <b>%d</b>.
+                                Refer to the attached report for detailed transaction analysis.
+                            </td>
+                        </tr>
+                    </table>
+                    """.formatted(stats.size());
         } else {
-            return generateTxnStatsHtml(statsTop5);
+            headerHtml = """
+                    <h3 style='color:#2c3e50; margin-bottom:12px;'>Transaction Summary</h3>
+                    """;
         }
+
+        return headerHtml + html;
     }
 
 
