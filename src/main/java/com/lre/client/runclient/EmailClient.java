@@ -15,6 +15,7 @@ import java.nio.file.Paths;
 import java.util.Properties;
 
 import static com.lre.common.constants.ConfigConstants.ARTIFACTS_DIR;
+import static com.lre.common.constants.ConfigConstants.EMAILABLE_HTML;
 
 @Slf4j
 public record EmailClient(EmailConfigModel emailConfig) implements AutoCloseable {
@@ -145,7 +146,7 @@ public record EmailClient(EmailConfigModel emailConfig) implements AutoCloseable
 
         String body = "";
         try {
-            Path reportDir = Paths.get(ConfigConstants.DEFAULT_OUTPUT_DIR, ARTIFACTS_DIR, "LreReports/email.html");
+            Path reportDir = Paths.get(ConfigConstants.DEFAULT_OUTPUT_DIR, ARTIFACTS_DIR, EMAILABLE_HTML);
             body = Files.readString(reportDir, StandardCharsets.UTF_8);
         } catch (IOException e) {
             log.error("Failed to read email body from file", e);

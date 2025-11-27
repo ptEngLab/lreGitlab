@@ -8,24 +8,30 @@ import java.sql.*;
 import java.util.List;
 
 @Slf4j
-public record SQLiteConnectionManager(String dbPath) {
+public record SQLiteConnectionManager(Path dbPath) {
+
+    private static final List<String> PRAGMA_LIST = List.of(
+            "PRAGMA journal_mode = MEMORY",
+            "PRAGMA synchronous = OFF",
+            "PRAGMA cache_size = 10000",
+            "PRAGMA temp_store = MEMORY",
+            "PRAGMA mmap_size = 268435456",
+            "PRAGMA busy_timeout = 30000"
+    );
+
+    public SQLiteConnectionManager(Path dbPath) {
+        this.dbPath = dbPath;
+        verifyDatabaseExists();
+    }
 
     /**
-     * Executes a SQL query with optional parameters and passes the ResultSet to the consumer.
-     * Resources (Connection, Statement, ResultSet) are automatically closed after the consumer completes.
+     * Executes a SELECT query with optional parameters and passes the ResultSet to the consumer.
      */
     public void executeQuery(String sql, List<Object> parameters, ResultSetConsumer consumer) {
-        verifyDatabaseExists();
-
-        try (Connection conn = createOptimizedConnection();
+        try (Connection conn = createNewConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            // Bind parameters if any
-            if (parameters != null) {
-                for (int i = 0; i < parameters.size(); i++) {
-                    stmt.setObject(i + 1, parameters.get(i));
-                }
-            }
+            bindParameters(stmt, parameters);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 consumer.accept(rs);
@@ -33,46 +39,53 @@ public record SQLiteConnectionManager(String dbPath) {
 
         } catch (Exception e) {
             log.error("Query execution failed: {}", sql, e);
-            throw new RuntimeException("SQLite query execution failed", e);
+            throw new SQLiteQueryException("Failed to execute query", e);
         }
     }
 
     /**
-     * Creates a SQLite connection with performance optimizations.
+     * Creates a new SQLite connection with performance optimizations.
      */
-    private Connection createOptimizedConnection() throws SQLException {
-        Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
+    private Connection createNewConnection() throws SQLException {
+        String url = "jdbc:sqlite:" + dbPath.toUri();
+        Connection conn = DriverManager.getConnection(url);
 
         try (Statement stmt = conn.createStatement()) {
-            stmt.execute("PRAGMA journal_mode = MEMORY");
-            stmt.execute("PRAGMA synchronous = OFF");
-            stmt.execute("PRAGMA cache_size = 10000");
-            stmt.execute("PRAGMA temp_store = MEMORY");
-            stmt.execute("PRAGMA mmap_size = 268435456");
-            stmt.execute("PRAGMA busy_timeout = 30000");
-        } catch (SQLException e) {
-            conn.close();
-            throw e;
+            for (String pragma : PRAGMA_LIST) {
+                stmt.execute(pragma);
+            }
         }
 
         conn.setAutoCommit(true);
         return conn;
     }
 
-    /**
-     * Verifies that the database file exists.
-     */
-    private void verifyDatabaseExists() {
-        if (!Files.exists(Path.of(dbPath))) {
-            throw new RuntimeException("Database file not found: " + dbPath);
+    private void bindParameters(PreparedStatement stmt, List<Object> parameters) throws SQLException {
+        if (parameters != null && !parameters.isEmpty()) {
+            for (int i = 0; i < parameters.size(); i++) {
+                stmt.setObject(i + 1, parameters.get(i));
+            }
         }
     }
 
-    /**
-     * Functional interface for consuming a ResultSet.
-     */
+    private void verifyDatabaseExists() {
+        if (!Files.exists(dbPath)) {
+            throw new SQLiteQueryException("Database file not found: " + dbPath.toAbsolutePath());
+        }
+    }
+
     @FunctionalInterface
     public interface ResultSetConsumer {
         void accept(ResultSet rs) throws Exception;
+    }
+
+    public static class SQLiteQueryException extends RuntimeException {
+        public SQLiteQueryException(String message) {
+            super(message);
+        }
+
+        public SQLiteQueryException(String message, Throwable cause) {
+            super(message, cause);
+        }
     }
 }

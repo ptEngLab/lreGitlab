@@ -4,7 +4,7 @@ import com.lre.client.api.lre.LreRestApis;
 import com.lre.client.runmodel.LreTestRunModel;
 import com.lre.common.utils.JsonUtils;
 import com.lre.model.run.LreOpenRunDashboardResponse;
-import com.lre.model.transactions.LreTransactionMetrics;
+import com.lre.model.transactions.LreTransactionMetricsFromWeb;
 import com.lre.model.transactions.LreTransactionMetricsRequest;
 import com.lre.model.transactions.LreTransactionMetricsResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +22,7 @@ public record LreTxnSummaryFetcher(LreRestApis lreRestApis, LreTestRunModel mode
      * Fetches all transaction metrics for the given run, handling pagination and returns the list of transactions.
      */
 
-    public List<LreTransactionMetrics> fetchTransactionSummary() {
+    public List<LreTransactionMetricsFromWeb> fetchTransactionSummary() {
         try {
             log.debug("Fetching transaction summary for LRE run ID: {}", model.getRunId());
             Integer pcRunId = fetchPcRunId();
@@ -52,8 +52,8 @@ public record LreTxnSummaryFetcher(LreRestApis lreRestApis, LreTestRunModel mode
         }
     }
 
-    private List<LreTransactionMetrics> fetchAllTransactions(int pcRunId) {
-        List<LreTransactionMetrics> allTransactions = new ArrayList<>();
+    private List<LreTransactionMetricsFromWeb> fetchAllTransactions(int pcRunId) {
+        List<LreTransactionMetricsFromWeb> allTransactions = new ArrayList<>();
         int offset = 0;
         Integer totalAvailable;
 
@@ -62,7 +62,7 @@ public record LreTxnSummaryFetcher(LreRestApis lreRestApis, LreTestRunModel mode
                 LreTransactionMetricsResponse response = fetchTransactionPage(pcRunId, offset);
                 var perfData = response.getData();
 
-                List<LreTransactionMetrics> page = perfData.getTransactions();
+                List<LreTransactionMetricsFromWeb> page = perfData.getTransactions();
                 totalAvailable = perfData.getTotalTransactions();
 
                 if (page == null || page.isEmpty()) {

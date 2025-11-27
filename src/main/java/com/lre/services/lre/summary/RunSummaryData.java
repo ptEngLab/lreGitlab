@@ -2,26 +2,37 @@ package com.lre.services.lre.summary;
 
 import com.lre.client.runmodel.LreTestRunModel;
 import com.lre.model.run.LreRunStatusExtended;
-import com.lre.model.transactions.LreTransactionMetrics;
+import com.lre.model.transactions.LreTransactionMetricsFromWeb;
+import com.lre.model.transactions.LreTxnStats;
+import com.lre.services.lre.report.TransactionStatsFetcher;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.lre.common.constants.ConfigConstants.DASHBOARD_URL;
+import static com.lre.common.constants.ConfigConstants.RESULTS_DB_FORMAT;
+import static com.lre.common.utils.CommonUtils.calculateTestDuration;
+import static com.lre.common.utils.CommonUtils.formatDateTime;
+
 public record RunSummaryData(String htmlContent, String[][] textSummary) {
 
-    public static RunSummaryData createFrom(LreTestRunModel model, LreRunStatusExtended runStatusExtended,
-                                            List<LreTransactionMetrics> txns) {
+    public static RunSummaryData createFrom(LreTestRunModel model, LreRunStatusExtended runStatusExtended) {
         ThresholdResult thresholds = ThresholdResult.checkThresholds(model, runStatusExtended);
         Map<String, String> runData = prepareRunResultsData(model, runStatusExtended, thresholds);
-        String transactionHtml = txns.isEmpty() ? "" : generateTransactionHtml(txns);
-        runData.put("TransactionTable", transactionHtml);
-//        String htmlContent = HtmlTemplateEngine.generateHtmlReport(runData);
+
+        Path dbPath =  model.getAnalysedReportPath().resolve(String.format(RESULTS_DB_FORMAT, model.getRunId() ));
+
+        List<LreTxnStats> txnStats = TransactionStatsFetcher.fetch(dbPath);
+        String txnHtml = generateTxnStatsHtml(txnStats);
+
+        runData.put("TransactionTable", txnHtml);
+
+        String htmlContent = HtmlTemplateEngine.generateHtmlReport(runData);
         String[][] textSummary = generateTextSummary(model, runStatusExtended, thresholds);
 
-        return new RunSummaryData("htmlContent", textSummary);
+        return new RunSummaryData(htmlContent, textSummary);
     }
 
     private static Map<String, String> prepareRunResultsData(LreTestRunModel model, LreRunStatusExtended runStatusExtended, ThresholdResult thresholds) {
@@ -42,11 +53,12 @@ public record RunSummaryData(String htmlContent, String[][] textSummary) {
         runData.put("TestFolder", model.getTestFolderPath());
         runData.put("TestInstanceID", String.valueOf(model.getTestInstanceId()));
         runData.put("Controller", runStatusExtended.getController());
-        runData.put("StartTime", runStatusExtended.getStart().toString());
-        runData.put("EndTime", runStatusExtended.getEnd().toString());
+        runData.put("StartTime", formatDateTime(runStatusExtended.getStart()));
+        runData.put("EndTime", formatDateTime(runStatusExtended.getEnd()));
         runData.put("TestDuration", calculateTestDuration(runStatusExtended.getStart(), runStatusExtended.getEnd()));
         runData.put("Errors", String.valueOf(runStatusExtended.getErrors()));
-        runData.put("ReportLink", model.getDashboardUrl());
+        String dashboardUrl = String.format(DASHBOARD_URL, model.getLreServerUrl(), model.getRunId());
+        runData.put("ReportLink", dashboardUrl);
         runData.put("LGsUsed", generateLgHtml(runStatusExtended.getLgs()));
 
         runData.put("RunStatus", runStatusExtended.getState());
@@ -100,8 +112,8 @@ public record RunSummaryData(String htmlContent, String[][] textSummary) {
                         "Run Status: " + runStatusExtended.getState() + ", Result: " + thresholds.runResult()
                 },
                 {
-                        "Start Time: " + runStatusExtended.getStart(),
-                        "End Time: " + runStatusExtended.getEnd(),
+                        "Start Time: " + formatDateTime(runStatusExtended.getStart()),
+                        "End Time: " + formatDateTime(runStatusExtended.getEnd()),
                         "Test Duration: " + calculateTestDuration(runStatusExtended.getStart(), runStatusExtended.getEnd()),
                         "Vusers involved: " + runStatusExtended.getVusersInvolved()
                 },
@@ -120,10 +132,6 @@ public record RunSummaryData(String htmlContent, String[][] textSummary) {
         };
     }
 
-    private static String calculateTestDuration(LocalDateTime start, LocalDateTime end) {
-        Duration duration = Duration.between(start, end);
-        return String.format("%02d:%02d:%02d", duration.toHours(), duration.toMinutesPart(), duration.toSecondsPart());
-    }
 
     private static String getStatusBadgeClass(String runResult) {
         if (runResult.contains("✅ PASSED")) return "#28a745";
@@ -131,7 +139,7 @@ public record RunSummaryData(String htmlContent, String[][] textSummary) {
         else return "#ffc107";
     }
 
-    private static String generateTransactionHtml(List<LreTransactionMetrics> txns) {
+    private static String generateTransactionHtml(List<LreTransactionMetricsFromWeb> txns) {
         StringBuilder html = new StringBuilder();
 
         // Start with a wrapper and add more sophisticated styles for clarity and elegance
@@ -156,7 +164,7 @@ public record RunSummaryData(String htmlContent, String[][] textSummary) {
         boolean alternate = false;
 
         // Loop through each transaction metric
-        for (LreTransactionMetrics txn : txns) {
+        for (LreTransactionMetricsFromWeb txn : txns) {
             String rowBg = alternate ? "#f7f7f7" : "#ffffff"; // Zebra striping effect for rows
             alternate = !alternate;
 
@@ -201,6 +209,51 @@ public record RunSummaryData(String htmlContent, String[][] textSummary) {
                 .append("</tr>").append("\n")
                 .append("</tbody></table>").append("\n");
 
+        return html.toString();
+    }
+
+    private static String generateTxnStatsHtml(List<LreTxnStats> stats) {
+        StringBuilder html = new StringBuilder();
+
+        html.append("""
+        <h3 style='color:#2c3e50;'>Transaction Performance Summary</h3>
+        <table width='100%' cellpadding='8' cellspacing='0'
+            style='border-collapse: collapse; font-size: 12px; background: #ffffff;'>
+        <thead>
+            <tr style='background: #6f2b8f; color: #fff; text-align:left;'>
+                <th>Transaction</th>
+                <th>Min</th>
+                <th>Avg</th>
+                <th>Max</th>
+                <th>Pass</th>
+                <th>Fail</th>
+                <th>P90</th>
+                <th>P95</th>
+            </tr>
+        </thead>
+        <tbody>
+   \s""");
+
+        boolean alt = false;
+        for (LreTxnStats t : stats) {
+            String bg = alt ? "#f7f7f7" : "#ffffff";
+            alt = !alt;
+
+            html.append("<tr style='background:").append(bg).append(";'>");
+
+            html.append("<td>").append(t.getTransactionName()).append("</td>");
+            html.append("<td>").append(t.getMinimum()).append("</td>");
+            html.append("<td>").append(t.getAverage()).append("</td>");
+            html.append("<td>").append(t.getMaximum()).append("</td>");
+            html.append("<td style='color:#28a745;'>").append(t.getPass()).append("</td>");
+            html.append("<td style='color:#dc3545;'>").append(t.getFail()).append("</td>");
+            html.append("<td>").append(t.getP90()).append("</td>");
+            html.append("<td>").append(t.getP95()).append("</td>");
+
+            html.append("</tr>");
+        }
+
+        html.append("</tbody></table>");
         return html.toString();
     }
 

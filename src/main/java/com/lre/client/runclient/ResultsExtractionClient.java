@@ -11,16 +11,19 @@ import com.lre.services.lre.LreTestManager;
 import com.lre.services.lre.report.ExportToExcel;
 import com.lre.services.lre.report.LreReportPublisher;
 import com.lre.services.lre.summary.ExcelDataMapper;
+import com.lre.services.lre.summary.RunSummaryData;
 import com.lre.services.lre.summary.ThresholdResult;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
-import static com.lre.common.constants.ConfigConstants.ANALYSED_RESULTS_TYPE;
-import static com.lre.common.constants.ConfigConstants.HTML_REPORTS_TYPE;
+import static com.lre.common.constants.ConfigConstants.*;
+import static com.lre.common.utils.CommonUtils.logTable;
+import static com.lre.common.utils.CommonUtils.saveHtmlReport;
 
 @Slf4j
 public class ResultsExtractionClient extends BaseLreClient {
@@ -62,6 +65,14 @@ public class ResultsExtractionClient extends BaseLreClient {
         publishIfFinished(HTML_REPORTS_TYPE, "HTML");
     }
 
+    public void createRunResultsForEMail() {
+        RunSummaryData summary = RunSummaryData.createFrom(model, runStatus);
+        String htmlReport = summary.htmlContent();
+        Path reportPath = Paths.get(model.getWorkspace(), ARTIFACTS_DIR, EMAILABLE_HTML);
+        saveHtmlReport(htmlReport, reportPath);
+        log.info(logTable(summary.textSummary()));
+    }
+
     /**
      * Step 3 — Convert DB results → Excel dashboard
      */
@@ -82,7 +93,7 @@ public class ResultsExtractionClient extends BaseLreClient {
         List<ExcelDashboardWriter.Section> sections =
                 ExcelDataMapper.createSections(model, runStatus, thresholds);
 
-        new ExportToExcel(analysedPath.toString(), model.getRunId()).export(sections);
+        new ExportToExcel(analysedPath, model.getRunId()).export(sections);
 
         log.info("Excel report exported successfully for Run {}", model.getRunId());
     }

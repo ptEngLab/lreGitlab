@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class LreTransactionMetrics {
+public class LreTransactionMetricsFromWeb {
 
     @JsonProperty("_stopped")
     private Integer internalStopped;

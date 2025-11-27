@@ -7,23 +7,16 @@ import com.lre.common.utils.JsonUtils;
 import com.lre.model.run.LreRunStatus;
 import com.lre.model.run.LreRunStatusExtended;
 import com.lre.model.run.LreRunStatusReqWeb;
-import com.lre.model.transactions.LreTransactionMetrics;
 import com.lre.services.lre.LreTestExecutor;
 import com.lre.services.lre.LreTestInstanceManager;
 import com.lre.services.lre.LreTestManager;
 import com.lre.services.lre.LreTimeslotManager;
 import com.lre.services.lre.poller.LreRunStatusPoller;
-import com.lre.services.lre.summary.LreTxnSummaryFetcher;
 import com.lre.services.lre.summary.RunSummaryData;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
-import static com.lre.common.constants.ConfigConstants.ARTIFACTS_DIR;
 import static com.lre.common.utils.CommonUtils.logTable;
 
 @Slf4j
@@ -65,9 +58,8 @@ public class LreRunClient extends BaseLreClient {
 
     public void printRunSummary() {
         LreRunStatusExtended runStatus = fetchRunStatusExtended();
-        List<LreTransactionMetrics> txns = new LreTxnSummaryFetcher(lreRestApis, model).fetchTransactionSummary();
-        String[][] summaryRows = prepareRunSummary(runStatus, txns);
-        log.info(logTable(summaryRows));
+        RunSummaryData summary = RunSummaryData.createFrom(model, runStatus);
+        log.info(logTable(summary.textSummary()));
     }
 
     private LreRunStatusExtended fetchRunStatusExtended() {
@@ -75,14 +67,6 @@ public class LreRunClient extends BaseLreClient {
         List<LreRunStatusExtended> results = lreRestApis.fetchRunResultsExtended(JsonUtils.toJson(req));
         if (results.isEmpty()) throw new LreException("No run status found for Run ID " + model.getRunId());
         return results.get(0);
-    }
-
-    private String[][] prepareRunSummary(LreRunStatusExtended runStatusExtended, List<LreTransactionMetrics> txns) {
-        RunSummaryData summary = RunSummaryData.createFrom(model, runStatusExtended, txns);
-        String htmlReport = summary.htmlContent();
-        Path reportPath = Paths.get(model.getWorkspace(), ARTIFACTS_DIR, "LreReports", "email.html");
-        saveHtmlReport(htmlReport, reportPath);
-        return summary.textSummary();
     }
 
     private LreRunStatus executeRunWorkflow() {
@@ -118,12 +102,4 @@ public class LreRunClient extends BaseLreClient {
         return poller.pollUntilDone();
     }
 
-    private void saveHtmlReport(String htmlContent, Path filePath) {
-        try {
-            Files.createDirectories(filePath.getParent());
-            Files.writeString(filePath, htmlContent);
-        } catch (IOException e) {
-            throw new LreException("Failed to save HTML report: " + filePath, e);
-        }
-    }
 }

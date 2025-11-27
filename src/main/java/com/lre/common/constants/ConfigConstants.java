@@ -18,9 +18,20 @@ public class ConfigConstants {
     public static final String ANALYSED_RESULTS_PATH = "%s/%s/LreReports/AnalysedReports";  // Path format for analyzed reports
     public static final String ANALYSED_RESULTS_TYPE = "ANALYZED RESULT";  // Type name for analyzed reports
     public static final String ANALYSED_REPORT_ARCHIVE_NAME = "Results_%d.zip";  // Analyzed report archive name (using runId)
+    public static final String RESULTS_DB_FORMAT = "Results_%s.db";
+    public static final String ERRORS_DB_FORMAT = "sqlitedb.db";
 
-    // Logging Constants "Type": "ANALYZED RESULT",
+    public static final String EMAILABLE_HTML = "LreReports/email.html";
     public static final String LRE_LOG_FILE = "lre_actions_%s.log";
+
+
+    //Excel constants
+    public static final String TRANSACTION_SUMMARY_SHEET_NAME = "TransactionSummary";
+    public static final String STEADY_STATE_TRANSACTION_SUMMARY_SHEET_NAME = "SteadyStateTxns";
+    public static final String ERROR_SUMMARY_SHEET_NAME = "ErrorSummary";
+    public static final String TEST_SUMMARY_SHEET_NAME = "TestSummary";
+    public static final String TXN_SUMMARY_MERGE_COLUMN_NAME = "Script_Name";
+
 
     // API Constants
     public static final String LRE_API_XMLNS = "http://www.hp.com/PC/REST/API";

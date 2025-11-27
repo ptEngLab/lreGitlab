@@ -7,10 +7,11 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static com.lre.common.utils.CommonUtils.formatDateTime;
 
 public class ExcelDataMapper {
     private static final String SECTION_TEST_METADATA = "Test Metadata";
@@ -152,12 +153,6 @@ public class ExcelDataMapper {
                 duration.toHours(),
                 duration.toMinutesPart(),
                 duration.toSecondsPart());
-    }
-
-    private static String formatDateTime(LocalDateTime dt) {
-        if (dt == null) return "N/A";
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy HH:mm:ss");
-        return dt.format(formatter);
     }
 
     private static String safeString(Object obj) {

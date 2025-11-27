@@ -1,5 +1,6 @@
 package com.lre.common.utils;
 
+import com.lre.common.exceptions.LreException;
 import com.lre.model.testplan.LreTestPlanCreationRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -10,7 +11,9 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Function;
 import java.util.zip.ZipEntry;
@@ -310,4 +313,28 @@ public class CommonUtils {
         return new LreTestPlanCreationRequest(folder, name);
     }
 
+    public static String formatDateTime(LocalDateTime dt) {
+        if (dt == null) return "N/A";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy HH:mm:ss");
+        return dt.format(formatter);
+    }
+
+    public static String calculateTestDuration(LocalDateTime start, LocalDateTime end) {
+        if (start == null || end == null) return "N/A";
+        Duration duration = Duration.between(start, end);
+        return String.format("%02d:%02d:%02d",
+                duration.toHours(),
+                duration.toMinutesPart(),
+                duration.toSecondsPart());
+    }
+
+    public static void saveHtmlReport(String htmlContent, Path filePath) {
+        try {
+            Files.createDirectories(filePath.getParent());
+            Files.writeString(filePath, htmlContent);
+            log.info("Emailable report is created at {}", filePath);
+        } catch (IOException e) {
+            throw new LreException("Failed to save HTML report: " + filePath, e);
+        }
+    }
 }

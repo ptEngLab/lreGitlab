@@ -20,7 +20,7 @@ public class LreTransactionMetricsResponse {
         private String type;
 
         @JsonProperty("Transactions")
-        private List<LreTransactionMetrics> transactions;
+        private List<LreTransactionMetricsFromWeb> transactions;
 
         @JsonProperty("TotalTransactions")
         private Integer totalTransactions;
