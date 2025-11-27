@@ -52,9 +52,9 @@ public record RunSummaryData(String htmlContent, String[][] textSummary) {
         runData.put("AvgThroughput", String.valueOf(runStatusExtended.getThroughputAvg()));
         runData.put("Domain", model.getDomain());
         runData.put("Project", model.getProject());
-        runData.put("TestID", String.valueOf(model.getTestId()));
+        runData.put("TestID", String.valueOf(runStatusExtended.getTestId()));
         runData.put("TestFolder", model.getTestFolderPath());
-        runData.put("TestInstanceID", String.valueOf(model.getTestInstanceId()));
+        runData.put("TestInstanceID", String.valueOf(runStatusExtended.getTestInstanceId()));
         runData.put("Controller", runStatusExtended.getController());
         runData.put("StartTime", formatDateTime(runStatusExtended.getStart()));
         runData.put("EndTime", formatDateTime(runStatusExtended.getEnd()));
