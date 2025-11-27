@@ -1,6 +1,7 @@
 package com.lre.services.lre.summary;
 
 import com.lre.client.runmodel.LreTestRunModel;
+import com.lre.db.SqlQueries;
 import com.lre.model.run.LreRunStatusExtended;
 import com.lre.model.transactions.LreTransactionMetricsFromWeb;
 import com.lre.model.transactions.LreTxnStats;
@@ -22,12 +23,13 @@ public record RunSummaryData(String htmlContent, String[][] textSummary) {
         ThresholdResult thresholds = ThresholdResult.checkThresholds(model, runStatusExtended);
         Map<String, String> runData = prepareRunResultsData(model, runStatusExtended, thresholds);
 
-        Path dbPath =  model.getAnalysedReportPath().resolve(String.format(RESULTS_DB_FORMAT, model.getRunId() ));
+        Path dbPath = model.getAnalysedReportPath().resolve(String.format(RESULTS_DB_FORMAT, model.getRunId()));
 
-        List<LreTxnStats> txnStats = TransactionStatsFetcher.fetch(dbPath);
-        String txnHtml = generateTxnStatsHtml(txnStats);
-
+        List<LreTxnStats> txnStatsAll = TransactionStatsFetcher.fetch(dbPath);
+        List<LreTxnStats> txnStatsTop5 = TransactionStatsFetcher.fetch(dbPath, SqlQueries.TOP_5_TXNS_SQL, null);
+        String txnHtml = generateTxnHtmlWithThreshold(txnStatsAll, txnStatsTop5);
         runData.put("TransactionTable", txnHtml);
+
 
         String htmlContent = HtmlTemplateEngine.generateHtmlReport(runData);
         String[][] textSummary = generateTextSummary(model, runStatusExtended, thresholds);
@@ -216,23 +218,23 @@ public record RunSummaryData(String htmlContent, String[][] textSummary) {
         StringBuilder html = new StringBuilder();
 
         html.append("""
-        <h3 style='color:#2c3e50;'>Transaction Performance Summary</h3>
-        <table width='100%' cellpadding='8' cellspacing='0'
-            style='border-collapse: collapse; font-size: 12px; background: #ffffff;'>
-        <thead>
-            <tr style='background: #6f2b8f; color: #fff; text-align:left;'>
-                <th>Transaction</th>
-                <th>Min</th>
-                <th>Avg</th>
-                <th>Max</th>
-                <th>Pass</th>
-                <th>Fail</th>
-                <th>P90</th>
-                <th>P95</th>
-            </tr>
-        </thead>
-        <tbody>
-   \s""");
+                     <h3 style='color:#2c3e50;'>Transaction Performance Summary</h3>
+                     <table width='100%' cellpadding='8' cellspacing='0'
+                         style='border-collapse: collapse; font-size: 12px; background: #ffffff;'>
+                     <thead>
+                         <tr style='background: #6f2b8f; color: #fff; text-align:left;'>
+                             <th>Transaction</th>
+                             <th>Min (s)</th>
+                             <th>Avg (s)</th>
+                             <th>Max (s)</th>
+                             <th>Pass</th>
+                             <th>Fail</th>
+                             <th>P90 (s)</th>
+                             <th>P95 (s)</th>
+                         </tr>
+                     </thead>
+                     <tbody>
+                """);
 
         boolean alt = false;
         for (LreTxnStats t : stats) {
@@ -256,5 +258,14 @@ public record RunSummaryData(String htmlContent, String[][] textSummary) {
         html.append("</tbody></table>");
         return html.toString();
     }
+
+    private static String generateTxnHtmlWithThreshold(List<LreTxnStats> stats, List<LreTxnStats> statsTop5) {
+        if (stats.size() <= 20) {
+            return generateTxnStatsHtml(stats);
+        } else {
+            return generateTxnStatsHtml(statsTop5);
+        }
+    }
+
 
 }

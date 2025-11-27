@@ -87,6 +87,35 @@ public class SqlQueries {
             """;
 
 
+    public static final String TOP_5_TXNS_SQL = """
+                WITH RankedTransactions AS (
+                    SELECT
+                        vg."Group Name" AS Script_Name,
+                        EMAP."Event Name" AS Transaction_Name,
+                        SUM(EM.Acount) AS Transaction_Count,
+                        SUM(CASE WHEN TES."Transaction End Status" = 'Pass' THEN EM.Acount ELSE 0 END) AS Pass,
+                        SUM(CASE WHEN TES."Transaction End Status" = 'Fail' THEN EM.Acount ELSE 0 END) AS Fail,
+                        ROW_NUMBER() OVER (
+                            PARTITION BY vg."Group Name"
+                            ORDER BY SUM(EM.Acount) DESC
+                        ) AS TxnRank
+                    FROM Event_meter EM
+                    JOIN Event_map EMAP ON EM."Event ID" = EMAP."Event ID" AND EMAP."Event Type" = 'Transaction'
+                    JOIN TransactionEndStatus TES ON EM.Status1 = TES.Status1
+                    JOIN VuserGroup vg ON EM."Group ID" = vg."Group ID"
+                    GROUP BY vg."Group Name", EMAP."Event Name"
+                )
+                SELECT
+                    Script_Name,
+                    Transaction_Name,
+                    Transaction_Count,
+                    Pass,
+                    Fail
+                FROM RankedTransactions
+                WHERE TxnRank <= 5
+                ORDER BY Script_Name, TxnRank;
+            """;
+
     public static final String TXN_DETAILS_SQL = """
             WITH GenreSpend AS (
                 SELECT c.CustomerId, c.FirstName, c.LastName, g.Name AS GenreName,

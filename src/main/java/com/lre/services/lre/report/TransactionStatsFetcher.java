@@ -8,21 +8,32 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.lre.db.SqlQueries.TXN_SUMMARY_SQL;
-
 public class TransactionStatsFetcher {
 
-    public static List<LreTxnStats> fetch(Path dbPath) {
+    /**
+     * Fetch transaction stats from the given database using the provided SQL query.
+     *
+     * @param dbPath Path to the SQLite database
+     * @param sqlQuery SQL query to execute
+     * @param params Optional query parameters (nullable)
+     * @return List of LreTxnStats
+     */
+    public static List<LreTxnStats> fetch(Path dbPath, String sqlQuery, List<Object> params) {
         SQLiteConnectionManager manager = new SQLiteConnectionManager(dbPath);
         List<LreTxnStats> result = new ArrayList<>();
 
-        manager.executeQuery(TXN_SUMMARY_SQL, null, rs -> {
+        manager.executeQuery(sqlQuery, params, rs -> {
             while (rs.next()) {
                 result.add(map(rs));
             }
         });
 
         return result;
+    }
+
+    /** Default fetch using TXN_SUMMARY_SQL */
+    public static List<LreTxnStats> fetch(Path dbPath) {
+        return fetch(dbPath, com.lre.db.SqlQueries.TXN_SUMMARY_SQL, null);
     }
 
     private static LreTxnStats map(ResultSet rs) {
