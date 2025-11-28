@@ -147,7 +147,7 @@ public class Main {
             extractClient.publishHtmlReportIfFinished();
             extractClient.publishAnalysedReportIfFinished();
             extractClient.extractRunReportsToExcel();
-            extractClient.createRunResultsForEMail();
+            extractClient.createRunResultsForEmail();
             return true;
         } catch (Exception e) {
             log.error("Error during results extraction for Run ID {}: {}", lreTestRunModel.getRunId(), e.getMessage(), e);

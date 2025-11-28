@@ -16,29 +16,35 @@ import java.util.Map;
 
 public record RunSummaryData(String htmlContent, String[][] textSummary) {
 
-    public static RunSummaryData createFrom(LreTestRunModel model, LreRunStatusExtended runStatusExtended) {
+    public static RunSummaryData createFrom(LreTestRunModel model,
+                                            LreRunStatusExtended runStatusExtended,
+                                            ReportDataService.ReportData reportData) {
+        // Threshold evaluation
         ThresholdResult thresholds = ThresholdResult.checkThresholds(model, runStatusExtended);
+
+        // Prepare run data
         Map<String, String> runData = RunDataPreparer.prepare(model, runStatusExtended, thresholds);
 
-        ReportDataService.ReportData reportData =
-                ReportDataService.fetchReportData(model.getAnalysedReportPath(), model.getRunId());
-
+        // Use pre-fetched stats
         List<LreTxnStats> txnStatsAll = reportData.transactions();
         List<LreErrorStats> errorStats = reportData.errors();
 
+        // Compute top N
         List<LreTxnStats> topSlowestTxns = ReportDataService.getTopSlowestTransactions(txnStatsAll);
         List<LreErrorStats> topErrors = ReportDataService.getTopErrors(errorStats);
 
+        // Transaction HTML
         String txnHtml = TransactionHtmlBuilder.generateWithThreshold(txnStatsAll, topSlowestTxns);
-        String errorsHtml = ErrorHtmlBuilder.generateWithThreshold(errorStats, topErrors);
-
         runData.put("TransactionTable", txnHtml);
-        runData.put("ErrorsTable", errorsHtml);
 
+        // Error HTML
+        String errorHtml = ErrorHtmlBuilder.generateWithThreshold(errorStats, topErrors);
+        runData.put("ErrorTable", errorHtml);
+
+        // Render HTML and text summary
         String htmlContent = HtmlTemplateEngine.generateHtmlReport(runData);
         String[][] textSummary = TextSummaryGenerator.generate(model, runStatusExtended, thresholds);
 
         return new RunSummaryData(htmlContent, textSummary);
     }
-
 }

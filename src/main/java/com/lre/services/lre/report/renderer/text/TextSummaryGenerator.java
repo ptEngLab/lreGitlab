@@ -18,7 +18,7 @@ public class TextSummaryGenerator {
                 },
                 {
                         "Test Folder: " + model.getTestFolderPath(),
-                        "Test Instance Id: " + model.getTestInstanceId(),
+                        "Test Instance Id: " + runStatusExtended.getTestInstanceId(),
                         "Run Name: " + runStatusExtended.getName(),
                         "Run Status: " + runStatusExtended.getState() + ", Result: " + thresholds.runResult()
                 },

@@ -332,7 +332,6 @@ public class CommonUtils {
         try {
             Files.createDirectories(filePath.getParent());
             Files.writeString(filePath, htmlContent);
-            log.info("Emailable report is created at {}", filePath);
         } catch (IOException e) {
             throw new LreException("Failed to save HTML report: " + filePath, e);
         }

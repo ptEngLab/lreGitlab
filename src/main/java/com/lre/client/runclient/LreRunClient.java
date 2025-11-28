@@ -12,6 +12,7 @@ import com.lre.services.lre.execution.LreTestInstanceManager;
 import com.lre.services.lre.execution.LreTestManager;
 import com.lre.services.lre.execution.LreTimeslotManager;
 import com.lre.services.lre.poller.LreRunStatusPoller;
+import com.lre.services.lre.report.fetcher.ReportDataService;
 import com.lre.services.lre.summary.RunSummaryData;
 import lombok.extern.slf4j.Slf4j;
 
@@ -58,7 +59,8 @@ public class LreRunClient extends BaseLreClient {
 
     public void printRunSummary() {
         LreRunStatusExtended runStatus = fetchRunStatusExtended();
-        RunSummaryData summary = RunSummaryData.createFrom(model, runStatus);
+        var reportData = ReportDataService.fetchReportData(model.getAnalysedReportPath(), model.getRunId());
+        RunSummaryData summary = RunSummaryData.createFrom(model, runStatus, reportData);
         log.info(logTable(summary.textSummary()));
     }
 
