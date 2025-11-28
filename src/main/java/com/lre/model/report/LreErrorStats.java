@@ -22,7 +22,7 @@ public class LreErrorStats {
 
     public static LreErrorStats from(ResultSet rs) throws SQLException {
         return new LreErrorStats(
-                rs.getString("Script_Name"),
+                rs.getString("ScriptName"),
                 rs.getString("injectorName"),
                 rs.getString("errorCode"),
                 rs.getString("errorMessage"),

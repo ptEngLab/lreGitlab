@@ -212,7 +212,7 @@ public class SqlQueries {
                        RANK() OVER (PARTITION BY GenreName ORDER BY TotalQuantityPurchased DESC) AS TrackRank
                 FROM GenreTrackPurchase
             )
-            SELECT GenreName as script_Name, TrackId as injectorName, TrackName as errorCode, "SampleError" as errorMessage, TotalQuantityPurchased as totalErrorCount, 1 as affectedVusers
+            SELECT GenreName as scriptName, TrackId as injectorName, TrackName as errorCode, "SampleError" as errorMessage, TotalQuantityPurchased as totalErrorCount, 1 as affectedVusers
             FROM RankedTracks
             WHERE TrackRank <= 3
             ORDER BY GenreName, TrackRank;
