@@ -87,34 +87,91 @@ public class SqlQueries {
             """;
 
 
-    public static final String TOP_5_TXNS_SQL = """
-                WITH RankedTransactions AS (
-                    SELECT
-                        vg."Group Name" AS Script_Name,
-                        EMAP."Event Name" AS Transaction_Name,
-                        SUM(EM.Acount) AS Transaction_Count,
-                        SUM(CASE WHEN TES."Transaction End Status" = 'Pass' THEN EM.Acount ELSE 0 END) AS Pass,
-                        SUM(CASE WHEN TES."Transaction End Status" = 'Fail' THEN EM.Acount ELSE 0 END) AS Fail,
-                        ROW_NUMBER() OVER (
-                            PARTITION BY vg."Group Name"
-                            ORDER BY SUM(EM.Acount) DESC
-                        ) AS TxnRank
-                    FROM Event_meter EM
-                    JOIN Event_map EMAP ON EM."Event ID" = EMAP."Event ID" AND EMAP."Event Type" = 'Transaction'
-                    JOIN TransactionEndStatus TES ON EM.Status1 = TES.Status1
-                    JOIN VuserGroup vg ON EM."Group ID" = vg."Group ID"
-                    GROUP BY vg."Group Name", EMAP."Event Name"
-                )
+    public static final String TOP_5_SLOWEST_TRANSACTIONS_SQL = """
+            WITH PassTransactions AS (
+                SELECT
+                    vg."Group Name" AS Script_Name,
+                    EMAP."Event Name" AS Transaction_Name,
+                    EM."Value" - COALESCE(EM."Think Time", 0) AS Response_Time,
+                    EM.Acount AS Count,
+                    SUM(EM.Acount) OVER (
+                        PARTITION BY vg."Group Name", EMAP."Event Name"
+                        ORDER BY EM."Value" - COALESCE(EM."Think Time", 0)
+                        ROWS UNBOUNDED PRECEDING
+                    ) AS Running_Count,
+                    SUM(EM.Acount) OVER (
+                        PARTITION BY vg."Group Name", EMAP."Event Name"
+                    ) AS Total_Count
+                FROM Event_meter EM
+                JOIN Event_map EMAP ON EM."Event ID" = EMAP."Event ID" AND EMAP."Event Type" = 'Transaction'
+                JOIN TransactionEndStatus TES ON EM.Status1 = TES.Status1
+                JOIN VuserGroup vg ON EM."Group ID" = vg."Group ID"
+                WHERE TES."Transaction End Status" = 'Pass'
+                  AND EM."Value" - COALESCE(EM."Think Time", 0) > 0
+                  AND EM.Acount > 0
+            ),
+            PercentileValues AS (
                 SELECT
                     Script_Name,
                     Transaction_Name,
-                    Transaction_Count,
-                    Pass,
-                    Fail
-                FROM RankedTransactions
-                WHERE TxnRank <= 5
-                ORDER BY Script_Name, TxnRank;
+                    MIN(CASE WHEN Running_Count >= Total_Count * 0.50 THEN Response_Time END) AS P50,
+                    MIN(CASE WHEN Running_Count >= Total_Count * 0.90 THEN Response_Time END) AS P90,
+                    MIN(CASE WHEN Running_Count >= Total_Count * 0.95 THEN Response_Time END) AS P95,
+                    MIN(CASE WHEN Running_Count >= Total_Count * 0.99 THEN Response_Time END) AS P99
+                FROM PassTransactions
+                GROUP BY Script_Name, Transaction_Name
+            ),
+            SummaryMetrics AS (
+                SELECT
+                    vg."Group Name" AS Script_Name,
+                    EMAP."Event Name" AS Transaction_Name,
+                    CAST(SUM(EM.Acount) AS INTEGER) AS Transaction_Count,
+                    ROUND(MIN(CASE WHEN TES."Transaction End Status" = 'Pass' THEN EM."Value" - COALESCE(EM."Think Time", 0) END), 3) AS Minimum,
+                    ROUND(MAX(CASE WHEN TES."Transaction End Status" = 'Pass' THEN EM."Value" - COALESCE(EM."Think Time", 0) END), 3) AS Maximum,
+                    ROUND(
+                        SUM(CASE WHEN TES."Transaction End Status" = 'Pass' THEN (EM."Value" - COALESCE(EM."Think Time", 0)) * EM.Acount ELSE 0 END) /
+                        NULLIF(SUM(CASE WHEN TES."Transaction End Status" = 'Pass' THEN EM.Acount ELSE 0 END), 0),
+                    3) AS Average,
+                    ROUND(
+                        CASE WHEN SUM(CASE WHEN TES."Transaction End Status" = 'Pass' THEN EM.Acount ELSE 0 END) > 0 THEN
+                            SQRT(
+                                (SUM(CASE WHEN TES."Transaction End Status" = 'Pass' THEN EM.Acount * POWER(EM."Value" - COALESCE(EM."Think Time", 0), 2) ELSE 0 END) /
+                                SUM(CASE WHEN TES."Transaction End Status" = 'Pass' THEN EM.Acount ELSE 0 END)) -
+                                POWER(
+                                    SUM(CASE WHEN TES."Transaction End Status" = 'Pass' THEN (EM."Value" - COALESCE(EM."Think Time", 0)) * EM.Acount ELSE 0 END) /
+                                    SUM(CASE WHEN TES."Transaction End Status" = 'Pass' THEN EM.Acount ELSE 0 END),
+                                2)
+                            )
+                        ELSE 0 END,
+                    3) AS Std_Deviation,
+                    CAST(SUM(CASE WHEN TES."Transaction End Status" = 'Pass' THEN EM.Acount ELSE 0 END) AS INTEGER) AS Pass,
+                    CAST(SUM(CASE WHEN TES."Transaction End Status" = 'Fail' THEN EM.Acount ELSE 0 END) AS INTEGER) AS Fail
+                FROM Event_meter EM
+                JOIN Event_map EMAP ON EM."Event ID" = EMAP."Event ID" AND EMAP."Event Type" = 'Transaction'
+                JOIN TransactionEndStatus TES ON EM.Status1 = TES.Status1
+                JOIN VuserGroup vg ON EM."Group ID" = vg."Group ID"
+                GROUP BY vg."Group Name", EMAP."Event Name"
+            )
+            SELECT
+                sm.Script_Name,
+                sm.Transaction_Name,
+                sm.Transaction_Count,
+                sm.Minimum,
+                sm.Maximum,
+                sm.Average,
+                sm.Std_Deviation,
+                sm.Pass,
+                sm.Fail,
+                ROUND(COALESCE(pv.P50, 0), 3) AS p50,
+                ROUND(COALESCE(pv.P90, 0), 3) AS p90,
+                ROUND(COALESCE(pv.P95, 0), 3) AS p95,
+                ROUND(COALESCE(pv.P99, 0), 3) AS p99
+            FROM SummaryMetrics sm
+            LEFT JOIN PercentileValues pv ON sm.Script_Name = pv.Script_Name AND sm.Transaction_Name = pv.Transaction_Name
+            ORDER BY sm.Script_Name, sm.Transaction_Name;
             """;
+
+
 
     public static final String TXN_DETAILS_SQL = """
             WITH GenreSpend AS (

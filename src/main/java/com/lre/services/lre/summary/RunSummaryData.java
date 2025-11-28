@@ -27,7 +27,7 @@ public record RunSummaryData(String htmlContent, String[][] textSummary) {
         // Fetch transaction stats
         Path dbPath = model.getAnalysedReportPath().resolve(String.format(RESULTS_DB_FORMAT, model.getRunId()));
         List<LreTxnStats> txnStatsAll = TransactionStatsFetcher.fetch(dbPath);
-        List<LreTxnStats> txnStatsTop5 = TransactionStatsFetcher.fetch(dbPath, SqlQueries.TXN_SUMMARY_SQL, null);
+        List<LreTxnStats> txnStatsTop5 = TransactionStatsFetcher.fetch(dbPath, SqlQueries.TOP_5_SLOWEST_TRANSACTIONS_SQL, null);
 
         // Generate HTML
         String txnHtml = TransactionHtmlBuilder.generateWithThreshold(txnStatsAll, txnStatsTop5);

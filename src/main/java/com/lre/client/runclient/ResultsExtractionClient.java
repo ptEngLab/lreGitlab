@@ -54,6 +54,7 @@ public class ResultsExtractionClient extends BaseLreClient {
     }
 
     public void createRunResultsForEMail() {
+        log.info("Generating emailable report");
         RunSummaryData summary = RunSummaryData.createFrom(model, runStatus);
         String htmlReport = summary.htmlContent();
         Path reportPath = Paths.get(model.getWorkspace(), ARTIFACTS_DIR, EMAILABLE_HTML);
