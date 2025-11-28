@@ -1,6 +1,6 @@
 package com.lre.services.lre.report.renderer.html;
 
-import com.lre.model.transactions.LreTxnStats;
+import com.lre.model.report.LreTxnStats;
 
 import java.util.List;
 

@@ -1,9 +1,11 @@
 package com.lre.services.lre.report.renderer.excel;
 
-import com.lre.db.SQLiteConnectionManager;
 import com.lre.excel.ExcelDashboardWriter;
 import com.lre.excel.ExcelReportEngine;
 import com.lre.excel.ExcelReportFileManager;
+import com.lre.model.report.LreErrorStats;
+import com.lre.model.report.LreTxnStats;
+import com.lre.services.lre.report.fetcher.ReportStatsFetcher;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Workbook;
 
@@ -12,8 +14,6 @@ import java.nio.file.Path;
 import java.util.List;
 
 import static com.lre.common.constants.ConfigConstants.*;
-import static com.lre.db.SqlQueries.ERROR_SUMMARY_SQL;
-import static com.lre.db.SqlQueries.TXN_SUMMARY_SQL;
 
 @Slf4j
 public class ExcelReportPublisher {
@@ -35,27 +35,24 @@ public class ExcelReportPublisher {
         ExcelReportEngine engine = new ExcelReportEngine();
         Workbook workbook = engine.getWorkbook();
 
-        // Dashboard sheet
+        // 1. Dashboard sheet
         if (dashboardSections != null && !dashboardSections.isEmpty()) {
             engine.getDashboard().writeDashboardSheet(TEST_SUMMARY_SHEET_NAME, dashboardSections);
         }
 
-        // Query-based sheets
-        try (SQLiteConnectionManager resultsManager = new SQLiteConnectionManager(resultsDb);
-             SQLiteConnectionManager errorsManager = new SQLiteConnectionManager(errorsDb)) {
+        // 2. Fetch data using ReportStatsFetcher
+        log.info("Fetching transaction summary from DB");
+        List<LreTxnStats> txnStatsAll = ReportStatsFetcher.fetchTransactions(resultsDb);
 
-            log.info("Extracting transaction summary from DB");
-            resultsManager.executeQuery(TXN_SUMMARY_SQL, null,
-                    rs -> engine.getSheetWriter().writeResultSetSheet(
-                            TRANSACTION_SUMMARY_SHEET_NAME, rs, TXN_SUMMARY_MERGE_COLUMN_NAME));
+        log.info("Fetching error summary from DB");
+        List<LreErrorStats> errorStatsAll = ReportStatsFetcher.fetchErrors(errorsDb);
 
-            log.info("Extracting error summary from DB");
-            errorsManager.executeQuery(ERROR_SUMMARY_SQL, null,
-                    rs -> engine.getSheetWriter().writeResultSetSheet(
-                            ERROR_SUMMARY_SHEET_NAME, rs, null));
-        }
 
-        // Save workbook
+        // 4. Write sheets
+        engine.getSheetWriter().writeModelSheet(TRANSACTION_SUMMARY_SHEET_NAME, txnStatsAll, TXN_SUMMARY_MERGE_COLUMN_NAME );
+        engine.getSheetWriter().writeModelSheet(ERROR_SUMMARY_SHEET_NAME, errorStatsAll, null);
+
+        // 5. Save workbook
         ExcelReportFileManager.createDirectoriesIfNotExist(excelFilePath.getParent());
         ExcelReportFileManager.deleteFileIfExists(excelFilePath);
         ExcelReportFileManager.saveWorkbook(workbook, excelFilePath);

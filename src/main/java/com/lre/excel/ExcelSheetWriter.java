@@ -1,88 +1,126 @@
 package com.lre.excel;
 
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
 
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public record ExcelSheetWriter(Workbook workbook, ExcelStyleFactory styles, ExcelValueWriter valueWriter) {
 
     /**
-     * Write a ResultSet to a sheet with optional merging on a specific column.
-     *
-     * @param sheetName   the Excel sheet name
-     * @param rs          the ResultSet to write
-     * @param mergeColumn the column name to merge identical values (nullable)
+     * Writes a list of model objects to a sheet.
+     * Uses public getters to generate columns.
      */
-    public void writeResultSetSheet(String sheetName, ResultSet rs, String mergeColumn) throws Exception {
+    public <T> void writeModelSheet(String sheetName, List<T> models, String mergeColumn) {
+        if (models == null || models.isEmpty()) return;
+
+        Sheet sheet = initSheet(sheetName);
+
+        List<Column> columns = extractColumns(models.get(0));
+        String[] headers = columns.stream()
+                .map(c -> c.field().getName())
+                .toArray(String[]::new);
+
+        Integer mergeIndex = findColumnIndex(headers, mergeColumn);
+
+        writeHeaderRow(sheet, headers);
+        writeDataRows(sheet, models, columns);
+
+        ExcelSheetAutoSizer.autoSizeAllColumns(sheet);
+
+        if (mergeIndex != null) {
+            applyMerges(sheet, mergeIndex, models.size());
+        }
+    }
+
+    /** Initializes a new sheet with default settings. */
+    private Sheet initSheet(String sheetName) {
         Sheet sheet = workbook.createSheet(sheetName);
         sheet.setDisplayGridlines(false);
         sheet.setPrintGridlines(false);
         sheet.setDefaultRowHeightInPoints(22);
-
-        ResultSetMetaData md = rs.getMetaData();
-        int colCount = md.getColumnCount();
-
-        writeHeader(sheet, md, colCount);
-        sheet.createFreezePane(0, 1); // Freeze header
-        Integer mergeIndex = mergeColumn == null ? null : findColumnIndex(md, mergeColumn);
-        int lastRow = writeDataRows(sheet, rs, colCount);
-        ExcelSheetAutoSizer.autoSizeAllColumns(sheet);
-        if (mergeIndex != null) applyMerges(sheet, mergeIndex, lastRow);
-
+        sheet.createFreezePane(0, 1);
+        return sheet;
     }
 
-    private void writeHeader(Sheet sheet, ResultSetMetaData md, int colCount) throws Exception {
+    /** Represents a column with its field and getter method. */
+    private record Column(Field field, Method getter) {}
+
+    /** Extracts columns (fields with getters) from the model class. */
+    private <T> List<Column> extractColumns(T model) {
+        return Arrays.stream(model.getClass().getDeclaredFields())
+                .filter(f -> !f.isSynthetic())
+                .map(f -> {
+                    String getterName = "get" + Character.toUpperCase(f.getName().charAt(0)) + f.getName().substring(1);
+                    try {
+                        Method getter = model.getClass().getMethod(getterName);
+                        return new Column(f, getter);
+                    } catch (NoSuchMethodException e) {
+                        return null; // skip fields without getters
+                    }
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    /** Writes the header row with styles. */
+    private void writeHeaderRow(Sheet sheet, String[] headers) {
         Row header = sheet.createRow(0);
-        for (int i = 1; i <= colCount; i++) {
-            Cell c = header.createCell(i - 1);
-            c.setCellValue(md.getColumnLabel(i));
-            c.setCellStyle(styles.getHeaderStyle());
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = header.createCell(i);
+            cell.setCellValue(headers[i]);
+            cell.setCellStyle(styles.getHeaderStyle());
         }
     }
 
-    /**
-     * Writes rows and returns the last row index written.
-     */
-    private int writeDataRows(Sheet sheet, ResultSet rs, int colCount) throws Exception {
-        int rowNum = 1;
-        while (rs.next()) {
-            Row row = sheet.createRow(rowNum);
-            writeRowCells(row, rs, colCount);
-            rowNum++;
-        }
-        return rowNum - 1;
-    }
+    /** Writes model rows using reflection-based getters. */
+    private <T> void writeDataRows(Sheet sheet, List<T> models, List<Column> columns) {
+        for (int r = 0; r < models.size(); r++) {
+            Row row = sheet.createRow(r + 1);
+            T model = models.get(r);
 
-    private void writeRowCells(Row row, ResultSet rs, int colCount) throws Exception {
-        for (int col = 1; col <= colCount; col++) {
-            Cell cell = row.createCell(col - 1);
-            Object value = rs.getObject(col);
-            valueWriter.write(cell, value);
-
-            // Optional: wrapped text for long strings
-            if (value instanceof String s && s.length() > 40) {
-                cell.setCellStyle(styles.getWrappedStyle());
+            for (int c = 0; c < columns.size(); c++) {
+                Cell cell = row.createCell(c);
+                try {
+                    Object value = columns.get(c).getter().invoke(model);
+                    valueWriter.write(cell, value);
+                } catch (Exception e) {
+                    valueWriter.write(cell, "ERROR");
+                }
             }
         }
     }
 
+    /** Applies merges for consecutive identical values in a column. */
     private void applyMerges(Sheet sheet, int mergeIndex, int lastRow) {
-        Object prevMergeValue = null;
+        if (mergeIndex < 0) return;
+
+        String prevValue = null;
         int mergeStart = -1;
 
         for (int rowNum = 1; rowNum <= lastRow; rowNum++) {
             Row row = sheet.getRow(rowNum);
-            Object currentVal = row.getCell(mergeIndex - 1).getStringCellValue();
+            if (row == null) continue;
 
-            if (prevMergeValue == null) {
-                prevMergeValue = currentVal;
+            String currentVal = Optional.ofNullable(row.getCell(mergeIndex))
+                    .map(Cell::getStringCellValue)
+                    .orElse("");
+
+            if (prevValue == null) {
+                prevValue = currentVal;
                 mergeStart = rowNum;
-            } else if (!Objects.equals(prevMergeValue, currentVal)) {
+            } else if (!Objects.equals(prevValue, currentVal)) {
                 mergeColumn(sheet, mergeIndex, mergeStart, rowNum - 1);
-                prevMergeValue = currentVal;
+                prevValue = currentVal;
                 mergeStart = rowNum;
             }
         }
@@ -92,16 +130,21 @@ public record ExcelSheetWriter(Workbook workbook, ExcelStyleFactory styles, Exce
         }
     }
 
+    /** Merges cells in a column between startRow and endRow. */
     private void mergeColumn(Sheet sheet, int mergeIndex, int startRow, int endRow) {
         if (endRow > startRow) {
-            sheet.addMergedRegion(new CellRangeAddress(startRow, endRow, mergeIndex - 1, mergeIndex - 1));
+            sheet.addMergedRegion(new CellRangeAddress(startRow, endRow, mergeIndex, mergeIndex));
         }
     }
 
-    private int findColumnIndex(ResultSetMetaData md, String name) throws Exception {
-        for (int i = 1; i <= md.getColumnCount(); i++) {
-            if (md.getColumnLabel(i).equalsIgnoreCase(name)) return i;
+    /** Finds the index of a column by name (case-insensitive). */
+    private Integer findColumnIndex(String[] headers, String columnName) {
+        if (columnName == null || headers == null) return null;
+        for (int i = 0; i < headers.length; i++) {
+            if (headers[i].equalsIgnoreCase(columnName)) {
+                return i;
+            }
         }
-        throw new IllegalArgumentException("Column not found: " + name);
+        return null;
     }
 }

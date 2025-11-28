@@ -30,7 +30,7 @@ public class ConfigConstants {
     public static final String STEADY_STATE_TRANSACTION_SUMMARY_SHEET_NAME = "SteadyStateTxns";
     public static final String ERROR_SUMMARY_SHEET_NAME = "ErrorSummary";
     public static final String TEST_SUMMARY_SHEET_NAME = "TestSummary";
-    public static final String TXN_SUMMARY_MERGE_COLUMN_NAME = "Script_Name";
+    public static final String TXN_SUMMARY_MERGE_COLUMN_NAME = "ScriptName";
 
 
     // API Constants
