@@ -1,4 +1,4 @@
-package com.lre.services.lre.report;
+package com.lre.services.lre.report.fetcher;
 
 import com.lre.db.SQLiteConnectionManager;
 import com.lre.model.transactions.LreTxnStats;

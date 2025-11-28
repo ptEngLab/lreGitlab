@@ -1,4 +1,4 @@
-package com.lre.services.lre.summary;
+package com.lre.services.lre.report.renderer.html;
 
 import java.io.IOException;
 import java.io.InputStream;

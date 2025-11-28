@@ -1,4 +1,4 @@
-package com.lre.services.lre.report;
+package com.lre.services.lre.report.publisher;
 
 import com.lre.client.api.lre.LreRestApis;
 import com.lre.client.runmodel.LreTestRunModel;

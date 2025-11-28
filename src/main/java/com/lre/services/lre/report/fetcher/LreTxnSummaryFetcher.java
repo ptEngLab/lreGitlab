@@ -1,4 +1,4 @@
-package com.lre.services.lre.summary;
+package com.lre.services.lre.report.fetcher;
 
 import com.lre.client.api.lre.LreRestApis;
 import com.lre.client.runmodel.LreTestRunModel;

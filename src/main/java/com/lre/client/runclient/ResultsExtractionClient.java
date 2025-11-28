@@ -7,11 +7,11 @@ import com.lre.excel.ExcelDashboardWriter;
 import com.lre.model.enums.RunState;
 import com.lre.model.run.LreRunStatusExtended;
 import com.lre.model.run.LreRunStatusReqWeb;
-import com.lre.services.lre.LreTestManager;
-import com.lre.services.lre.report.ExportToExcel;
-import com.lre.services.lre.report.LreReportPublisher;
-import com.lre.services.lre.summary.ExcelDataMapper;
-import com.lre.services.lre.summary.run.RunSummaryData;
+import com.lre.services.lre.execution.LreTestManager;
+import com.lre.services.lre.report.renderer.excel.ExcelReportPublisher;
+import com.lre.services.lre.report.publisher.LreReportPublisher;
+import com.lre.services.lre.report.renderer.excel.ExcelDataMapper;
+import com.lre.services.lre.summary.RunSummaryData;
 import com.lre.services.lre.summary.ThresholdResult;
 import lombok.extern.slf4j.Slf4j;
 
@@ -78,7 +78,7 @@ public class ResultsExtractionClient extends BaseLreClient {
         List<ExcelDashboardWriter.Section> sections =
                 ExcelDataMapper.createSections(model, runStatus, thresholds);
 
-        new ExportToExcel(analysedPath, model.getRunId()).export(sections);
+        new ExcelReportPublisher(analysedPath, model.getRunId()).export(sections);
 
         log.info("Excel report exported successfully for Run {}", model.getRunId());
     }

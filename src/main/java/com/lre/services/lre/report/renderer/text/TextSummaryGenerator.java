@@ -1,4 +1,4 @@
-package com.lre.services.lre.summary.run;
+package com.lre.services.lre.report.renderer.text;
 
 import com.lre.client.runmodel.LreTestRunModel;
 import com.lre.model.run.LreRunStatusExtended;

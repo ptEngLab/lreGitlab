@@ -1,12 +1,14 @@
-package com.lre.services.lre.summary.run;
+package com.lre.services.lre.summary;
 
 import com.lre.client.runmodel.LreTestRunModel;
 import com.lre.db.SqlQueries;
 import com.lre.model.run.LreRunStatusExtended;
 import com.lre.model.transactions.LreTxnStats;
-import com.lre.services.lre.report.TransactionStatsFetcher;
-import com.lre.services.lre.summary.HtmlTemplateEngine;
-import com.lre.services.lre.summary.ThresholdResult;
+import com.lre.services.lre.report.fetcher.TransactionStatsFetcher;
+import com.lre.services.lre.report.renderer.html.HtmlTemplateEngine;
+import com.lre.services.lre.report.preparer.RunDataPreparer;
+import com.lre.services.lre.report.renderer.html.TransactionHtmlBuilder;
+import com.lre.services.lre.report.renderer.text.TextSummaryGenerator;
 
 import java.nio.file.Path;
 import java.util.List;

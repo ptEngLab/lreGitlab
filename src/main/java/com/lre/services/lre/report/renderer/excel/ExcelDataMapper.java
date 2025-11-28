@@ -1,8 +1,9 @@
-package com.lre.services.lre.summary;
+package com.lre.services.lre.report.renderer.excel;
 
 import com.lre.client.runmodel.LreTestRunModel;
 import com.lre.excel.ExcelDashboardWriter;
 import com.lre.model.run.LreRunStatusExtended;
+import com.lre.services.lre.summary.ThresholdResult;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.time.Duration;

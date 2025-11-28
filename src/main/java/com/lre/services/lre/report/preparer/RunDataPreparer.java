@@ -1,7 +1,8 @@
-package com.lre.services.lre.summary.run;
+package com.lre.services.lre.report.preparer;
 
 import com.lre.client.runmodel.LreTestRunModel;
 import com.lre.model.run.LreRunStatusExtended;
+import com.lre.services.lre.report.renderer.html.LgHtmlBuilder;
 import com.lre.services.lre.summary.ThresholdResult;
 
 import java.util.Map;

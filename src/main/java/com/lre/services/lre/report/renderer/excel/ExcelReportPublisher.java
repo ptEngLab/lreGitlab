@@ -1,4 +1,4 @@
-package com.lre.services.lre.report;
+package com.lre.services.lre.report.renderer.excel;
 
 import com.lre.db.SQLiteConnectionManager;
 import com.lre.excel.ExcelDashboardWriter;
@@ -16,13 +16,13 @@ import static com.lre.db.SqlQueries.ERROR_SUMMARY_SQL;
 import static com.lre.db.SqlQueries.TXN_SUMMARY_SQL;
 
 @Slf4j
-public class ExportToExcel {
+public class ExcelReportPublisher {
 
     private final Path baseDbPath;
     private final int runId;
     private final Path excelFilePath;
 
-    public ExportToExcel(Path baseDbPath, int runId) {
+    public ExcelReportPublisher(Path baseDbPath, int runId) {
         this.baseDbPath = baseDbPath.toAbsolutePath().normalize();
         this.runId = runId;
         this.excelFilePath = ExcelReportFileManager.getExcelFilePath(runId);
