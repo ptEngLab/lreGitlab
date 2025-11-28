@@ -12,7 +12,7 @@ import com.lre.services.lre.LreTestInstanceManager;
 import com.lre.services.lre.LreTestManager;
 import com.lre.services.lre.LreTimeslotManager;
 import com.lre.services.lre.poller.LreRunStatusPoller;
-import com.lre.services.lre.summary.RunSummaryData;
+import com.lre.services.lre.summary.run.RunSummaryData;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;

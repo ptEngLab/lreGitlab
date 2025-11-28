@@ -11,7 +11,7 @@ import com.lre.services.lre.LreTestManager;
 import com.lre.services.lre.report.ExportToExcel;
 import com.lre.services.lre.report.LreReportPublisher;
 import com.lre.services.lre.summary.ExcelDataMapper;
-import com.lre.services.lre.summary.RunSummaryData;
+import com.lre.services.lre.summary.run.RunSummaryData;
 import com.lre.services.lre.summary.ThresholdResult;
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,12 +31,9 @@ public class ResultsExtractionClient extends BaseLreClient {
     private LreRunStatusExtended runStatus;
 
     public ResultsExtractionClient(LreTestRunModel model) {
-        super(model); // handles LRE APIS + login + close
+        super(model);
     }
 
-    /**
-     * Step 1 — Fetch run status + test metadata
-     */
     public void fetchRunDetails() {
         trace("Fetching run status...");
         runStatus = fetchRunStatusExtended();
@@ -45,22 +42,13 @@ public class ResultsExtractionClient extends BaseLreClient {
 
         RunState state = RunState.fromValue(runStatus.getState());
         log.info("Run details loaded: Run={}, Test={}, Name={}, State={}",
-                model.getRunId(),
-                model.getTestId(),
-                model.getTestName(),
-                state);
+                model.getRunId(), model.getTestId(), model.getTestName(), state);
     }
 
-    /**
-     * Step 2A — Publish analysed results (if run is finished)
-     */
     public void publishAnalysedReportIfFinished() {
         publishIfFinished(ANALYSED_RESULTS_TYPE, "Analysed");
     }
 
-    /**
-     * Step 2B — Publish HTML reports (if run is finished)
-     */
     public void publishHtmlReportIfFinished() {
         publishIfFinished(HTML_REPORTS_TYPE, "HTML");
     }
@@ -73,9 +61,6 @@ public class ResultsExtractionClient extends BaseLreClient {
         log.info(logTable(summary.textSummary()));
     }
 
-    /**
-     * Step 3 — Convert DB results → Excel dashboard
-     */
     public void extractRunReportsToExcel() throws IOException {
         ensureRunStatusFetched();
 
@@ -83,11 +68,11 @@ public class ResultsExtractionClient extends BaseLreClient {
         if (analysedPath == null) {
             throw new IllegalStateException(
                     "Analysed report path missing. " +
-                            "You must call publishAnalysedReportIfFinished() before extracting Excel reports."
+                            "Call publishAnalysedReportIfFinished() before extracting Excel reports."
             );
         }
 
-        trace("Generating Excel dashboard...");
+        log.info("Generating Excel dashboard...");
 
         ThresholdResult thresholds = ThresholdResult.checkThresholds(model, runStatus);
         List<ExcelDashboardWriter.Section> sections =
@@ -98,55 +83,40 @@ public class ResultsExtractionClient extends BaseLreClient {
         log.info("Excel report exported successfully for Run {}", model.getRunId());
     }
 
-    /**
-     * Helper — Publish a report only when run is FINISHED
-     */
     private void publishIfFinished(String type, String label) {
         ensureRunStatusFetched();
-
         RunState state = RunState.fromValue(runStatus.getState());
+
         if (state != RunState.FINISHED) {
-            log.warn("Skipping {} report — Run {} is not finished (State={})",
-                    label, model.getRunId(), state);
+            log.warn("Skipping {} report — Run {} is not finished (State={})", label, model.getRunId(), state);
             return;
         }
 
         trace("Publishing {} report...", label);
-
         LreReportPublisher publisher = new LreReportPublisher(lreRestApis, model);
         Optional<Path> path = publisher.publish(type);
 
         path.ifPresentOrElse(savedPath -> {
-                    if (type.equalsIgnoreCase(ANALYSED_RESULTS_TYPE)) {
-                        model.setAnalysedReportAvailable(true);
-                    } else if (type.equalsIgnoreCase(HTML_REPORTS_TYPE)) {
-                        model.setHtmlReportAvailable(true);
-                    }
-                    log.info("{} report saved successfully: {}", label, savedPath);
-                },
-                () -> log.warn("{} report generation failed for Run {}", label, model.getRunId()));
+            if (ANALYSED_RESULTS_TYPE.equalsIgnoreCase(type)) model.setAnalysedReportAvailable(true);
+            else if (HTML_REPORTS_TYPE.equalsIgnoreCase(type)) model.setHtmlReportAvailable(true);
+            log.info("{} report saved successfully: {}", label, savedPath);
+        }, () -> log.warn("{} report generation failed for Run {}", label, model.getRunId()));
     }
 
-    /**
-     * Helper — Fetch extended run status
-     */
     private LreRunStatusExtended fetchRunStatusExtended() {
         LreRunStatusReqWeb req = LreRunStatusReqWeb.createRunStatusPayloadForRunId(model.getRunId());
-        List<LreRunStatusExtended> results =
-                lreRestApis.fetchRunResultsExtended(JsonUtils.toJson(req));
+        var results = lreRestApis.fetchRunResultsExtended(JsonUtils.toJson(req));
 
         if (results.isEmpty()) {
-            throw new IllegalStateException(
-                    "No run status available for Run " + model.getRunId());
+            throw new IllegalStateException("No run status available for Run " + model.getRunId());
         }
+
         return results.get(0);
     }
 
     private void ensureRunStatusFetched() {
         if (runStatus == null) {
-            throw new IllegalStateException(
-                    "Run status not initialized — call fetchRunDetails() first."
-            );
+            throw new IllegalStateException("Run status not initialized — call fetchRunDetails() first.");
         }
     }
 }

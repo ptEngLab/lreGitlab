@@ -8,7 +8,7 @@ import java.sql.*;
 import java.util.List;
 
 @Slf4j
-public record SQLiteConnectionManager(Path dbPath) {
+public class SQLiteConnectionManager implements AutoCloseable {
 
     private static final List<String> PRAGMA_LIST = List.of(
             "PRAGMA journal_mode = MEMORY",
@@ -19,17 +19,20 @@ public record SQLiteConnectionManager(Path dbPath) {
             "PRAGMA busy_timeout = 30000"
     );
 
+    private final Path dbPath;
+    private final Connection connection;
+
     public SQLiteConnectionManager(Path dbPath) {
         this.dbPath = dbPath;
         verifyDatabaseExists();
+        this.connection = createConnectionWithPragmaList();
     }
 
     /**
-     * Executes a SELECT query with optional parameters and passes the ResultSet to the consumer.
+     * Executes a SELECT query and processes the ResultSet.
      */
     public void executeQuery(String sql, List<Object> parameters, ResultSetConsumer consumer) {
-        try (Connection conn = createNewConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
 
             bindParameters(stmt, parameters);
 
@@ -38,39 +41,53 @@ public record SQLiteConnectionManager(Path dbPath) {
             }
 
         } catch (Exception e) {
-            log.error("Query execution failed: {}", sql, e);
-            throw new SQLiteQueryException("Failed to execute query", e);
+            log.error("Query execution failed: {} | params: {}", sql, parameters, e);
+            throw new SQLiteQueryException("Failed to execute query: " + sql, e);
         }
     }
 
-    /**
-     * Creates a new SQLite connection with performance optimizations.
-     */
-    private Connection createNewConnection() throws SQLException {
-        String url = "jdbc:sqlite:" + dbPath.toUri();
-        Connection conn = DriverManager.getConnection(url);
+    private Connection createConnectionWithPragmaList() {
+        try {
+            String url = "jdbc:sqlite:" + dbPath.toAbsolutePath();
+            Connection conn = DriverManager.getConnection(url);
 
-        try (Statement stmt = conn.createStatement()) {
-            for (String pragma : PRAGMA_LIST) {
-                stmt.execute(pragma);
+            try (Statement stmt = conn.createStatement()) {
+                for (String pragma : PRAGMA_LIST) {
+                    stmt.execute(pragma);
+                }
             }
-        }
 
-        conn.setAutoCommit(true);
-        return conn;
+            conn.setAutoCommit(true);
+            return conn;
+
+        } catch (SQLException e) {
+            throw new SQLiteQueryException("Failed to create SQLite connection", e);
+        }
     }
 
     private void bindParameters(PreparedStatement stmt, List<Object> parameters) throws SQLException {
-        if (parameters != null && !parameters.isEmpty()) {
-            for (int i = 0; i < parameters.size(); i++) {
-                stmt.setObject(i + 1, parameters.get(i));
-            }
+        if (parameters == null) return;
+
+        for (int i = 0; i < parameters.size(); i++) {
+            stmt.setObject(i + 1, parameters.get(i));
         }
     }
 
     private void verifyDatabaseExists() {
         if (!Files.exists(dbPath)) {
-            throw new SQLiteQueryException("Database file not found: " + dbPath.toAbsolutePath());
+            throw new SQLiteQueryException("Database not found: " + dbPath.toAbsolutePath());
+        }
+    }
+
+    @Override
+    public void close() {
+        try {
+            if (connection != null && !connection.isClosed()) {
+                connection.close();
+                log.debug("SQLite connection closed: {}", dbPath);
+            }
+        } catch (SQLException e) {
+            log.warn("Failed to close SQLite connection", e);
         }
     }
 

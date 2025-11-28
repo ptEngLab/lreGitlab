@@ -4,6 +4,7 @@ import com.lre.db.SQLiteConnectionManager;
 import com.lre.excel.ExcelDashboardWriter;
 import com.lre.excel.ExcelReportEngine;
 import com.lre.excel.ExcelReportFileManager;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Workbook;
 
 import java.io.IOException;
@@ -14,6 +15,7 @@ import static com.lre.common.constants.ConfigConstants.*;
 import static com.lre.db.SqlQueries.ERROR_SUMMARY_SQL;
 import static com.lre.db.SqlQueries.TXN_SUMMARY_SQL;
 
+@Slf4j
 public class ExportToExcel {
 
     private final Path baseDbPath;
@@ -25,7 +27,6 @@ public class ExportToExcel {
         this.runId = runId;
         this.excelFilePath = ExcelReportFileManager.getExcelFilePath(runId);
     }
-
 
     public void export(List<ExcelDashboardWriter.Section> dashboardSections) throws IOException {
         Path resultsDb = getResultsDbPath();
@@ -40,21 +41,26 @@ public class ExportToExcel {
         }
 
         // Query-based sheets
-        SQLiteConnectionManager resultsManager = new SQLiteConnectionManager(resultsDb);
-        SQLiteConnectionManager errorsManager = new SQLiteConnectionManager(errorsDb);
+        try (SQLiteConnectionManager resultsManager = new SQLiteConnectionManager(resultsDb);
+             SQLiteConnectionManager errorsManager = new SQLiteConnectionManager(errorsDb)) {
 
-        resultsManager.executeQuery(TXN_SUMMARY_SQL, null,
-                rs -> engine.getSheetWriter().writeResultSetSheet(
-                        TRANSACTION_SUMMARY_SHEET_NAME, rs, TXN_SUMMARY_MERGE_COLUMN_NAME));
+            log.info("Extracting transaction summary from DB");
+            resultsManager.executeQuery(TXN_SUMMARY_SQL, null,
+                    rs -> engine.getSheetWriter().writeResultSetSheet(
+                            TRANSACTION_SUMMARY_SHEET_NAME, rs, TXN_SUMMARY_MERGE_COLUMN_NAME));
 
-        errorsManager.executeQuery(ERROR_SUMMARY_SQL, null,
-                rs -> engine.getSheetWriter().writeResultSetSheet(
-                        ERROR_SUMMARY_SHEET_NAME, rs, null));
+            log.info("Extracting error summary from DB");
+            errorsManager.executeQuery(ERROR_SUMMARY_SQL, null,
+                    rs -> engine.getSheetWriter().writeResultSetSheet(
+                            ERROR_SUMMARY_SHEET_NAME, rs, null));
+        }
 
         // Save workbook
         ExcelReportFileManager.createDirectoriesIfNotExist(excelFilePath.getParent());
         ExcelReportFileManager.deleteFileIfExists(excelFilePath);
         ExcelReportFileManager.saveWorkbook(workbook, excelFilePath);
+
+        log.info("Excel report exported successfully: {}", excelFilePath);
     }
 
     private Path getResultsDbPath() {
@@ -64,5 +70,4 @@ public class ExportToExcel {
     private Path getErrorsDbPath() {
         return baseDbPath.resolve(ERRORS_DB_FORMAT);
     }
-
 }
