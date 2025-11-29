@@ -54,7 +54,7 @@ public class ErrorHtmlBuilder {
 
     private static final String TABLE_HEADER = """
             <table width='100%' cellpadding='8' cellspacing='0'
-                   style='border-collapse: collapse; font-size:12px; background:#fff;'>
+                   style='border-collapse: collapse; font-size:13px; background:#fff;'>
                 <thead>
                     <tr style='background:#6f2b8f; color:#fff; text-align:left;'>
                         <th>Script</th>

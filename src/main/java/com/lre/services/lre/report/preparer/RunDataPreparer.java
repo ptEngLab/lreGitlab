@@ -43,6 +43,7 @@ public class RunDataPreparer {
         runData.put("RunStatus", runStatusExtended.getState());
         runData.put("RunResult", thresholds.runResult());
         runData.put("StatusBadgeColor", RunDataPreparer.getStatusBadgeColor(thresholds.runResult()));
+        runData.put("FailureReason", generateFailureReason(model, runStatusExtended, thresholds));
 
         return runData;
     }
@@ -52,4 +53,40 @@ public class RunDataPreparer {
         if (runResult.contains("❌ FAILED")) return "#dc3545";
         return "#ffc107";
     }
+
+    private static String generateFailureReason(LreTestRunModel model, LreRunStatusExtended runStatus, ThresholdResult thresholds) {
+        StringBuilder reason = new StringBuilder();
+        reason.append("The test ");
+
+        if (thresholds.errorExceeded() || thresholds.failedTxnExceeded() || model.isTestFailed()) {
+            reason.append("was marked as <strong>FAILED</strong> because ");
+
+            boolean first = true;
+
+            if (thresholds.errorExceeded()) {
+                reason.append("the number of errors observed (")
+                        .append(runStatus.getErrors())
+                        .append(") exceeded the defined threshold of ")
+                        .append(model.getMaxErrors());
+                first = false;
+            }
+
+            if (thresholds.failedTxnExceeded()) {
+                if (!first) reason.append(" and ");
+                reason.append("the number of failed transactions observed (")
+                        .append(runStatus.getTransFailed())
+                        .append(") exceeded the defined threshold of ")
+                        .append(model.getMaxFailedTxns());
+            }
+
+            if (!thresholds.errorExceeded() && !thresholds.failedTxnExceeded() && model.isTestFailed()) {
+                reason.append("the test was manually marked as failed in LoadRunner Enterprise.");
+            } else {
+                reason.append(".");
+            }
+        }
+
+        return reason.toString();
+    }
+
 }
