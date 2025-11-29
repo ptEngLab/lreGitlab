@@ -118,7 +118,7 @@ public class ResultsExtractionClient extends BaseLreClient {
             log.info("Fetching report data from DB for Run {}", model.getRunId());
             reportData = ReportDataService.fetchReportData(analysedPath, model.getRunId());
         } else {
-            log.info("Reusing cached report data for Run {}", model.getRunId());
+            log.debug("Reusing cached report data for Run {}", model.getRunId());
         }
     }
 

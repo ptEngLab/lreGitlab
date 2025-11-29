@@ -62,7 +62,7 @@ public class ExcelReportPublisher {
             ExcelReportFileManager.deleteFileIfExists(excelFilePath);
             ExcelReportFileManager.saveWorkbook(workbook, excelFilePath);
 
-            log.info("Excel report exported successfully: {}", excelFilePath);
+            log.debug("Excel report exported successfully: {}", excelFilePath);
 
         } catch (Exception e) {
             throw new LreException("Failed to export Excel report to " + excelFilePath, e);

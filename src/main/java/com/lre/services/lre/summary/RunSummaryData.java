@@ -39,7 +39,7 @@ public record RunSummaryData(String htmlContent, String[][] textSummary) {
 
         // Error HTML
         String errorHtml = ErrorHtmlBuilder.generateWithThreshold(errorStats, topErrors);
-        runData.put("ErrorsTable", errorHtml);
+        runData.put("ErrorTable", errorHtml);
 
         // Render HTML and text summary
         String htmlContent = HtmlTemplateEngine.generateHtmlReport(runData);
