@@ -3,20 +3,17 @@ package com.lre.client.runclient;
 import com.lre.client.base.BaseLreClient;
 import com.lre.client.runmodel.LreTestRunModel;
 import com.lre.common.exceptions.LreException;
-import com.lre.common.utils.JsonUtils;
 import com.lre.model.run.LreRunStatus;
 import com.lre.model.run.LreRunStatusExtended;
-import com.lre.model.run.LreRunStatusReqWeb;
 import com.lre.services.lre.execution.LreTestExecutor;
 import com.lre.services.lre.execution.LreTestInstanceManager;
 import com.lre.services.lre.execution.LreTestManager;
 import com.lre.services.lre.execution.LreTimeslotManager;
+import com.lre.services.lre.monitor.RunStatusMonitor;
 import com.lre.services.lre.poller.LreRunStatusPoller;
 import com.lre.services.lre.report.fetcher.ReportDataService;
 import com.lre.services.lre.summary.RunSummaryData;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.List;
 
 import static com.lre.common.utils.CommonUtils.logTable;
 
@@ -58,18 +55,14 @@ public class LreRunClient extends BaseLreClient {
     }
 
     public void printRunSummary() {
-        LreRunStatusExtended runStatus = fetchRunStatusExtended();
+        RunStatusMonitor statusMonitor = new RunStatusMonitor(lreRestApis, model);
+        LreRunStatusExtended runStatus = statusMonitor.fetchRunStatusExtended();
         var reportData = ReportDataService.fetchReportData(model.getAnalysedReportPath(), model.getRunId());
         RunSummaryData summary = RunSummaryData.createFrom(model, runStatus, reportData);
         log.info(logTable(summary.textSummary()));
     }
 
-    private LreRunStatusExtended fetchRunStatusExtended() {
-        LreRunStatusReqWeb req = LreRunStatusReqWeb.createRunStatusPayloadForRunId(model.getRunId());
-        List<LreRunStatusExtended> results = lreRestApis.fetchRunResultsExtended(JsonUtils.toJson(req));
-        if (results.isEmpty()) throw new LreException("No run status found for Run ID " + model.getRunId());
-        return results.get(0);
-    }
+
 
     private LreRunStatus executeRunWorkflow() {
         fetchTestDetails();

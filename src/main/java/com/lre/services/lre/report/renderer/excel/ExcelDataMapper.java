@@ -32,20 +32,22 @@ public class ExcelDataMapper {
     private static ExcelDashboardWriter.Section createTestMetadataSection(
             LreTestRunModel model, LreRunStatusExtended runStatus, ThresholdResult thresholds) {
 
-        List<String> metaKeys1 = Arrays.asList("Domain", "Project", "Test Name", "Test Id");
+        List<String> metaKeys1 = Arrays.asList("Domain", "Project", "Test Name", "Test Id", "Workload Type");
         List<Object> metaValues1 = Arrays.asList(
                 safeString(model.getDomain()),
                 safeString(model.getProject()),
                 safeString(model.getTestName()),
-                runStatus.getTestId()
+                runStatus.getTestId(),
+                safeString(model.getWorkloadType())
         );
 
-        List<String> metaKeys2 = Arrays.asList("Start Time", "End Time", "Test Duration", "Run Status");
+        List<String> metaKeys2 = Arrays.asList("Start Time", "End Time", "Test Duration", "Run Status", "Executed by");
         List<Object> metaValues2 = Arrays.asList(
                 formatDateTime(runStatus.getStart()),
                 formatDateTime(runStatus.getEnd()),
                 calculateTestDuration(runStatus),
-                safeString(runStatus.getState()) + ", Result: " + thresholds.runResult()
+                safeString(runStatus.getState()) + ", Result: " + thresholds.runResult(),
+                runStatus.getTester()
         );
 
         return new ExcelDashboardWriter.Section(
@@ -80,7 +82,7 @@ public class ExcelDataMapper {
     private static ExcelDashboardWriter.Section createPerformanceSection(LreRunStatusExtended runStatus) {
         // Performance metrics
         List<String> performanceKeys = List.of(
-                "Transaction per Sec",
+                "Transactions/Sec (Passed)",
                 "Hits per Sec",
                 "Throughput (avg)",
                 "Vusers involved"

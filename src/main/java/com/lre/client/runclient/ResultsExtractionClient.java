@@ -3,12 +3,11 @@ package com.lre.client.runclient;
 import com.lre.client.base.BaseLreClient;
 import com.lre.client.runmodel.LreTestRunModel;
 import com.lre.common.exceptions.LreException;
-import com.lre.common.utils.JsonUtils;
 import com.lre.excel.ExcelDashboardWriter;
 import com.lre.model.enums.RunState;
 import com.lre.model.run.LreRunStatusExtended;
-import com.lre.model.run.LreRunStatusReqWeb;
 import com.lre.services.lre.execution.LreTestManager;
+import com.lre.services.lre.monitor.RunStatusMonitor;
 import com.lre.services.lre.report.fetcher.ReportDataService;
 import com.lre.services.lre.report.publisher.LreReportPublisher;
 import com.lre.services.lre.report.renderer.excel.ExcelDataMapper;
@@ -102,10 +101,8 @@ public class ResultsExtractionClient extends BaseLreClient {
     }
 
     private LreRunStatusExtended fetchRunStatusExtended() {
-        LreRunStatusReqWeb req = LreRunStatusReqWeb.createRunStatusPayloadForRunId(model.getRunId());
-        var results = lreRestApis.fetchRunResultsExtended(JsonUtils.toJson(req));
-        if (results.isEmpty()) throw new LreException("No run status available for Run " + model.getRunId());
-        return results.get(0);
+        RunStatusMonitor statusMonitor = new RunStatusMonitor(lreRestApis, model);
+        return statusMonitor.fetchRunStatusExtended();
     }
 
     private void ensureReportDataFetched() {

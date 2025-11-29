@@ -65,7 +65,15 @@ public class WorkloadType {
     @JsonIgnore
     public String getWorkloadTypeAsStr() {
         return String.format("%s %s", this.getType().getValue(), this.getSubType().getValue()).toLowerCase(Locale.ROOT);
+    }
 
+    @JsonIgnore
+    public String getFullWorkloadTypeAsStr() {
+        return String.format("%s %s %s",
+                this.getType().getValue(),
+                this.getSubType().getValue(),
+                this.getVusersDistributionMode().getValue()
+        ).toLowerCase(Locale.ROOT);
     }
 
 }

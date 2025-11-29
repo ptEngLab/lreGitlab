@@ -54,5 +54,6 @@ public class ReportDataService {
             Path errorsDbPath,
             List<LreTxnStats> transactions,
             List<LreErrorStats> errors
-    ) {}
+    ) {
+    }
 }

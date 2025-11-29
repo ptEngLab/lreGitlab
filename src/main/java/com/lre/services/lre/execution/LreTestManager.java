@@ -64,6 +64,7 @@ public class LreTestManager {
         model.setTestId(test.getId());
         model.setTestName(test.getName());
         model.setTestFolderPath(normalizePathWithSubject(test.getTestFolderPath()));
+        model.setWorkloadType(test.getContent().getWorkloadType().getFullWorkloadTypeAsStr());
     }
 
     private void findTestByName(String testName) {

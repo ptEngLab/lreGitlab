@@ -32,6 +32,7 @@ public class LreTestRunModel {
     private int timeslotDurationMinutes;
     private long maxErrors;
     private long maxFailedTxns;
+    private String workloadType;
 
     private PostRunAction lrePostRunAction;
     private boolean virtualUserFlexDaysMode;

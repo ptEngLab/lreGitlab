@@ -97,8 +97,6 @@ public class CommonUtils {
     }
 
 
-
-
     public static String logTable(String[][] data) {
         return logTable(null, data);
     }
@@ -341,14 +339,29 @@ public class CommonUtils {
         StringBuilder sb = new StringBuilder(s.length() + 10);
         for (char c : s.toCharArray()) {
             switch (c) {
-                case '<'  -> sb.append("&lt;");
-                case '>'  -> sb.append("&gt;");
-                case '&'  -> sb.append("&amp;");
-                case '"'  -> sb.append("&quot;");
+                case '<' -> sb.append("&lt;");
+                case '>' -> sb.append("&gt;");
+                case '&' -> sb.append("&amp;");
+                case '"' -> sb.append("&quot;");
                 case '\'' -> sb.append("&#39;");
-                default   -> sb.append(c);
+                default -> sb.append(c);
             }
         }
         return sb.toString();
+    }
+
+    public static long parseHmsToSeconds(String hms) {
+        String[] parts = hms.split(":");
+        long hours = Long.parseLong(parts[0]);
+        long minutes = Long.parseLong(parts[1]);
+        long seconds = Long.parseLong(parts[2]);
+        return hours * 3600 + minutes * 60 + seconds;
+    }
+
+    public static int calculateTps(long totalTransactions, String durationHms) {
+        long durationSeconds = parseHmsToSeconds(durationHms);
+        if (durationSeconds == 0) return 0; // avoid divide-by-zero
+        double tps = (double) totalTransactions / durationSeconds;
+        return (int) Math.round(tps); // return int value
     }
 }

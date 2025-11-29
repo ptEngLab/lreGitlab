@@ -2,9 +2,18 @@ package com.lre.services.lre.monitor;
 
 import com.lre.client.api.lre.LreRestApis;
 import com.lre.client.runmodel.LreTestRunModel;
+import com.lre.common.exceptions.LreException;
+import com.lre.common.utils.JsonUtils;
 import com.lre.model.enums.RunState;
 import com.lre.model.run.LreRunStatus;
+import com.lre.model.run.LreRunStatusExtended;
+import com.lre.model.run.LreRunStatusReqWeb;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
+
+import static com.lre.common.utils.CommonUtils.calculateTestDuration;
+import static com.lre.common.utils.CommonUtils.calculateTps;
 
 @Slf4j
 public class RunStatusMonitor {
@@ -68,5 +77,17 @@ public class RunStatusMonitor {
         } catch (Exception ex) {
             log.error("Failed to abort run [{}] after threshold breach: {}", runId, ex.getMessage());
         }
+    }
+
+    public LreRunStatusExtended fetchRunStatusExtended() {
+        LreRunStatusReqWeb req = LreRunStatusReqWeb.createRunStatusPayloadForRunId(model.getRunId());
+        List<LreRunStatusExtended> results = apiClient.fetchRunResultsExtended(JsonUtils.toJson(req));
+        if (results.isEmpty()) throw new LreException("No run status found for Run ID " + model.getRunId());
+        LreRunStatusExtended res = results.get(0);
+        long totalTxns = res.getTransPassed();
+        String duration = calculateTestDuration(res.getStart(), res.getEnd());
+        int tps = calculateTps(totalTxns, duration);
+        res.setTransPerSec(tps);
+        return res;
     }
 }

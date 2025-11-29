@@ -32,7 +32,7 @@ public class TextSummaryGenerator {
                         "Transaction Passed: " + runStatusExtended.getTransPassed(),
                         "Transaction Failed: " + thresholds.failedTxnStr(),
                         "Errors: " + thresholds.errorStr(),
-                        "Transaction per Sec: " + runStatusExtended.getTransPerSec()
+                        "Transaction per Sec (passed): " + runStatusExtended.getTransPerSec()
                 },
                 {
                         "Hits per Sec: " + runStatusExtended.getHitsPerSec(),
