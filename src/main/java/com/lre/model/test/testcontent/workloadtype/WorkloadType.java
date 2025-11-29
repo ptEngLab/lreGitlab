@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import java.util.Locale;
 
 import static com.lre.common.constants.ConfigConstants.LRE_API_XMLNS;
+import static com.lre.common.utils.CommonUtils.toTitleCase;
 
 @Data
 @NoArgsConstructor
@@ -50,11 +51,15 @@ public class WorkloadType {
         }
 
         return switch (userInput) {
-            case 1 -> new WorkloadType(com.lre.model.enums.WorkloadType.BASIC, WorkloadSubType.BY_TEST, WorkloadVusersDistributionMode.BY_NUMBER);
-            case 2 -> new WorkloadType(com.lre.model.enums.WorkloadType.BASIC, WorkloadSubType.BY_TEST, WorkloadVusersDistributionMode.BY_PERCENTAGE);
+            case 1 ->
+                    new WorkloadType(com.lre.model.enums.WorkloadType.BASIC, WorkloadSubType.BY_TEST, WorkloadVusersDistributionMode.BY_NUMBER);
+            case 2 ->
+                    new WorkloadType(com.lre.model.enums.WorkloadType.BASIC, WorkloadSubType.BY_TEST, WorkloadVusersDistributionMode.BY_PERCENTAGE);
             case 3 -> new WorkloadType(com.lre.model.enums.WorkloadType.BASIC, WorkloadSubType.BY_GROUP);
-            case 4 -> new WorkloadType(com.lre.model.enums.WorkloadType.REAL_WORLD, WorkloadSubType.BY_TEST, WorkloadVusersDistributionMode.BY_NUMBER);
-            case 5 -> new WorkloadType(com.lre.model.enums.WorkloadType.REAL_WORLD, WorkloadSubType.BY_TEST, WorkloadVusersDistributionMode.BY_PERCENTAGE);
+            case 4 ->
+                    new WorkloadType(com.lre.model.enums.WorkloadType.REAL_WORLD, WorkloadSubType.BY_TEST, WorkloadVusersDistributionMode.BY_NUMBER);
+            case 5 ->
+                    new WorkloadType(com.lre.model.enums.WorkloadType.REAL_WORLD, WorkloadSubType.BY_TEST, WorkloadVusersDistributionMode.BY_PERCENTAGE);
             case 6 -> new WorkloadType(com.lre.model.enums.WorkloadType.REAL_WORLD, WorkloadSubType.BY_GROUP);
             case 7 -> new WorkloadType(com.lre.model.enums.WorkloadType.GOAL_ORIENTED);
             default -> throw new IllegalArgumentException("Invalid WorkloadType code: " + userInput);
@@ -69,11 +74,13 @@ public class WorkloadType {
 
     @JsonIgnore
     public String getFullWorkloadTypeAsStr() {
-        return String.format("%s %s %s",
+        String raw = String.format("%s %s %s",
                 this.getType().getValue(),
                 this.getSubType().getValue(),
                 this.getVusersDistributionMode().getValue()
-        ).toLowerCase(Locale.ROOT);
+        );
+
+        return toTitleCase(raw);
     }
 
 }

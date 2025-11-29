@@ -15,6 +15,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.function.Function;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -364,4 +365,16 @@ public class CommonUtils {
         double tps = (double) totalTransactions / durationSeconds;
         return (int) Math.round(tps); // return int value
     }
+
+
+    public static String toTitleCase(String input) {
+        String[] parts = input.trim().toLowerCase(Locale.ROOT).split("\\s+");
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < parts.length; i++) {
+            if (i > 0) sb.append(" ");
+            sb.append(Character.toUpperCase(parts[i].charAt(0))).append(parts[i].substring(1));
+        }
+        return sb.toString();
+    }
+
 }
