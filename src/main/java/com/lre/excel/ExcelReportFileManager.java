@@ -3,12 +3,14 @@ package com.lre.excel;
 import com.lre.common.constants.ConfigConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Workbook;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static com.lre.common.constants.ConfigConstants.ARTIFACTS_DIR;
+import static com.lre.common.constants.ConfigConstants.EXCEL_FILE;
 
 @Slf4j
 public class ExcelReportFileManager {
@@ -37,8 +39,10 @@ public class ExcelReportFileManager {
      * Creates and returns the path for the Excel file.
      */
     public static Path getExcelFilePath(int runId) {
-        return Path.of(ConfigConstants.DEFAULT_OUTPUT_DIR, ARTIFACTS_DIR, "output", "HighLevelTestResults_" + runId + ".xlsx");
+        return Path.of(ConfigConstants.DEFAULT_OUTPUT_DIR, ARTIFACTS_DIR, String.format(EXCEL_FILE, runId)
+        );
     }
+
 
     /**
      * Saves the given workbook to the specified path.

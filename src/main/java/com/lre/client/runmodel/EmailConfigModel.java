@@ -7,7 +7,7 @@ import lombok.ToString;
 import java.util.List;
 
 @Data
-@Builder
+@Builder(toBuilder = true)
 @ToString(exclude = {"password"})
 public class EmailConfigModel {
     private String smtpHost;

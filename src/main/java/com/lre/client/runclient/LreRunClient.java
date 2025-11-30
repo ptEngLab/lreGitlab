@@ -11,8 +11,8 @@ import com.lre.services.lre.execution.LreTestManager;
 import com.lre.services.lre.execution.LreTimeslotManager;
 import com.lre.services.lre.monitor.RunStatusMonitor;
 import com.lre.services.lre.poller.LreRunStatusPoller;
-import com.lre.services.lre.report.fetcher.ReportDataService;
-import com.lre.services.lre.summary.RunSummaryData;
+import com.lre.services.lre.report.renderer.text.TextSummaryGenerator;
+import com.lre.services.lre.summary.ThresholdResult;
 import lombok.extern.slf4j.Slf4j;
 
 import static com.lre.common.utils.CommonUtils.logTable;
@@ -57,9 +57,9 @@ public class LreRunClient extends BaseLreClient {
     public void printRunSummary() {
         RunStatusMonitor statusMonitor = new RunStatusMonitor(lreRestApis, model);
         LreRunStatusExtended runStatus = statusMonitor.fetchRunStatusExtended();
-        var reportData = ReportDataService.fetchReportData(model.getAnalysedReportPath(), model.getRunId());
-        RunSummaryData summary = RunSummaryData.createFrom(model, runStatus, reportData);
-        log.info(logTable(summary.textSummary()));
+        ThresholdResult thresholds = ThresholdResult.checkThresholds(model, runStatus);
+        String[][] textSummary = TextSummaryGenerator.generate(model, runStatus, thresholds);
+        log.info(logTable(textSummary));
     }
 
 

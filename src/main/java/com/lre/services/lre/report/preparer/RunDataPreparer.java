@@ -4,6 +4,7 @@ import com.lre.client.runmodel.LreTestRunModel;
 import com.lre.model.run.LreRunStatusExtended;
 import com.lre.services.lre.report.renderer.html.LgHtmlBuilder;
 import com.lre.services.lre.summary.ThresholdResult;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
 
@@ -11,6 +12,7 @@ import static com.lre.common.constants.ConfigConstants.DASHBOARD_URL;
 import static com.lre.common.utils.CommonUtils.calculateTestDuration;
 import static com.lre.common.utils.CommonUtils.formatDateTime;
 
+@Slf4j
 public class RunDataPreparer {
     public static Map<String, String> prepare(LreTestRunModel model, LreRunStatusExtended runStatusExtended, ThresholdResult thresholds) {
         var runData = new java.util.HashMap<String, String>();
@@ -54,37 +56,59 @@ public class RunDataPreparer {
         return "#ffc107";
     }
 
-    private static String generateFailureReason(LreTestRunModel model, LreRunStatusExtended runStatus, ThresholdResult thresholds) {
-        StringBuilder reason = new StringBuilder();
-        reason.append("The test ");
 
-        if (thresholds.errorExceeded() || thresholds.failedTxnExceeded() || model.isTestFailed()) {
-            reason.append("was marked as <strong>FAILED</strong> because ");
+    private static String generateFailureReason(LreTestRunModel model,
+                                                LreRunStatusExtended runStatus,
+                                                ThresholdResult thresholds) {
 
-            boolean first = true;
+        boolean errorExceeded = thresholds.errorExceeded();
+        boolean failedTxnExceeded = thresholds.failedTxnExceeded();
+        boolean manuallyFailed = model.isTestFailed();
 
-            if (thresholds.errorExceeded()) {
-                reason.append("the number of errors observed (")
-                        .append(runStatus.getErrors())
-                        .append(") exceeded the defined threshold of ")
-                        .append(model.getMaxErrors());
-                first = false;
-            }
-
-            if (thresholds.failedTxnExceeded()) {
-                if (!first) reason.append(" and ");
-                reason.append("the number of failed transactions observed (")
-                        .append(runStatus.getTransFailed())
-                        .append(") exceeded the defined threshold of ")
-                        .append(model.getMaxFailedTxns());
-            }
-
-            if (!thresholds.errorExceeded() && !thresholds.failedTxnExceeded() && model.isTestFailed()) {
-                reason.append("the test was manually marked as failed in LoadRunner Enterprise.");
-            } else {
-                reason.append(".");
-            }
+        // No failure → return empty string
+        if (!errorExceeded && !failedTxnExceeded && !manuallyFailed) {
+            return "";
         }
+
+        StringBuilder reason = new StringBuilder();
+
+        // Start TR block
+        reason.append("<tr><td style=\"padding:10px 25px 25px 25px;\">")
+                .append("<p style=\"")
+                .append("margin:0; font-size:13px; color:#89363f; line-height:2.2; ")
+                .append("padding:14px; border-left:4px solid #dc3545; border-radius:6px;")
+                .append("\">");
+
+        // Build failure explanation
+        reason.append("The test was marked as <strong>FAILED</strong> because ");
+
+        boolean first = true;
+
+        if (errorExceeded) {
+            reason.append("the number of errors observed (")
+                    .append(runStatus.getErrors())
+                    .append(") exceeded the defined threshold of ")
+                    .append(model.getMaxErrors());
+            first = false;
+        }
+
+        if (failedTxnExceeded) {
+            if (!first) reason.append(" and ");
+            reason.append("the number of failed transactions observed (")
+                    .append(runStatus.getTransFailed())
+                    .append(") exceeded the defined threshold of ")
+                    .append(model.getMaxFailedTxns());
+            first = false;
+        }
+
+        if (manuallyFailed && first) {
+            reason.append("the test was manually marked as failed in LoadRunner Enterprise.");
+        } else {
+            reason.append(".");
+        }
+
+        // Close tags
+        reason.append("</p></td></tr>");
 
         return reason.toString();
     }

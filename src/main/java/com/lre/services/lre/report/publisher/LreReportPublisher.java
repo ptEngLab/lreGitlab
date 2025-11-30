@@ -3,13 +3,13 @@ package com.lre.services.lre.report.publisher;
 import com.lre.client.api.lre.LreRestApis;
 import com.lre.client.runmodel.LreTestRunModel;
 import com.lre.common.utils.CommonUtils;
+import com.lre.common.utils.ReportPathUtils;
 import com.lre.model.run.LreRunResult;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
@@ -78,40 +78,26 @@ public record LreReportPublisher(LreRestApis lreRestApis, LreTestRunModel model)
      * Handles directory creation, report download, cleanup, and extraction for both HTML and Analysed reports.
      */
     private Optional<Path> prepareAndExtractReport(int runId, LreRunResult result, String reportType) throws IOException {
-        Path reportDir;
 
-        // Determine whether to use the HTML or Analysed report path
-        if (HTML_REPORTS_TYPE.equalsIgnoreCase(reportType)) {
-            reportDir = Paths.get(String.format(HTML_REPORT_PATH, model.getWorkspace(), ARTIFACTS_DIR));
-        } else {
-            // For analyzed report, use ANALYSED_RESULTS_PATH
-            reportDir = Paths.get(String.format(ANALYSED_RESULTS_PATH, model.getWorkspace(), ARTIFACTS_DIR));
-        }
-
-        Files.createDirectories(reportDir);
-
-        // Set report archive name based on type
+        Path extractedDir = ReportPathUtils.buildExtractedReportPath(model.getWorkspace(), reportType);
+        Files.createDirectories(extractedDir.getParent());
         String reportArchiveName = HTML_REPORTS_TYPE.equalsIgnoreCase(reportType)
                 ? String.format(HTML_REPORT_ARCHIVE_NAME, runId)
                 : String.format(ANALYSED_REPORT_ARCHIVE_NAME, runId);
 
-        Path archivePath = reportDir.resolve(reportArchiveName);
-        Path extractedDir = reportDir.resolve(reportType.toLowerCase().replace(" ", "_") + "_extracted");
+        Path archivePath = extractedDir.getParent().resolve(reportArchiveName);
 
-        log.info("Downloading result file for type: {} ", reportType);
+        log.info("Downloading result file for type: {}", reportType);
 
         if (!downloadReportArchive(runId, result.getId(), archivePath)) {
-            log.error("Error in downloading result file");
+            log.error("Error downloading report file");
             return Optional.empty();
         }
-
-        log.info("Result file has been downloaded successfully to: {}", extractedDir.toAbsolutePath());
-
 
         cleanOldReportDir(extractedDir);
         extractReport(archivePath, extractedDir);
 
-        log.debug("{} report successfully extracted to: {}", reportType, extractedDir.toAbsolutePath());
+        log.info("{} report extracted to: {}", reportType, extractedDir.toAbsolutePath());
         return Optional.of(extractedDir);
     }
 

@@ -1,10 +1,12 @@
 package com.lre.client.runclient;
 
 import com.lre.client.runmodel.EmailConfigModel;
+import com.lre.client.runmodel.LreTestRunModel;
 import com.lre.common.constants.ConfigConstants;
 import jakarta.mail.*;
 import jakarta.mail.internet.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,13 +20,9 @@ import static com.lre.common.constants.ConfigConstants.ARTIFACTS_DIR;
 import static com.lre.common.constants.ConfigConstants.EMAILABLE_HTML;
 
 @Slf4j
-public record EmailClient(EmailConfigModel emailConfig) implements AutoCloseable {
+public record EmailClient(EmailConfigModel emailConfig, LreTestRunModel lreTestRunModel) implements AutoCloseable {
 
     public boolean send() {
-        if (!validateConfig()) {
-            return false;
-        }
-
         try {
             Session session = createSession();
             Message message = buildMessage(session);
@@ -48,31 +46,6 @@ public record EmailClient(EmailConfigModel emailConfig) implements AutoCloseable
         }
     }
 
-    private boolean validateConfig() {
-        if (emailConfig == null) {
-            log.error("Email configuration is null");
-            return false;
-        }
-
-        if (emailConfig.getTo() == null || emailConfig.getTo().trim().isEmpty()) {
-            log.error("Recipient email address is required");
-            return false;
-        }
-
-        if (emailConfig.getSmtpHost() == null || emailConfig.getSmtpHost().trim().isEmpty()) {
-            log.error("SMTP host is required");
-            return false;
-        }
-
-        if (emailConfig.getFrom() == null || emailConfig.getFrom().trim().isEmpty()) {
-            log.error("From address is required");
-            return false;
-        }
-
-        log.debug("Email configuration validated successfully");
-        return true;
-    }
-
     private Session createSession() {
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
@@ -80,22 +53,16 @@ public record EmailClient(EmailConfigModel emailConfig) implements AutoCloseable
         props.put("mail.smtp.host", emailConfig.getSmtpHost());
         props.put("mail.smtp.port", emailConfig.getSmtpPort());
 
-        // Add timeout configurations
-        props.put("mail.smtp.connectiontimeout", "10000"); // 10 seconds
-        props.put("mail.smtp.timeout", "30000"); // 30 seconds
-        props.put("mail.smtp.writetimeout", "30000"); // 30 seconds
-
-        // Additional properties for better handling
+        props.put("mail.smtp.connectiontimeout", "10000");
+        props.put("mail.smtp.timeout", "30000");
+        props.put("mail.smtp.writetimeout", "30000");
         props.put("mail.smtp.ssl.trust", emailConfig.getSmtpHost());
         props.put("mail.smtp.ssl.protocols", "TLSv1.2 TLSv1.3");
 
         return Session.getInstance(props, new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(
-                        emailConfig.getUsername(),
-                        emailConfig.getPassword()
-                );
+                return new PasswordAuthentication(emailConfig.getUsername(), emailConfig.getPassword());
             }
         });
     }
@@ -103,26 +70,20 @@ public record EmailClient(EmailConfigModel emailConfig) implements AutoCloseable
     private Message buildMessage(Session session) throws MessagingException, IOException {
         Message message = new MimeMessage(session);
 
-        // Set basic headers
         message.setFrom(new InternetAddress(emailConfig.getFrom()));
         message.setRecipients(Message.RecipientType.TO, parseAddresses(emailConfig.getTo()));
 
-        // Set CC if provided
-        if (emailConfig.getCc() != null && !emailConfig.getCc().trim().isEmpty()) {
+        if (StringUtils.isNotBlank(emailConfig.getCc())) {
             message.setRecipients(Message.RecipientType.CC, parseAddresses(emailConfig.getCc()));
         }
-
-        // Set BCC if provided
-        if (emailConfig.getBcc() != null && !emailConfig.getBcc().trim().isEmpty()) {
+        if (StringUtils.isNotBlank(emailConfig.getBcc())) {
             message.setRecipients(Message.RecipientType.BCC, parseAddresses(emailConfig.getBcc()));
         }
 
-        message.setSubject(emailConfig.getSubject() != null ? emailConfig.getSubject() : "(No Subject)");
+        // Use subject from EmailConfigModel directly
+        message.setSubject(StringUtils.defaultIfBlank(emailConfig.getSubject(), "(No Subject)"));
 
-        // Set content
         message.setContent(buildMultipart());
-
-        // Set additional headers
         message.setHeader("X-Mailer", "LRE-Client");
         message.setSentDate(new java.util.Date());
 
@@ -131,29 +92,24 @@ public record EmailClient(EmailConfigModel emailConfig) implements AutoCloseable
 
     private Multipart buildMultipart() throws MessagingException, IOException {
         Multipart multipart = new MimeMultipart();
-
-        // Add text body part (HTML or plain text)
         multipart.addBodyPart(createTextBodyPart());
-
-        // Add attachments
         addAttachments(multipart);
-
         return multipart;
     }
 
     private MimeBodyPart createTextBodyPart() throws MessagingException {
         MimeBodyPart textBodyPart = new MimeBodyPart();
-
         String body = "";
         try {
             Path reportDir = Paths.get(ConfigConstants.DEFAULT_OUTPUT_DIR, ARTIFACTS_DIR, EMAILABLE_HTML);
-            body = Files.readString(reportDir, StandardCharsets.UTF_8);
+            if (Files.exists(reportDir) && Files.isRegularFile(reportDir)) {
+                body = Files.readString(reportDir, StandardCharsets.UTF_8);
+            } else log.warn("Email body file not found or is not a regular file: {}", reportDir);
         } catch (IOException e) {
             log.error("Failed to read email body from file", e);
         }
 
         textBodyPart.setContent(body, "text/html; charset=utf-8");
-
         return textBodyPart;
     }
 
@@ -162,9 +118,7 @@ public record EmailClient(EmailConfigModel emailConfig) implements AutoCloseable
             for (String attachmentPath : emailConfig.getAttachmentPaths()) {
                 addAttachment(multipart, attachmentPath);
             }
-        }
-        // Support for single attachment path for backward compatibility
-        else if (emailConfig.getAttachmentPath() != null && !emailConfig.getAttachmentPath().isEmpty()) {
+        } else if (emailConfig.getAttachmentPath() != null && !emailConfig.getAttachmentPath().isEmpty()) {
             addAttachment(multipart, emailConfig.getAttachmentPath());
         }
     }
@@ -174,10 +128,7 @@ public record EmailClient(EmailConfigModel emailConfig) implements AutoCloseable
         if (attachment.exists() && attachment.isFile()) {
             MimeBodyPart attachmentPart = new MimeBodyPart();
             attachmentPart.attachFile(attachment);
-
-            // Set filename header
             attachmentPart.setFileName(attachment.getName());
-
             multipart.addBodyPart(attachmentPart);
             log.info("Attached file: {}", attachment.getAbsolutePath());
         } else {
@@ -186,15 +137,13 @@ public record EmailClient(EmailConfigModel emailConfig) implements AutoCloseable
     }
 
     private Address[] parseAddresses(String addresses) throws AddressException {
-        if (addresses == null || addresses.trim().isEmpty()) {
-            return new Address[0];
-        }
+        if (StringUtils.isBlank(addresses)) return new Address[0];
+        addresses = addresses.replace(";", ",");
         return InternetAddress.parse(addresses.trim());
     }
 
     @Override
     public void close() {
-        // Can be used for cleanup in future versions
         log.debug("Email client closed");
     }
 }

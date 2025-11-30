@@ -164,11 +164,11 @@ public class ParameterDefinitions {
         // Email Parameters
         List<ConfigParameter<?>> emailParams = Arrays.asList(
                 new ConfigParameter<>(Keys.SEND_EMAIL_FLAG, false, Defaults.SEND_EMAIL_FLAG),
-                new ConfigParameter<>(Keys.EMAIL_SMTP_HOST, false, Defaults.EMAIL_SMTP_HOST),
-                new ConfigParameter<>(Keys.EMAIL_SMTP_PORT, false, Defaults.EMAIL_SMTP_PORT),
-                new ConfigParameter<>(Keys.EMAIL_USERNAME, false, Defaults.EMAIL_USERNAME),
-                new ConfigParameter<>(Keys.EMAIL_PASSWORD, false, Defaults.EMAIL_PASSWORD),
-                new ConfigParameter<>(Keys.EMAIL_FROM, false, Defaults.EMAIL_FROM),
+                new ConfigParameter<>(Keys.EMAIL_SMTP_HOST, false, Defaults.EMAIL_SMTP_HOST, true),
+                new ConfigParameter<>(Keys.EMAIL_SMTP_PORT, false, Defaults.EMAIL_SMTP_PORT, true),
+                new ConfigParameter<>(Keys.EMAIL_USERNAME, false, Defaults.EMAIL_USERNAME, true),
+                new ConfigParameter<>(Keys.EMAIL_PASSWORD, false, Defaults.EMAIL_PASSWORD, true),
+                new ConfigParameter<>(Keys.EMAIL_FROM, false, Defaults.EMAIL_FROM, true),
                 new ConfigParameter<>(Keys.EMAIL_TO, false, Defaults.EMAIL_TO, true),
                 new ConfigParameter<>(Keys.EMAIL_CC, false, Defaults.EMAIL_CC),
                 new ConfigParameter<>(Keys.EMAIL_BCC, false, Defaults.EMAIL_BCC),

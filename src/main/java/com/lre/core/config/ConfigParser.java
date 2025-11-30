@@ -52,7 +52,12 @@ public record ConfigParser(ParameterResolver resolver, Operation operation) {
                                       boolean requiresRunId) {
 
         return switch (def.key()) {
-            case ParameterDefinitions.Keys.EMAIL_TO -> sendEmail;               // Email logic
+            case ParameterDefinitions.Keys.EMAIL_SMTP_HOST,
+                 ParameterDefinitions.Keys.EMAIL_SMTP_PORT,
+                 ParameterDefinitions.Keys.EMAIL_USERNAME,
+                 ParameterDefinitions.Keys.EMAIL_PASSWORD,
+                 ParameterDefinitions.Keys.EMAIL_FROM,
+                 ParameterDefinitions.Keys.EMAIL_TO -> sendEmail;               // Email logic
             case ParameterDefinitions.Keys.GITLAB_TOKEN,
                  ParameterDefinitions.Keys.GITLAB_PROJECT_ID -> syncGitlab;     // GitLab logic
             case ParameterDefinitions.Keys.LRE_RUN_ID -> requiresRunId;         // Run ID required for EXTRACT_RESULTS

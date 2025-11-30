@@ -1,9 +1,6 @@
 package com.lre.app;
 
-import com.lre.client.runclient.EmailClient;
-import com.lre.client.runclient.GitSyncClient;
-import com.lre.client.runclient.LreRunClient;
-import com.lre.client.runclient.ResultsExtractionClient;
+import com.lre.client.runclient.*;
 import com.lre.client.runmodel.EmailConfigModel;
 import com.lre.client.runmodel.GitTestRunModel;
 import com.lre.client.runmodel.LreTestRunModel;
@@ -105,7 +102,7 @@ public class Main {
         return switch (operation) {
             case RUN_LRE_TEST -> runLreTest(lreTestRunModel);
             case SYNC_GITLAB_WITH_LRE -> syncGitlabWithLre(gitTestRunModel, lreTestRunModel);
-            case SEND_EMAIL -> sendEmail(emailConfigModel);
+            case SEND_EMAIL -> sendEmail(emailConfigModel, lreTestRunModel);
             case EXTRACT_RESULTS -> extractResults(lreTestRunModel);
             default -> {
                 log.error("Unsupported operation: {}", operation);
@@ -115,10 +112,19 @@ public class Main {
     }
 
     private static boolean runLreTest(LreTestRunModel lreTestRunModel) throws LreException {
+        if (!lreTestRunModel.isRunTestFromGitlab()) {
+            log.info("RUN_LRE_TEST_FROM_GITLAB_FLAG is set to false. Skipping LRE test execution.");
+            return true;
+        }
+
         try (LreRunClient lreRunClient = new LreRunClient(lreTestRunModel)) {
             lreRunClient.startRun();
             lreRunClient.printRunSummary();
             return true;
+
+        } catch (Exception e) {
+            log.error("Error starting LRE Test Run: {}", e.getMessage(), e);
+            return false;
         }
     }
 
@@ -129,14 +135,9 @@ public class Main {
         }
     }
 
-    private static boolean sendEmail(EmailConfigModel emailConfigModel) {
+    private static boolean sendEmail(EmailConfigModel emailConfigModel, LreTestRunModel lreTestRunModel) {
         log.info("Starting email sending process...");
-        try (EmailClient emailClient = new EmailClient(emailConfigModel)) {
-            return emailClient.send();
-        } catch (Exception e) {
-            log.error("Error during email send operation: {}", e.getMessage(), e);
-            return false;
-        }
+        return EmailUtils.sendEmailWithPipelineArtifacts(emailConfigModel, lreTestRunModel);
     }
 
     private static boolean extractResults(LreTestRunModel lreTestRunModel) {

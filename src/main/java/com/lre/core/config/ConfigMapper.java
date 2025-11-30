@@ -4,6 +4,7 @@ import com.lre.client.runmodel.EmailConfigModel;
 import com.lre.client.runmodel.GitTestRunModel;
 import com.lre.client.runmodel.LreTestRunModel;
 import com.lre.common.utils.CommonUtils;
+import com.lre.common.utils.ReportPathUtils;
 import com.lre.common.utils.TestFileHelper;
 import com.lre.model.enums.PostRunAction;
 import lombok.extern.slf4j.Slf4j;
@@ -14,10 +15,16 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 
+import static com.lre.common.constants.ConfigConstants.*;
+
 @Slf4j
 public class ConfigMapper {
 
     public LreTestRunModel mapToLreModel(Map<String, Object> params) throws IOException {
+        String workspace = (String) params.get(ParameterDefinitions.Keys.LRE_OUTPUT_DIR);
+        Path htmlReportPath = ReportPathUtils.buildExtractedReportPath(workspace, HTML_REPORTS_TYPE);
+        Path analysedReportPath = ReportPathUtils.buildExtractedReportPath(workspace, ANALYSED_RESULTS_TYPE);
+
         LreTestRunModel.LreTestRunModelBuilder builder = LreTestRunModel.builder()
                 .lreServerUrl((String) params.get(ParameterDefinitions.Keys.LRE_SERVER))
                 .userName((String) params.get(ParameterDefinitions.Keys.LRE_USERNAME))
@@ -35,7 +42,7 @@ public class ConfigMapper {
                 .authenticateWithToken(getAuthType(params))
                 .searchTimeslot((Boolean) params.get(ParameterDefinitions.Keys.LRE_SEARCH_TIMESLOT))
                 .statusBySla((String) params.get(ParameterDefinitions.Keys.LRE_STATUS_BY_SLA))
-                .workspace((String) params.get(ParameterDefinitions.Keys.LRE_OUTPUT_DIR))
+                .workspace(workspace)
                 .runTestFromGitlab((Boolean) params.get(ParameterDefinitions.Keys.RUN_LRE_TEST_FROM_GITLAB_FLAG))
                 .maxErrors((Long) params.get(ParameterDefinitions.Keys.MAX_ERROR_COUNT))
                 .maxFailedTxns((Long) params.get(ParameterDefinitions.Keys.MAX_FAILED_TXN_COUNT))
@@ -47,7 +54,9 @@ public class ConfigMapper {
                 .lreInternalRunId(0)
                 .dashboardUrl(null)
                 .timeslotId(0)
-                .htmlReportAvailable(false);
+                .htmlReportAvailable(false)
+                .htmlReportPath(htmlReportPath)
+                .analysedReportPath(analysedReportPath);
 
         resolveTestDetails(params, builder);
         return builder.build();

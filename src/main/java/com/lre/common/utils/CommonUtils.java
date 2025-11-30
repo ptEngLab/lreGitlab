@@ -62,8 +62,8 @@ public class CommonUtils {
     }
 
     public static void writeRunIdToFile(int runId) {
-        // <cwd>/artifacts/reports/lre_run_id.env
-        Path reportDir = Paths.get(DEFAULT_OUTPUT_DIR, ARTIFACTS_DIR, "reports");
+        // <cwd>/artifacts/lre_run_id.env
+        Path reportDir = Paths.get(DEFAULT_OUTPUT_DIR, ARTIFACTS_DIR);
         Path filePath = reportDir.resolve(LRE_RUN_ID_FILE);
 
         try {

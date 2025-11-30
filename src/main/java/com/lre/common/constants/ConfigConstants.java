@@ -20,6 +20,7 @@ public class ConfigConstants {
     public static final String ANALYSED_REPORT_ARCHIVE_NAME = "Results_%d.zip";  // Analyzed report archive name (using runId)
     public static final String RESULTS_DB_FORMAT = "Results_%s.db";
     public static final String ERRORS_DB_FORMAT = "sqlitedb.db";
+    public static final String EXCEL_FILE = "Output/HighLevelTestResults_%d.xlsx";
 
     public static final String EMAILABLE_HTML = "LreReports/email.html";
     public static final String LRE_LOG_FILE = "lre_actions_%s.log";
