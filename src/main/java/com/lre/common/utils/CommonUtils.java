@@ -99,59 +99,11 @@ public class CommonUtils {
 
 
     public static String logTable(String[][] data) {
-        return logTable(null, data);
+        return TableFormatter.format(data);
     }
 
     public static String logTable(String[] header, String[][] dataRows) {
-        if ((header == null || header.length == 0) && (dataRows == null || dataRows.length == 0)) {
-            return "";
-        }
-
-        int columns = header != null ? header.length : dataRows[0].length;
-        int[] columnWidths = new int[columns];
-
-        // Compute max width per column (including header)
-        for (int i = 0; i < columns; i++) {
-            if (header != null && i < header.length && header[i] != null) {
-                columnWidths[i] = Math.max(columnWidths[i], header[i].length());
-            }
-            if (dataRows != null) {
-                for (String[] row : dataRows) {
-                    if (i < row.length && row[i] != null) {
-                        columnWidths[i] = Math.max(columnWidths[i], row[i].length());
-                    }
-                }
-            }
-        }
-
-        // Build horizontal border
-        StringBuilder borderBuilder = new StringBuilder("+");
-        for (int w : columnWidths) borderBuilder.append("-".repeat(w + 2)).append("+");
-        String border = borderBuilder + "\n";
-
-        // Build row format
-        StringBuilder formatBuilder = new StringBuilder("|");
-        for (int w : columnWidths) formatBuilder.append(" %-").append(w).append("s |");
-        String rowFormat = formatBuilder + "\n";
-
-        StringBuilder sb = new StringBuilder("\n");
-        sb.append(border);
-
-        // Add header if exists
-        if (header != null) {
-            sb.append(String.format(rowFormat, (Object[]) header));
-            sb.append(border); // separate header from data
-        }
-
-        // Add data rows
-        if (dataRows != null) {
-            for (String[] row : dataRows) {
-                sb.append(String.format(rowFormat, (Object[]) row));
-            }
-        }
-
-        sb.append(border);
-        return sb.toString();
+        return TableFormatter.format(header, dataRows);
     }
 
     public static String normalizePathWithSubject(String path) {

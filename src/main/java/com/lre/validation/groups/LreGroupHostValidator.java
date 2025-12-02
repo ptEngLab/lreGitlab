@@ -67,9 +67,12 @@ public class LreGroupHostValidator {
                 .toList();
     }
 
+
     private Map<String, String> parseHostTemplates(String hostTemplateRaw) {
         Map<String, String> map = new HashMap<>();
-        if (hostTemplateRaw == null || hostTemplateRaw.isBlank()) return map;
+        if (StringUtils.isBlank(hostTemplateRaw)) {
+            return map;
+        }
 
         String[] entries = hostTemplateRaw.split(",");
         boolean containsColon = Arrays.stream(entries).anyMatch(e -> e.contains(":"));
@@ -84,17 +87,19 @@ public class LreGroupHostValidator {
             for (String entry : entries) {
                 String[] parts = entry.split(":");
                 if (parts.length == 2) {
-                    String host = parts[0].trim().toLowerCase();
-                    String templateId = parts[1].trim();
+                    String host = StringUtils.lowerCase(StringUtils.trim(parts[0]));
+                    String templateId = StringUtils.trim(parts[1]);
                     map.put(host, templateId);
                 }
             }
         } else {
             // Single global template for all cloud hosts
-            map.put("*", hostTemplateRaw.trim());
+            map.put("*", StringUtils.trim(hostTemplateRaw));
         }
+
         return map;
     }
+
 
     private Host createHost(String hostname, Map<String, String> hostTemplateMap, String groupName) {
         Host host = new Host();
