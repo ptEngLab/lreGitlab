@@ -26,6 +26,7 @@ automaticTrending:
 groups:
   - name: "SampleGroup1"           # Logical name of the Vuser group
     script: "e2e/Optional"        # Path or identifier of the test script to run
+    vusers: 10
 
     # Scheduler for this group — defines how users start/stop during the test. This scheduler section used if the workloadTypeCode supports group-level scheduling.
     scheduler:
@@ -60,7 +61,7 @@ groups:
 
 
   - name: "SampleGroup2"
-#    vusers: 10
+    vusers: 10
     script: "10"                # Reference to another script or ID
     hostnames: "LG1, MyLocalLG"
     scheduler:
@@ -70,7 +71,7 @@ groups:
 
 
   - name: "SampleGroup3"
-#    vusers: 15
+    vusers: 15
     script: "11"
     hostnames: "LG2"
     pacing: "random interval: 10 - 15 / 5"   # Random pacing between 10–15 seconds, deviation 5s
@@ -103,7 +104,7 @@ groups:
 # This scheduler section is used if the workloadTypeCode supports only test-level scheduling.
 # ===============================================
 scheduler:
-#  - initialize: "gradually:10u@30s"
+   - initialize: "gradually:10u@30s"
    - startVusers: "10vu:gradually:2U@10s"
 #   - startVusers: "gradually:2U@15s"
 #   - duration: "until complete"

@@ -62,12 +62,6 @@ public class ResultsExtractionClient extends BaseLreClient {
         publishReportIfFinished(ANALYSED_RESULTS_TYPE, ReportType.ANALYSED);
     }
 
-    private void calculateSteadyStateTimings() {
-        SteadyStateCalculator steadyStateCalculator = new SteadyStateCalculator(test);
-        List<SteadyStateResult> results = steadyStateCalculator.calculateSteadyState(123456);
-        log.info("Steady state starts at: {}s", results.get(0).getSteadyStateDurationSeconds());
-    }
-
     public void publishHtmlReportIfFinished() {
         publishReportIfFinished(HTML_REPORTS_TYPE, ReportType.HTML);
     }
@@ -89,6 +83,11 @@ public class ResultsExtractionClient extends BaseLreClient {
         List<ExcelDashboardWriter.Section> sections = ExcelDataMapper.createSections(model, runStatus, thresholds);
         new ExcelReportPublisher(model.getRunId()).export(sections, reportData);
         log.info("Excel report exported successfully for Run {}", model.getRunId());
+    }
+
+    private List<SteadyStateResult> calculateSteadyStateTimings(long testStartTime) {
+        SteadyStateCalculator steadyStateCalculator = new SteadyStateCalculator(test);
+        return steadyStateCalculator.calculateSteadyState(testStartTime);
     }
 
     private void publishReportIfFinished(String type, ReportType reportType) {

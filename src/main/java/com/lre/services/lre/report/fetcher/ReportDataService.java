@@ -1,6 +1,7 @@
 package com.lre.services.lre.report.fetcher;
 
 import com.lre.model.report.LreErrorStats;
+import com.lre.model.report.LreRunInfo;
 import com.lre.model.report.LreTxnStats;
 
 import java.nio.file.Path;
@@ -21,10 +22,11 @@ public class ReportDataService {
         Path resultsDbPath = baseDbPath.resolve(String.format(RESULTS_DB_FORMAT, runId));
         Path errorsDbPath = baseDbPath.resolve(ERRORS_DB_FORMAT);
 
+        LreRunInfo runInfo = ReportStatsFetcher.fetchRunInfo(resultsDbPath);
         List<LreTxnStats> txnStats = ReportStatsFetcher.fetchTransactions(resultsDbPath);
         List<LreErrorStats> errorStats = ReportStatsFetcher.fetchErrors(errorsDbPath);
 
-        return new ReportData(resultsDbPath, errorsDbPath, txnStats, errorStats);
+        return new ReportData(resultsDbPath, errorsDbPath, runInfo, txnStats,  errorStats);
     }
 
     /**
@@ -52,6 +54,7 @@ public class ReportDataService {
     public record ReportData(
             Path resultsDbPath,
             Path errorsDbPath,
+            LreRunInfo runInfo,
             List<LreTxnStats> transactions,
             List<LreErrorStats> errors
     ) {

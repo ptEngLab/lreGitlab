@@ -1,0 +1,243 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<Test xmlns="http://www.hp.com/PC/REST/API">
+  <Name>CreateTestFromYaml</Name>
+  <TestFolderPath>Subject\yamlTest</TestFolderPath>
+  <Content>
+    <Controller>devserver</Controller>
+    <WorkloadType>
+      <Type>basic</Type>
+      <SubType>by test</SubType>
+      <VusersDistributionMode>by number</VusersDistributionMode>
+    </WorkloadType>
+    <LGDistribution>
+      <Type>all to each group</Type>
+      <Amount>1</Amount>
+    </LGDistribution>
+    <MonitorProfiles/>
+    <Groups>
+      <Group>
+        <Name>SampleGroup1</Name>
+        <Vusers>10</Vusers>
+        <Script>
+          <ID>200</ID>
+          <ProtocolType>Web - HTTP/HTML</ProtocolType>
+        </Script>
+        <CommandLine/>
+        <RTS>
+          <Pacing>
+            <NumberOfIterations>3</NumberOfIterations>
+            <StartNewIteration Type="fixed delay">
+              <DelayOfSeconds>5</DelayOfSeconds>
+            </StartNewIteration>
+          </Pacing>
+          <ThinkTime Type="modify">
+            <MultiplyFactor>2.0</MultiplyFactor>
+          </ThinkTime>
+          <Log Type="extended">
+            <LogOptions Type="on error">
+              <CacheSize>15</CacheSize>
+            </LogOptions>
+            <ParametersSubstitution>false</ParametersSubstitution>
+            <DataReturnedByServer>false</DataReturnedByServer>
+            <AdvanceTrace>true</AdvanceTrace>
+          </Log>
+        </RTS>
+      </Group>
+      <Group>
+        <Name>SampleGroup2</Name>
+        <Vusers>10</Vusers>
+        <Script>
+          <ID>10</ID>
+          <ProtocolType>Web - HTTP/HTML</ProtocolType>
+        </Script>
+        <CommandLine/>
+        <RTS>
+          <Pacing>
+            <NumberOfIterations>1</NumberOfIterations>
+            <StartNewIteration Type="immediately"/>
+          </Pacing>
+          <ThinkTime Type="ignore"/>
+          <Log Type="standard">
+            <LogOptions Type="on error">
+              <CacheSize>1</CacheSize>
+            </LogOptions>
+          </Log>
+        </RTS>
+      </Group>
+      <Group>
+        <Name>SampleGroup3</Name>
+        <Vusers>15</Vusers>
+        <Script>
+          <ID>11</ID>
+          <ProtocolType>Web - HTTP/HTML</ProtocolType>
+        </Script>
+        <CommandLine/>
+        <RTS>
+          <Pacing>
+            <NumberOfIterations>5</NumberOfIterations>
+            <StartNewIteration Type="random interval">
+              <DelayAtRangeOfSeconds>10</DelayAtRangeOfSeconds>
+              <DelayAtRangeToSeconds>15</DelayAtRangeToSeconds>
+            </StartNewIteration>
+          </Pacing>
+          <ThinkTime Type="random">
+            <MinPercentage>50</MinPercentage>
+            <MaxPercentage>150</MaxPercentage>
+            <LimitThinkTimeSeconds>30</LimitThinkTimeSeconds>
+          </ThinkTime>
+          <Log Type="ignore"/>
+          <Selenium>
+            <JREPath>C:\\java\\jdk</JREPath>
+            <ClassPath>myclasspath.jar</ClassPath>
+            <TestNgFiles>testng.xml</TestNgFiles>
+          </Selenium>
+        </RTS>
+      </Group>
+    </Groups>
+    <Scheduler>
+      <Actions>
+        <Action>
+          <Initialize Type="gradually">
+            <TimeInterval>
+              <Seconds>30</Seconds>
+            </TimeInterval>
+            <Vusers>10</Vusers>
+            <WaitAfterInit/>
+          </Initialize>
+        </Action>
+        <Action>
+          <StartVusers Type="gradually">
+            <Ramp>
+              <Vusers>2</Vusers>
+              <TimeInterval>
+                <Seconds>10</Seconds>
+              </TimeInterval>
+            </Ramp>
+          </StartVusers>
+        </Action>
+        <Action>
+          <Duration Type="run for">
+            <TimeInterval>
+              <Hours>1</Hours>
+              <Minutes>5</Minutes>
+            </TimeInterval>
+          </Duration>
+        </Action>
+        <Action>
+          <StopVusers Type="simultaneously"/>
+        </Action>
+      </Actions>
+    </Scheduler>
+    <SLA>
+      <TransactionResponseTimeAverage>
+        <LoadCriterion>hits_per_second</LoadCriterion>
+        <LoadValues>
+          <Betweens>
+            <Between>
+              <From>5.0</From>
+              <To>10.0</To>
+            </Between>
+            <Between>
+              <From>10.0</From>
+              <To>15.0</To>
+            </Between>
+            <Between>
+              <From>15.0</From>
+              <To>20.0</To>
+            </Between>
+          </Betweens>
+          <LessThan>5.0</LessThan>
+          <GreaterThanOrEqual>20.0</GreaterThanOrEqual>
+        </LoadValues>
+        <Transactions>
+          <Transaction>
+            <Name>landing_page</Name>
+            <Thresholds>
+              <LessThanThreshold>5.0</LessThanThreshold>
+              <BetweenThreshold>
+                <Threshold>10.0</Threshold>
+                <Threshold>15.0</Threshold>
+                <Threshold>20.0</Threshold>
+              </BetweenThreshold>
+              <GreaterThanOrEqualThreshold>25.0</GreaterThanOrEqualThreshold>
+            </Thresholds>
+          </Transaction>
+          <Transaction>
+            <Name>login</Name>
+            <Thresholds>
+              <LessThanThreshold>5.0</LessThanThreshold>
+              <BetweenThreshold>
+                <Threshold>10.0</Threshold>
+                <Threshold>15.0</Threshold>
+                <Threshold>20.0</Threshold>
+              </BetweenThreshold>
+              <GreaterThanOrEqualThreshold>25.0</GreaterThanOrEqualThreshold>
+            </Thresholds>
+          </Transaction>
+          <Transaction>
+            <Name>logout</Name>
+            <Thresholds>
+              <LessThanThreshold>2.0</LessThanThreshold>
+              <BetweenThreshold>
+                <Threshold>5.0</Threshold>
+                <Threshold>12.0</Threshold>
+                <Threshold>25.0</Threshold>
+              </BetweenThreshold>
+              <GreaterThanOrEqualThreshold>30.0</GreaterThanOrEqualThreshold>
+            </Thresholds>
+          </Transaction>
+        </Transactions>
+      </TransactionResponseTimeAverage>
+      <ErrorsPerSecond>
+        <LoadCriterion>hits_per_second</LoadCriterion>
+        <LoadValues>
+          <Betweens>
+            <Between>
+              <From>5.0</From>
+              <To>10.0</To>
+            </Between>
+            <Between>
+              <From>10.0</From>
+              <To>15.0</To>
+            </Between>
+            <Between>
+              <From>15.0</From>
+              <To>20.0</To>
+            </Between>
+          </Betweens>
+          <LessThan>5.0</LessThan>
+          <GreaterThanOrEqual>20.0</GreaterThanOrEqual>
+        </LoadValues>
+        <Thresholds>
+          <LessThanThreshold>2.0</LessThanThreshold>
+          <BetweenThreshold>
+            <Threshold>3.0</Threshold>
+            <Threshold>4.0</Threshold>
+            <Threshold>5.0</Threshold>
+          </BetweenThreshold>
+          <GreaterThanOrEqualThreshold>6.0</GreaterThanOrEqualThreshold>
+        </Thresholds>
+      </ErrorsPerSecond>
+      <TotalHits>
+        <Threshold>20.0</Threshold>
+      </TotalHits>
+      <AverageHitsPerSecond>
+        <Threshold>50.0</Threshold>
+      </AverageHitsPerSecond>
+      <TotalThroughput>
+        <Threshold>80000.0</Threshold>
+      </TotalThroughput>
+      <AverageThroughput>
+        <Threshold>5000.0</Threshold>
+      </AverageThroughput>
+    </SLA>
+    <AutomaticTrending>
+      <ReportId>5</ReportId>
+      <MaxRunsInReport>20</MaxRunsInReport>
+      <TrendRangeType>CompleteRun</TrendRangeType>
+      <MaxRunsReachedOption>DeleteFirstSetNewBaseline</MaxRunsReachedOption>
+      <StartTime>20</StartTime>
+      <EndTime>80</EndTime>
+    </AutomaticTrending>
+  </Content>
+</Test>

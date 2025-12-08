@@ -2,6 +2,18 @@ package com.lre.db;
 
 public class SqlQueries {
 
+    public static final String RUN_INFO_SQL = """
+            SELECT
+                "Result ID" as resultId,
+                "Scenario Name" as scenarioName,
+                "Result Name" as resultName,
+                "Time Zone" as timeZone,
+                "Start Time" as startTime,
+                "Result End Time" as endTime
+            From
+                Result
+            """;
+
     public static final String TXN_SUMMARY_SQL = """
             WITH PassTransactions AS (
                 SELECT
