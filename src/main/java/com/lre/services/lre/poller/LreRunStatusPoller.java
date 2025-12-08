@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.concurrent.TimeUnit;
 
 import static com.lre.common.constants.ConfigConstants.*;
+import static com.lre.common.utils.CommonUtils.formatDuration;
 
 @Slf4j
 public class LreRunStatusPoller {
@@ -105,7 +106,7 @@ public class LreRunStatusPoller {
 
     private void logTimeslotExceeded() {
         log.info("Run [{}] reached timeslot limit ({}). Stopping monitoring.",
-                model.getRunId(), statusFormatter.formatDuration(timeslotDurationMillis));
+                model.getRunId(), formatDuration(timeslotDurationMillis));
     }
 
     private void logStatus(RunState state, long startTime) {

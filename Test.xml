@@ -14,7 +14,7 @@
   <Groups>
     <Group>
       <Name>SampleGroup1</Name>
-      <Vusers>1</Vusers>
+      <Vusers>10</Vusers>
       <Script>
         <ID>200</ID>
         <ProtocolType>Web - HTTP/HTML</ProtocolType>
@@ -42,7 +42,7 @@
     </Group>
     <Group>
       <Name>SampleGroup2</Name>
-      <Vusers>1</Vusers>
+      <Vusers>10</Vusers>
       <Script>
         <ID>10</ID>
         <ProtocolType>Web - HTTP/HTML</ProtocolType>
@@ -63,7 +63,7 @@
     </Group>
     <Group>
       <Name>SampleGroup3</Name>
-      <Vusers>1</Vusers>
+      <Vusers>15</Vusers>
       <Script>
         <ID>11</ID>
         <ProtocolType>Web - HTTP/HTML</ProtocolType>
@@ -94,7 +94,13 @@
   <Scheduler>
     <Actions>
       <Action>
-        <Initialize Type="just before vuser runs"/>
+        <Initialize Type="gradually">
+          <TimeInterval>
+            <Seconds>30</Seconds>
+          </TimeInterval>
+          <Vusers>10</Vusers>
+          <WaitAfterInit/>
+        </Initialize>
       </Action>
       <Action>
         <StartVusers Type="gradually">

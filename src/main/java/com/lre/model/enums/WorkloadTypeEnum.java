@@ -5,14 +5,14 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 
 @Getter
-public enum WorkloadType {
+public enum WorkloadTypeEnum implements StringValueEnum{
     BASIC("basic"),
     REAL_WORLD("real-world"),
     GOAL_ORIENTED("goal oriented");
 
     private final String value;
 
-    WorkloadType(String value) {
+    WorkloadTypeEnum(String value) {
         this.value = value;
     }
 
@@ -22,10 +22,7 @@ public enum WorkloadType {
     }
 
     @JsonCreator
-    public static WorkloadType fromValue(String value) {
-        for (WorkloadType type : values()) {
-            if (type.value.equalsIgnoreCase(value)) return type;
-        }
-        throw new IllegalArgumentException("Unknown WorkloadTypeEnum: " + value);
+    public static WorkloadTypeEnum fromValue(String value) {
+        return StringValueEnum.fromValue(WorkloadTypeEnum.class, value);
     }
 }

@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
+import java.time.Duration;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -52,5 +53,17 @@ public class TimeInterval {
         }
         return interval;
     }
+
+    public Duration toDuration() {
+        long totalSeconds = 0;
+
+        if (days != null)    totalSeconds += days * 86400L;
+        if (hours != null)   totalSeconds += hours * 3600L;
+        if (minutes != null) totalSeconds += minutes * 60L;
+        if (seconds != null) totalSeconds += seconds;
+
+        return Duration.ofSeconds(totalSeconds);
+    }
+
 
 }

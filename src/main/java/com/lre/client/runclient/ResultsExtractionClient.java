@@ -6,6 +6,9 @@ import com.lre.common.exceptions.LreException;
 import com.lre.excel.ExcelDashboardWriter;
 import com.lre.model.enums.RunState;
 import com.lre.model.run.LreRunStatusExtended;
+import com.lre.model.test.Test;
+import com.lre.services.lre.calculation.SteadyStateCalculator;
+import com.lre.services.lre.calculation.SteadyStateResult;
 import com.lre.services.lre.execution.LreTestManager;
 import com.lre.services.lre.monitor.RunStatusMonitor;
 import com.lre.services.lre.report.fetcher.ReportDataService;
@@ -37,6 +40,9 @@ public class ResultsExtractionClient extends BaseLreClient {
     private final LreTestManager testManager;
     private final LreReportPublisher reportPublisher;
 
+    private Test test;
+
+
     public ResultsExtractionClient(LreTestRunModel model) {
         super(model);
         this.testManager = new LreTestManager(model, lreRestApis);
@@ -47,13 +53,19 @@ public class ResultsExtractionClient extends BaseLreClient {
     public void fetchRunDetails() {
         log.debug("Fetching run status for Run {}", model.getRunId());
         runStatus = fetchRunStatusExtended();
-        testManager.findTestById(runStatus.getTestId());
+        test = testManager.findTestById(runStatus.getTestId());
         RunState state = RunState.fromValue(runStatus.getState());
         log.info("Run details loaded: Run={}, Test={}, Name={}, State={}", model.getRunId(), model.getTestId(), model.getTestName(), state);
     }
 
     public void publishAnalysedReportIfFinished() {
         publishReportIfFinished(ANALYSED_RESULTS_TYPE, ReportType.ANALYSED);
+    }
+
+    private void calculateSteadyStateTimings() {
+        SteadyStateCalculator steadyStateCalculator = new SteadyStateCalculator(test);
+        List<SteadyStateResult> results = steadyStateCalculator.calculateSteadyState(123456);
+        log.info("Steady state starts at: {}s", results.get(0).getSteadyStateDurationSeconds());
     }
 
     public void publishHtmlReportIfFinished() {

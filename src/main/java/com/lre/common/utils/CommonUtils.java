@@ -304,11 +304,17 @@ public class CommonUtils {
     }
 
     public static long parseHmsToSeconds(String hms) {
+        if(hms == null || hms.equalsIgnoreCase("N/A")) return 0;
         String[] parts = hms.split(":");
         long hours = Long.parseLong(parts[0]);
         long minutes = Long.parseLong(parts[1]);
         long seconds = Long.parseLong(parts[2]);
         return hours * 3600 + minutes * 60 + seconds;
+    }
+
+    public static String formatDuration(long millis) {
+        Duration d = Duration.ofMillis(millis);
+        return String.format("%02d:%02d:%02d", d.toHoursPart(), d.toMinutesPart(), d.toSecondsPart());
     }
 
     public static int calculateTps(long totalTransactions, String durationHms) {

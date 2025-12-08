@@ -1,9 +1,10 @@
 package com.lre.model.enums;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonValue;
+import lombok.Getter;
 
-public enum WorkloadSubType {
+@Getter
+public enum WorkloadSubType implements StringValueEnum{
     @JsonProperty("by test")
     BY_TEST("by test"),
 
@@ -11,19 +12,9 @@ public enum WorkloadSubType {
     BY_GROUP("by group");
 
     private final String value;
-
-
-    @JsonValue
-    public String getValue() {
-        return value;
-    }
-
+    
     WorkloadSubType(String value) {
         this.value = value;
     }
 
-    @Override
-    public String toString() {
-        return value;
-    }
 }

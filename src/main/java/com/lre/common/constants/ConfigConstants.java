@@ -80,10 +80,10 @@ public class ConfigConstants {
 
     public static final String LRE_RUN_ID_FILE = "lre_run_id.env";
 
-    public static final String basicByTest = "basic by test";
-    public static final String basicByGroup = "basic by group";
-    public static final String realWorldByTest = "real-world by test";
-    public static final String realWorldByGroup = "real-world by group";
+    public static final String BASIC_BY_TEST = "basic by test";
+    public static final String BASIC_BY_GROUP = "basic by group";
+    public static final String REAL_WORLD_BY_TEST = "real-world by test";
+    public static final String REAL_WORLD_BY_GROUP = "real-world by group";
 
 
     // Simultaneously: "50vu:simultaneously+wait:30s" or "simultaneously" or "simultaneously:wait:1m"

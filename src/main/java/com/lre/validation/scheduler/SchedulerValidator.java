@@ -60,10 +60,10 @@ public class SchedulerValidator {
      */
     private Scheduler getDefaultSchedulerForWorkload(int vusersCount) {
         return switch (workloadTypeStr) {
-            case basicByTest -> Scheduler.getDefaultSchedulerForBasicByTest();
-            case realWorldByTest -> Scheduler.getDefaultSchedulerForRBTest(vusersCount);
-            case basicByGroup -> Scheduler.getDefaultSchedulerForBasicByGroup();
-            case realWorldByGroup -> Scheduler.getDefaultSchedulerForRBGrp(vusersCount);
+            case BASIC_BY_TEST -> Scheduler.getDefaultSchedulerForBasicByTest();
+            case REAL_WORLD_BY_TEST -> Scheduler.getDefaultSchedulerForRBTest(vusersCount);
+            case BASIC_BY_GROUP -> Scheduler.getDefaultSchedulerForBasicByGroup();
+            case REAL_WORLD_BY_GROUP -> Scheduler.getDefaultSchedulerForRBGrp(vusersCount);
             default -> {
                 log.info("[Scheduler] No default scheduler for workload type: {}", workloadTypeStr);
                 yield new Scheduler();

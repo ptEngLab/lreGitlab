@@ -3,7 +3,7 @@ package com.lre.services.lre.formatter;
 import com.lre.model.enums.RunState;
 import lombok.extern.slf4j.Slf4j;
 
-import java.time.Duration;
+import static com.lre.common.utils.CommonUtils.formatDuration;
 
 @Slf4j
 public record RunStatusFormatter(int runId, long timeslotDurationMillis) {
@@ -20,8 +20,5 @@ public record RunStatusFormatter(int runId, long timeslotDurationMillis) {
         );
     }
 
-    public String formatDuration(long millis) {
-        Duration d = Duration.ofMillis(millis);
-        return String.format("%02d:%02d:%02d", d.toHoursPart(), d.toMinutesPart(), d.toSecondsPart());
-    }
+
 }

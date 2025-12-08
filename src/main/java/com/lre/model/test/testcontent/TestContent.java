@@ -50,6 +50,10 @@ public class TestContent {
     @JacksonXmlProperty(localName = "MonitorProfile", namespace = LRE_API_XMLNS)
     private List<MonitorProfile> monitorProfiles = new ArrayList<>();
 
+    @JsonProperty("TotalVusers")
+    @JacksonXmlProperty(localName = "TotalVusers", namespace = LRE_API_XMLNS)
+    private Integer totalVusers;
+
     @JsonProperty("MonitorsOFW")
     @JacksonXmlElementWrapper(localName = "MonitorsOFW", namespace = LRE_API_XMLNS)
     @JacksonXmlProperty(localName = "MonitorOFW", namespace = LRE_API_XMLNS)

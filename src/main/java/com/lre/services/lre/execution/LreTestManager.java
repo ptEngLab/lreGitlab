@@ -1,6 +1,7 @@
 package com.lre.services.lre.execution;
 
 import com.lre.client.api.lre.LreRestApis;
+import com.lre.common.constants.ConfigConstants;
 import com.lre.common.exceptions.LreException;
 import com.lre.client.runmodel.LreTestRunModel;
 import com.lre.common.utils.JsonUtils;
@@ -21,8 +22,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.lre.common.utils.CommonUtils.normalizePathWithSubject;
-import static com.lre.common.utils.CommonUtils.replaceBackSlash;
+import static com.lre.common.utils.CommonUtils.*;
 
 @Slf4j
 public class LreTestManager {
@@ -57,7 +57,7 @@ public class LreTestManager {
 
     }
 
-    public void findTestById(int testId) {
+    public Test findTestById(int testId) {
         log.info("Using existing test with ID: {}", testId);
         Test test = restApis.fetchTest(testId);
         if (test == null) throw new LreException(String.format(TEST_NOT_FOUND_BY_ID, testId));
@@ -65,6 +65,7 @@ public class LreTestManager {
         model.setTestName(test.getName());
         model.setTestFolderPath(normalizePathWithSubject(test.getTestFolderPath()));
         model.setWorkloadType(test.getContent().getWorkloadType().getFullWorkloadTypeAsStr());
+        return test;
     }
 
     private void findTestByName(String testName) {
@@ -166,6 +167,7 @@ public class LreTestManager {
         log.info("Creating new test: '{}' in folder: '{}'", testName, testFolderPath);
         Test test = new Test(testName, testFolderPath, testContent);
         test.normalizeAfterDeserialization();
+        saveHtmlReport(XmlUtils.toXml(test), Path.of(ConfigConstants.DEFAULT_OUTPUT_DIR, "TestContent.xml"));
         Test createdTest = restApis.createTest(XmlUtils.toXml(test));
         model.setTestId(createdTest.getId());
     }
