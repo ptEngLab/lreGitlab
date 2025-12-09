@@ -3,7 +3,7 @@ package com.lre.model.enums;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum SchedulerDurationType {
+public enum SchedulerDurationType implements StringValueEnum{
     INDEFINITELY("indefinitely"),
     RUN_FOR("run for"),
     UNTIL_COMPLETION("until completion");
@@ -17,9 +17,6 @@ public enum SchedulerDurationType {
 
     @JsonCreator
     public static SchedulerDurationType fromValue(String value) {
-        for (SchedulerDurationType type : values()) {
-            if (type.value.equalsIgnoreCase(value)) return type;
-        }
-        throw new IllegalArgumentException("Unknown SchedulerDurationType: " + value);
+        return StringValueEnum.fromValue(SchedulerDurationType.class, value);
     }
 }

@@ -3,7 +3,7 @@ package com.lre.model.enums;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum HostType {
+public enum HostType implements StringValueEnum {
     SPECIFIC("specific"),
     AUTOMATCH("automatch"),
     CLOUD("cloud"),
@@ -22,9 +22,6 @@ public enum HostType {
 
     @JsonCreator
     public static HostType fromValue(String value) {
-        for (HostType type : values()) {
-            if (type.value.equalsIgnoreCase(value)) return type;
-        }
-        throw new IllegalArgumentException("Unknown HostType: " + value);
+        return StringValueEnum.fromValue(HostType.class, value);
     }
 }

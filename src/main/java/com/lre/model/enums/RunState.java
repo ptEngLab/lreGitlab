@@ -3,7 +3,7 @@ package com.lre.model.enums;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum RunState {
+public enum RunState implements StringValueEnum{
     UNDEFINED(""),
     INITIALIZING("Initializing"),
     RUNNING("Running"),
@@ -32,9 +32,6 @@ public enum RunState {
 
     @JsonCreator
     public static RunState fromValue(String value) {
-        for (RunState state : values()) {
-            if (state.value.equalsIgnoreCase(value)) return state;
-        }
-        throw new IllegalArgumentException("Unknown RunState: " + value);
+        return StringValueEnum.fromValue(RunState.class, value);
     }
 }

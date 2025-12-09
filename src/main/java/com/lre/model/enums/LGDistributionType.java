@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 
 @Getter
-public enum LGDistributionType {
+public enum LGDistributionType implements StringValueEnum {
     ALL_TO_EACH_GROUP("all to each group"),
     MANUAL("manual");
 
@@ -21,9 +21,6 @@ public enum LGDistributionType {
 
     @JsonCreator
     public static LGDistributionType fromValue(String value) {
-        for (LGDistributionType type : values()) {
-            if (type.value.equalsIgnoreCase(value)) return type;
-        }
-        throw new IllegalArgumentException("Unknown LGDistributionType: " + value);
+        return StringValueEnum.fromValue(LGDistributionType.class, value);
     }
 }

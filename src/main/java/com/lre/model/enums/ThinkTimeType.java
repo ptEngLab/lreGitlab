@@ -3,7 +3,7 @@ package com.lre.model.enums;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum ThinkTimeType {
+public enum ThinkTimeType implements StringValueEnum{
     IGNORE("ignore"),
     REPLAY("replay"),
     MODIFY("modify"),
@@ -22,11 +22,6 @@ public enum ThinkTimeType {
 
     @JsonCreator
     public static ThinkTimeType fromValue(String value) {
-        for (ThinkTimeType type : values()) {
-            if (type.value.equalsIgnoreCase(value)) {
-                return type;
-            }
-        }
-        throw new IllegalArgumentException("Unknown ThinkTimeType: " + value);
+        return StringValueEnum.fromValue(ThinkTimeType.class, value);
     }
 }

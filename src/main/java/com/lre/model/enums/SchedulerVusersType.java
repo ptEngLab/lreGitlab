@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 /* Both StartVusers and StopVusers share the same type options: */
 
-public enum SchedulerVusersType {
+public enum SchedulerVusersType implements StringValueEnum {
     SIMULTANEOUSLY("simultaneously"),
     GRADUALLY("gradually");
 
@@ -18,9 +18,6 @@ public enum SchedulerVusersType {
 
     @JsonCreator
     public static SchedulerVusersType fromValue(String value) {
-        for (SchedulerVusersType type : values()) {
-            if (type.value.equalsIgnoreCase(value)) return type;
-        }
-        throw new IllegalArgumentException("Unknown SchedulerVusersType: " + value);
+        return StringValueEnum.fromValue(SchedulerVusersType.class, value);
     }
 }

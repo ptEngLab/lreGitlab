@@ -1,5 +1,6 @@
 package com.lre.validation.scheduler;
 
+import com.lre.common.utils.SchedulerFactory;
 import com.lre.common.utils.WorkloadUtils;
 import com.lre.model.test.testcontent.TestContent;
 import com.lre.model.test.testcontent.scheduler.Scheduler;
@@ -60,10 +61,10 @@ public class SchedulerValidator {
      */
     private Scheduler getDefaultSchedulerForWorkload(int vusersCount) {
         return switch (workloadTypeStr) {
-            case BASIC_BY_TEST -> Scheduler.getDefaultSchedulerForBasicByTest();
-            case REAL_WORLD_BY_TEST -> Scheduler.getDefaultSchedulerForRBTest(vusersCount);
-            case BASIC_BY_GROUP -> Scheduler.getDefaultSchedulerForBasicByGroup();
-            case REAL_WORLD_BY_GROUP -> Scheduler.getDefaultSchedulerForRBGrp(vusersCount);
+            case BASIC_BY_TEST -> SchedulerFactory.getDefaultSchedulerForBasicByTest();
+            case REAL_WORLD_BY_TEST -> SchedulerFactory.getDefaultSchedulerForRBTest(vusersCount);
+            case BASIC_BY_GROUP -> SchedulerFactory.getDefaultSchedulerForBasicByGroup();
+            case REAL_WORLD_BY_GROUP -> SchedulerFactory.getDefaultSchedulerForRBGrp(vusersCount);
             default -> {
                 log.info("[Scheduler] No default scheduler for workload type: {}", workloadTypeStr);
                 yield new Scheduler();

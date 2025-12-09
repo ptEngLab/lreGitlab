@@ -3,7 +3,7 @@ package com.lre.model.enums;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum LogType {
+public enum LogType implements StringValueEnum{
     IGNORE("ignore"),
     STANDARD("standard"),
     EXTENDED("extended"),
@@ -22,11 +22,6 @@ public enum LogType {
 
     @JsonCreator
     public static LogType fromValue(String value) {
-        for (LogType type : values()) {
-            if (type.value.equalsIgnoreCase(value)) {
-                return type;
-            }
-        }
-        throw new IllegalArgumentException("Unknown LogType: " + value);
+        return StringValueEnum.fromValue(LogType.class, value);
     }
 }

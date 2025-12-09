@@ -1,5 +1,6 @@
 package com.lre.validation.scheduler;
 
+import com.lre.common.utils.SchedulerActionFactory;
 import com.lre.model.enums.SchedulerInitializeType;
 import com.lre.model.test.testcontent.scheduler.action.Action;
 import com.lre.model.test.testcontent.scheduler.action.common.TimeInterval;
@@ -56,7 +57,7 @@ public record InitializeValidator() {
         if (initializes.isEmpty()) {
             log.warn("[Scheduler] No Initialize action found. Adding default Initialize.");
             int insertIndex = Math.min(1, actions.size());
-            actions.add(insertIndex, Action.initializeDefault());
+            actions.add(insertIndex, SchedulerActionFactory.initializeDefault());
         } else if (initializes.size() > 1) {
             log.warn("[Scheduler] Multiple Initialize actions found. Keeping first.");
             Action first = initializes.get(0);

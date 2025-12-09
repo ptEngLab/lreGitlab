@@ -3,7 +3,7 @@ package com.lre.model.enums;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum LogOptionsType {
+public enum LogOptionsType implements StringValueEnum {
     ON_ERROR("on error"),
     ALWAYS("always");
 
@@ -20,11 +20,6 @@ public enum LogOptionsType {
 
     @JsonCreator
     public static LogOptionsType fromValue(String value) {
-        for (LogOptionsType type : values()) {
-            if (type.value.equalsIgnoreCase(value)) {
-                return type;
-            }
-        }
-        throw new IllegalArgumentException("Unknown LogOptionsType: " + value);
+        return StringValueEnum.fromValue(LogOptionsType.class, value);
     }
 }

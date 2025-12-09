@@ -3,7 +3,7 @@ package com.lre.model.enums;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum SlaLoadCriteria {
+public enum SlaLoadCriteria implements StringValueEnum{
     NONE("None"),
     RUNNING_VUSERS("running_vusers"),
     THROUGHPUT("throughput"),
@@ -24,9 +24,6 @@ public enum SlaLoadCriteria {
 
     @JsonCreator
     public static SlaLoadCriteria fromValue(String value) {
-        for (SlaLoadCriteria slaLoadCriteria : values()) {
-            if (slaLoadCriteria.value.equalsIgnoreCase(value)) return slaLoadCriteria;
-        }
-        throw new IllegalArgumentException("Unknown WorkloadTypeEnum: " + value);
+        return StringValueEnum.fromValue(SlaLoadCriteria.class, value);
     }
 }

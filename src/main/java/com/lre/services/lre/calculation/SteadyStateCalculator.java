@@ -10,6 +10,7 @@ import com.lre.model.test.testcontent.groups.Group;
 import com.lre.model.test.testcontent.scheduler.action.Action;
 import com.lre.model.test.testcontent.scheduler.action.common.Ramp;
 import com.lre.model.test.testcontent.scheduler.action.common.TimeInterval;
+import com.lre.model.test.testcontent.scheduler.action.common.VusersAction;
 import com.lre.model.test.testcontent.scheduler.action.duration.Duration;
 import com.lre.model.test.testcontent.scheduler.action.startvusers.StartVusers;
 import lombok.extern.slf4j.Slf4j;
@@ -62,7 +63,7 @@ public class SteadyStateCalculator {
     private SteadyStateResult calculateBasicByTest(long testStartTime) {
         int totalUsers = calculateTotalUsers();
         StartVusers startVusers = getFirstAction(content.getScheduler().getActions(), Action::getStartVusers, "test");
-        long rampUpTime = calculateRampUpSeconds(totalUsers, startVusers);
+        long rampUpTime = calculateRampSeconds(totalUsers, startVusers);
         long duration = getDurationSeconds(content.getScheduler().getActions());
         return buildResult(lreTest.getName(), totalUsers, rampUpTime, duration, testStartTime);
     }
@@ -74,7 +75,7 @@ public class SteadyStateCalculator {
         for (Group group : groups) {
             int groupUsers = group.getVusers();
             StartVusers startVusers = getFirstAction(group.getScheduler().getActions(), Action::getStartVusers, "group");
-            long rampUpTime = calculateRampUpSeconds(groupUsers, startVusers);
+            long rampUpTime = calculateRampSeconds(groupUsers, startVusers);
             long duration = getDurationSeconds(group.getScheduler().getActions());
             results.add(buildResult(group.getName(), groupUsers, rampUpTime, duration, testStartTime));
         }
@@ -108,22 +109,18 @@ public class SteadyStateCalculator {
 
     /**
      * Optimized ramp calculation assuming guarantees
-     * No null checks for ramp since it's guaranteed for GRADUALLY type
+     * if startVusers.getType() is GRADUALLY,
+     * Ramp is guaranteed with vusers > 0 and timeInterval with at least 1 sec
      */
-    private long calculateRampUpSeconds(int totalUsers, StartVusers startVusers) {
-        if (startVusers.getType() == SIMULTANEOUSLY) return 0L;
-
-        Ramp ramp = startVusers.getRamp();        // GRADUALLY - ramp is guaranteed non-null with vusers > 0
+    private long calculateRampSeconds(int totalUsers, VusersAction action) {
+        if (action.getType() == SIMULTANEOUSLY) return 0L;
+        Ramp ramp = action.getRamp();
         int batchSize = ramp.getVusers();
-        if (totalUsers <= batchSize) return 0L;   // All users start in first batch if totalUsers <= batchSize
-
-        // Calculate number of intervals (batches - 1). Using integer math for efficiency
+        if (totalUsers <= batchSize) return 0L;
         int intervals = (totalUsers - 1) / batchSize;
-        TimeInterval timeInterval = ramp.getTimeInterval();
-
-        java.time.Duration intervalDuration = timeInterval.toDuration();
-        return intervalDuration.multipliedBy(intervals).getSeconds();
+        return ramp.getTimeInterval().toDuration().multipliedBy(intervals).getSeconds();
     }
+
 
     private SteadyStateResult buildResult(String name, int totalUsers, long rampUpTime,
                                           long durationSeconds, long testStartTime) {

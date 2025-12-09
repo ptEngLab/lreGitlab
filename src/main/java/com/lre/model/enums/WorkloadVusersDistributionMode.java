@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 
 @Getter
-public enum WorkloadVusersDistributionMode {
+public enum WorkloadVusersDistributionMode implements StringValueEnum{
     BY_NUMBER("by number"),
     BY_PERCENTAGE("by percentage");
 
@@ -22,9 +22,6 @@ public enum WorkloadVusersDistributionMode {
 
     @JsonCreator
     public static WorkloadVusersDistributionMode fromValue(String value) {
-        for (WorkloadVusersDistributionMode mode : values()) {
-            if (mode.value.equalsIgnoreCase(value)) return mode;
-        }
-        throw new IllegalArgumentException("Unknown VusersDistributionMode: " + value);
+        return StringValueEnum.fromValue(WorkloadVusersDistributionMode.class, value);
     }
 }

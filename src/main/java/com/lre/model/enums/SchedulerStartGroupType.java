@@ -3,7 +3,7 @@ package com.lre.model.enums;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum SchedulerStartGroupType {
+public enum SchedulerStartGroupType implements StringValueEnum {
     IMMEDIATELY("immediately"),
     WITH_DELAY("with delay"),
     WHEN_GROUP_FINISHES("when group finishes");
@@ -17,9 +17,6 @@ public enum SchedulerStartGroupType {
 
     @JsonCreator
     public static SchedulerStartGroupType fromValue(String value) {
-        for (SchedulerStartGroupType type : values()) {
-            if (type.value.equalsIgnoreCase(value)) return type;
-        }
-        throw new IllegalArgumentException("Unknown StartGroupType: " + value);
+        return StringValueEnum.fromValue(SchedulerStartGroupType.class, value);
     }
 }

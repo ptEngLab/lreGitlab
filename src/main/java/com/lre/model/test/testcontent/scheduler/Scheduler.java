@@ -7,7 +7,6 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import com.lre.model.test.testcontent.scheduler.action.Action;
-import com.lre.model.test.testcontent.scheduler.action.common.TimeInterval;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -37,52 +36,4 @@ public class Scheduler {
         this.actions = (actions == null) ? new ArrayList<>() : new ArrayList<>(actions);
     }
 
-    /** Default scheduler for "Basic By Test" */
-    public static Scheduler getDefaultSchedulerForBasicByTest() {
-        return Scheduler.builder()
-                .actions(List.of(
-                        Action.initializeDefault(),
-                        Action.startVusersDefault(),
-                        Action.durationUntilCompletion()
-                ))
-                .build();
-    }
-
-    /** Default scheduler for "Real-World By Test" with total Vusers */
-    public static Scheduler getDefaultSchedulerForRBTest(int totalVusers) {
-        return Scheduler.builder()
-                .actions(List.of(
-                        Action.initializeDefault(),
-                        Action.startVusers(totalVusers),
-                        Action.durationRunFor(TimeInterval.builder().minutes(5).build()),
-                        Action.stopVusersDefault()
-                ))
-                .build();
-    }
-
-
-    /** Default scheduler for "Basic By Group" */
-    public static Scheduler getDefaultSchedulerForBasicByGroup() {
-        return Scheduler.builder()
-                .actions(List.of(
-                        Action.startGroupDefault(),
-                        Action.initializeDefault(),
-                        Action.startVusersDefault(),
-                        Action.durationUntilCompletion()
-                ))
-                .build();
-    }
-
-    /** Default scheduler for "Real-World By Group" with total Vusers */
-    public static Scheduler getDefaultSchedulerForRBGrp(int totalVusers) {
-        return Scheduler.builder()
-                .actions(List.of(
-                        Action.startGroupDefault(),
-                        Action.initializeDefault(),
-                        Action.startVusers(totalVusers),
-                        Action.durationRunFor(TimeInterval.builder().minutes(5).build()),
-                        Action.stopVusers(totalVusers)
-                ))
-                .build();
-    }
 }
