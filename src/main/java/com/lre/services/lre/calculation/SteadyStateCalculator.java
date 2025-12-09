@@ -64,7 +64,6 @@ public class SteadyStateCalculator {
         StartVusers startVusers = getFirstAction(content.getScheduler().getActions(), Action::getStartVusers, "test");
         long rampUpTime = calculateRampUpSeconds(totalUsers, startVusers);
         long duration = getDurationSeconds(content.getScheduler().getActions());
-
         return buildResult(lreTest.getName(), totalUsers, rampUpTime, duration, testStartTime);
     }
 

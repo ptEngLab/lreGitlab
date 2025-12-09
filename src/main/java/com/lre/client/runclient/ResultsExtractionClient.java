@@ -85,9 +85,9 @@ public class ResultsExtractionClient extends BaseLreClient {
         log.info("Excel report exported successfully for Run {}", model.getRunId());
     }
 
-    private List<SteadyStateResult> calculateSteadyStateTimings(long testStartTime) {
+    private List<SteadyStateResult> calculateSteadyStateTimings() {
         SteadyStateCalculator steadyStateCalculator = new SteadyStateCalculator(test);
-        return steadyStateCalculator.calculateSteadyState(testStartTime);
+        return steadyStateCalculator.calculateSteadyState(reportData.runInfo().getStartTime());
     }
 
     private void publishReportIfFinished(String type, ReportType reportType) {
