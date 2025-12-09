@@ -11,9 +11,7 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.function.Function;
@@ -322,6 +320,12 @@ public class CommonUtils {
         if (durationSeconds == 0) return 0; // avoid divide-by-zero
         double tps = (double) totalTransactions / durationSeconds;
         return (int) Math.round(tps); // return int value
+    }
+
+    public static String formatEpoch(long epochSeconds) {
+        return Instant.ofEpochSecond(epochSeconds)
+                .atZone(ZoneId.systemDefault())
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 
 
