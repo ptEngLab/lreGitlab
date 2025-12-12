@@ -105,9 +105,10 @@ public class ResultsExtractionClient extends BaseLreClient {
     }
 
     private void updateModelAvailability(ReportType reportType) {
-        switch (reportType) {
-            case ANALYSED -> model.setAnalysedReportAvailable(true);
-            case HTML -> model.setHtmlReportAvailable(true);
+        if (reportType == ReportType.ANALYSED) {
+            model.setAnalysedReportAvailable(true);
+        } else if (reportType == ReportType.HTML) {
+            model.setHtmlReportAvailable(true);
         }
     }
 

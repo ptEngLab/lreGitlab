@@ -20,7 +20,7 @@ import static com.lre.common.constants.ConfigConstants.*;
 @Slf4j
 public class ConfigMapper {
 
-    public LreTestRunModel mapToLreModel(Map<String, Object> params) throws IOException {
+    public LreTestRunModel mapToLreModel(Map<String, Object> params) {
         String workspace = (String) params.get(ParameterDefinitions.Keys.LRE_OUTPUT_DIR);
         Path htmlReportPath = ReportPathUtils.buildExtractedReportPath(workspace, HTML_REPORTS_TYPE);
         Path analysedReportPath = ReportPathUtils.buildExtractedReportPath(workspace, ANALYSED_RESULTS_TYPE);

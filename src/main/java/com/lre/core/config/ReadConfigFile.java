@@ -35,11 +35,7 @@ public class ReadConfigFile {
      * Builds the LRE test run model.
      */
     public LreTestRunModel buildLreTestRunModel() {
-        try {
-            return configMapper.mapToLreModel(getParameters());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return configMapper.mapToLreModel(getParameters());
     }
 
     /**

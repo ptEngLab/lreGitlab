@@ -3,6 +3,7 @@ package com.lre.client.runclient;
 import com.lre.client.runmodel.EmailConfigModel;
 import com.lre.client.runmodel.LreTestRunModel;
 import com.lre.common.constants.ConfigConstants;
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Files;
@@ -14,6 +15,7 @@ import java.util.List;
 import static com.lre.common.constants.ConfigConstants.*;
 
 @Slf4j
+@UtilityClass
 public class EmailUtils {
 
     public static boolean sendEmailWithPipelineArtifacts(EmailConfigModel emailConfig, LreTestRunModel lreRunModel) {

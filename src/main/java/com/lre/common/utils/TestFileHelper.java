@@ -1,5 +1,6 @@
 package com.lre.common.utils;
 
+import com.lre.common.exceptions.LreException;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -38,7 +39,7 @@ public class TestFileHelper {
             return Files.readString(filePath, StandardCharsets.UTF_8);
         } catch (IOException e) {
             log.error("Failed to read test file: {}", filePath, e);
-            throw new RuntimeException("Failed to read test file: " + filePath, e);
+            throw new LreException("Failed to read test file: " + filePath, e);
         }
     }
 

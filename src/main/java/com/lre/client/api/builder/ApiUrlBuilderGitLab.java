@@ -1,6 +1,7 @@
 package com.lre.client.api.builder;
 
 import com.lre.client.runmodel.GitTestRunModel;
+import com.lre.common.exceptions.LreException;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.core5.net.URIBuilder;
@@ -63,7 +64,7 @@ public class ApiUrlBuilderGitLab {
 
             return builder.build().toString();
         } catch (URISyntaxException e) {
-            throw new RuntimeException("Invalid URL for repository tree", e);
+            throw new LreException("Invalid URL for repository tree", e);
         }
     }
 
@@ -76,7 +77,7 @@ public class ApiUrlBuilderGitLab {
             builder.addParameter("job", jobName);
             return builder.build().toString();
         } catch (URISyntaxException e) {
-            throw new RuntimeException("Invalid URL for file content", e);
+            throw new LreException("Invalid URL for file content", e);
         }
     }
 
@@ -97,7 +98,7 @@ public class ApiUrlBuilderGitLab {
 
             return builder.build().toString();
         } catch (URISyntaxException e) {
-            throw new RuntimeException("Invalid URL for commits by path", e);
+            throw new LreException("Invalid URL for commits by path", e);
         }
     }
 
@@ -120,7 +121,7 @@ public class ApiUrlBuilderGitLab {
 
             return builder.build().toString();
         } catch (URISyntaxException e) {
-            throw new RuntimeException("Invalid URL for repository archive", e);
+            throw new LreException("Invalid URL for repository archive", e);
         }
     }
 

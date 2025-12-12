@@ -1,10 +1,13 @@
 package com.lre.common.utils;
 
+import lombok.experimental.UtilityClass;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static com.lre.common.constants.ConfigConstants.*;
 
+@UtilityClass
 public class ReportPathUtils {
 
     public static Path buildExtractedReportPath(String workspace, String reportType) {

@@ -5,9 +5,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.lre.common.exceptions.LreException;
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@UtilityClass
 public class XmlUtils {
     private static final XmlMapper MAPPER = new XmlMapper();
 
@@ -25,7 +28,7 @@ public class XmlUtils {
             return MAPPER.writeValueAsString(object);
         } catch (JsonProcessingException e) {
             log.error("Failed to serialize object to XML: {}", e.getMessage());
-            throw new RuntimeException("XML serialization error", e);
+            throw new LreException("XML serialization error", e);
         }
     }
 }

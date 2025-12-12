@@ -22,6 +22,9 @@ import static com.lre.common.constants.ConfigConstants.*;
 
 @Slf4j
 public record AuthenticationService(CloseableHttpClient httpClient, ApiUrlBuilderLre urlBuilder) {
+
+    public static final String CONTENT_TYPE_HEADER = ContentType.APPLICATION_JSON.getMimeType();
+
     public boolean login(String username, String password, boolean authenticateWithToken) {
         return authenticateWithToken
                 ? loginWithToken(username, password)
@@ -30,11 +33,11 @@ public record AuthenticationService(CloseableHttpClient httpClient, ApiUrlBuilde
 
 
     private boolean loginWithToken(String username, String password) {
-        String authUrl = urlBuilder.getAuthUrl(LRE_AUTHENTICATE_WITH_TOKEN);
+        String authUrl = urlBuilder.auth().getAuthUrl(LRE_AUTHENTICATE_WITH_TOKEN);
         String payload = JsonUtils.toJson(new AuthenticationClient(username, password));
 
         ClassicRequestBuilder request = ClassicRequestBuilder.post(authUrl)
-                .addHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType())
+                .addHeader(HttpHeaders.CONTENT_TYPE, CONTENT_TYPE_HEADER)
                 .setEntity(new StringEntity(payload, ContentType.APPLICATION_JSON));
 
         HttpRequestExecutor.sendRequest(httpClient, request);
@@ -48,7 +51,7 @@ public record AuthenticationService(CloseableHttpClient httpClient, ApiUrlBuilde
         String encodedAuth = Base64.getEncoder().encodeToString((username + ":" + password)
                 .getBytes(StandardCharsets.UTF_8));
 
-        String authUrl = urlBuilder.getAuthUrl(LRE_AUTHENTICATE_WITH_USERNAME);
+        String authUrl = urlBuilder.auth().getAuthUrl(LRE_AUTHENTICATE_WITH_USERNAME);
 
         ClassicRequestBuilder request = ClassicRequestBuilder.get(authUrl)
                 .addHeader(HttpHeaders.AUTHORIZATION, "Basic " + encodedAuth);
@@ -61,17 +64,20 @@ public record AuthenticationService(CloseableHttpClient httpClient, ApiUrlBuilde
 
 
     private void loginToWebProject() {
+        String domain = urlBuilder.domain();
+        String project = urlBuilder.project();
+
         try {
-            URI uri = new URIBuilder(urlBuilder.getWebLoginUrl())
-                    .addParameter("domain", urlBuilder.getDomain())
-                    .addParameter("project", urlBuilder.getProject())
+            URI uri = new URIBuilder(urlBuilder.auth().getWebLoginUrl())
+                    .addParameter("domain", domain)
+                    .addParameter("project", project)
                     .build();
 
             ClassicRequestBuilder request = ClassicRequestBuilder.get(uri)
-                    .addHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType());
+                    .addHeader(HttpHeaders.ACCEPT, CONTENT_TYPE_HEADER);
 
             HttpRequestExecutor.sendRequest(httpClient, request);
-            log.debug("Web login successful for project: {}/{}", urlBuilder.getDomain(), urlBuilder.getProject());
+            log.debug("Web login successful for project: {}/{}", domain, project);
         } catch (URISyntaxException e) {
             log.error("Invalid URL for web login", e);
             throw new LreException("Token authentication failed", e);
@@ -79,9 +85,9 @@ public record AuthenticationService(CloseableHttpClient httpClient, ApiUrlBuilde
     }
 
     public void logout() {
-        String logoutUrl = urlBuilder.getAuthUrl(LRE_LOGOUT);
+        String logoutUrl = urlBuilder.auth().getAuthUrl(LRE_LOGOUT);
         ClassicRequestBuilder request = ClassicRequestBuilder.get(logoutUrl)
-                .addHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType());
+                .addHeader(HttpHeaders.ACCEPT, CONTENT_TYPE_HEADER);
 
         HttpRequestExecutor.sendRequest(httpClient, request);
         log.debug("Logout successful");

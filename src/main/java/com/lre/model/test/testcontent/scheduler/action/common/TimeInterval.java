@@ -40,7 +40,7 @@ public class TimeInterval {
         TimeInterval interval = new TimeInterval();
         if (StringUtils.isBlank(timeStr)) return interval;
 
-        Pattern pattern = Pattern.compile("(\\d+)([dhms])");
+        Pattern pattern = Pattern.compile("(\\d{1,10})([dhmsDHMS])");
         Matcher matcher = pattern.matcher(timeStr);
         while (matcher.find()) {
             int value = Integer.parseInt(matcher.group(1));
@@ -49,6 +49,7 @@ public class TimeInterval {
                 case "h" -> interval.setHours(value);
                 case "m" -> interval.setMinutes(value);
                 case "s" -> interval.setSeconds(value);
+                default -> throw new IllegalStateException("Unexpected value: " + matcher.group(2));
             }
         }
         return interval;

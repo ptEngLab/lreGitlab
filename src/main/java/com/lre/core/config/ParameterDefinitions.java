@@ -1,5 +1,7 @@
 package com.lre.core.config;
 
+import lombok.experimental.UtilityClass;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
@@ -9,6 +11,7 @@ public class ParameterDefinitions {
     /**
      * Default values for all configuration parameters.
      */
+    @UtilityClass
     public static final class Defaults {
         // LRE Parameters
         public static final String LRE_USERNAME = "";
@@ -60,6 +63,7 @@ public class ParameterDefinitions {
     /**
      * Keys used for JSON/env variables.
      */
+    @UtilityClass
     public static final class Keys {
         // LRE Parameters
         public static final String LRE_USERNAME = "lre_username";

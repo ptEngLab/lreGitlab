@@ -57,140 +57,140 @@ public class LreRestApis implements AutoCloseable {
 
     // Test
     public Test fetchTest(int testId) {
-        return executor.fetchById(urlBuilder.getTestByIdUrl(testId), Test.class, "Test");
+        return executor.fetchById(urlBuilder.tests().getTestByIdUrl(testId), Test.class, "Test");
     }
 
     public List<Test> fetchAllTests() {
-        return executor.fetchList(urlBuilder.getTestsUrl(), Test.class, "Tests");
+        return executor.fetchList(urlBuilder.tests().getTestsUrl(), Test.class, "Tests");
     }
 
     public Test createTest(String payload) {
-        return executor.create(urlBuilder.getTestsUrl(), payload, ContentType.APPLICATION_XML, Test.class, "Test");
+        return executor.create(urlBuilder.tests().getTestsUrl(), payload, ContentType.APPLICATION_XML, Test.class, "Test");
     }
 
     public void updateTest(int testId, String payload) {
-        executor.update(urlBuilder.getTestByIdUrl(testId), payload, ContentType.APPLICATION_XML);
+        executor.update(urlBuilder.tests().getTestByIdUrl(testId), payload, ContentType.APPLICATION_XML);
     }
 
     // Test Plan
     public List<LreTestPlan> fetchAllTestPlans() {
-        return executor.fetchList(urlBuilder.getTestPlansUrl(), LreTestPlan.class, "Test Plans");
+        return executor.fetchList(urlBuilder.tests().getTestPlansUrl(), LreTestPlan.class, "Test Plans");
     }
 
     public LreTestPlan createTestPlan(String payload) {
-        return executor.create(urlBuilder.getTestPlansUrl(), payload, ContentType.APPLICATION_JSON, LreTestPlan.class, "Test Plan");
+        return executor.create(urlBuilder.tests().getTestPlansUrl(), payload, ContentType.APPLICATION_JSON, LreTestPlan.class, "Test Plan");
     }
 
     // Test Set
     public List<LreTestSet> fetchAllTestSets() {
-        return executor.fetchList(urlBuilder.getTestSetsUrl(), LreTestSet.class, "Test Sets");
+        return executor.fetchList(urlBuilder.tests().getTestSetsUrl(), LreTestSet.class, "Test Sets");
     }
 
     public LreTestSet createTestSet(String payload) {
-        return executor.create(urlBuilder.getTestSetsUrl(), payload, ContentType.APPLICATION_JSON, LreTestSet.class, "Test Set");
+        return executor.create(urlBuilder.tests().getTestSetsUrl(), payload, ContentType.APPLICATION_JSON, LreTestSet.class, "Test Set");
     }
 
     // Test Set Folder
     public List<LreTestSetFolder> fetchAllTestSetFolders() {
-        return executor.fetchList(urlBuilder.getTestSetFoldersUrl(), LreTestSetFolder.class, "Test Set Folders");
+        return executor.fetchList(urlBuilder.tests().getTestSetFoldersUrl(), LreTestSetFolder.class, "Test Set Folders");
     }
 
     public LreTestSetFolder createTestSetFolder(String payload) {
-        return executor.create(urlBuilder.getTestSetFoldersUrl(), payload, ContentType.APPLICATION_JSON, LreTestSetFolder.class, "Test Set Folder");
+        return executor.create(urlBuilder.tests().getTestSetFoldersUrl(), payload, ContentType.APPLICATION_JSON, LreTestSetFolder.class, "Test Set Folder");
     }
 
     // Test Instance
     public List<LreTestInstance> fetchTestInstances(int testId) {
-        String url = urlBuilder.getTestInstancesByTestIdUrl(testId);
+        String url = urlBuilder.tests().getTestInstancesByTestIdUrl(testId);
         return executor.fetchList(url, LreTestInstance.class, "Test Instances");
     }
 
     public LreTestInstance createTestInstance(String payload) {
-        return executor.create(urlBuilder.getTestInstancesUrl(), payload, ContentType.APPLICATION_JSON, LreTestInstance.class, "Test Instance");
+        return executor.create(urlBuilder.tests().getTestInstancesUrl(), payload, ContentType.APPLICATION_JSON, LreTestInstance.class, "Test Instance");
     }
 
     // Script
     public List<Script> fetchAllScripts() {
-        return executor.fetchList(urlBuilder.getScriptsUrl(), Script.class, "Scripts");
+        return executor.fetchList(urlBuilder.scripts().getScriptsUrl(), Script.class, "Scripts");
     }
 
     public Script fetchScriptById(int scriptId) {
-        return executor.fetchById(urlBuilder.getScriptByIdUrl(scriptId), Script.class, "Script");
+        return executor.fetchById(urlBuilder.scripts().getScriptByIdUrl(scriptId), Script.class, "Script");
     }
 
     // Run
     public LreRunStatus fetchRunStatus(int runId) {
-        return executor.fetchById(urlBuilder.getRunStatusUrl(runId), LreRunStatus.class, "Run Status");
+        return executor.fetchById(urlBuilder.runs().getRunStatusUrl(runId), LreRunStatus.class, "Run Status");
     }
 
     public LreRunResponse startRun(int testId, String payload) {
-        String url = urlBuilder.getStartRunUrl(testId);
+        String url = urlBuilder.runs().getStartRunUrl(testId);
         return executor.create(url, payload, ContentType.APPLICATION_JSON, LreRunResponse.class, "Start Run");
     }
 
     public void abortRun(int runId) {
-        executor.create(urlBuilder.getAbortRunUrl(runId), "{}", ContentType.APPLICATION_JSON, Void.class, "Abort Run");
+        executor.create(urlBuilder.runs().getAbortRunUrl(runId), "{}", ContentType.APPLICATION_JSON, Void.class, "Abort Run");
     }
 
     public List<LreRunStatusExtended> fetchRunResultsExtended(String payload) {
-        return executor.createList(urlBuilder.getRunResultsExtendedUrl(), payload, ContentType.APPLICATION_JSON, LreRunStatusExtended.class, "Run status extended");
+        return executor.createList(urlBuilder.runs().getRunResultsExtendedUrl(), payload, ContentType.APPLICATION_JSON, LreRunStatusExtended.class, "Run status extended");
     }
 
     public List<LreRunResult> fetchRunResults(int runId) {
-        return executor.fetchList(urlBuilder.getRunResultsUrl(runId), LreRunResult.class, "Run Results");
+        return executor.fetchList(urlBuilder.runs().getRunResultsUrl(runId), LreRunResult.class, "Run Results");
     }
 
     // Timeslot
     public TimeslotCheckResponse calculateTimeslotAvailability(int testId, String payload) {
-        String url = urlBuilder.getTimeslotCheckUrl(testId);
+        String url = urlBuilder.runs().getTimeslotCheckUrl(testId);
         return executor.create(url, payload, ContentType.APPLICATION_JSON, TimeslotCheckResponse.class, "Timeslot Check");
     }
 
     // Cloud Templates
     public List<CloudTemplate> fetchAllCloudTemplates() {
-        return executor.fetchList(urlBuilder.getCloudTemplateUrl(), CloudTemplate.class, "Cloud Templates");
+        return executor.fetchList(urlBuilder.templates().getCloudTemplateUrl(), CloudTemplate.class, "Cloud Templates");
     }
 
     public CloudTemplate fetchCloudTemplateById(int id) {
-        return executor.fetchById(urlBuilder.getCloudTemplateByIdUrl(id), CloudTemplate.class, "Cloud Template");
+        return executor.fetchById(urlBuilder.templates().getCloudTemplateByIdUrl(id), CloudTemplate.class, "Cloud Template");
     }
 
     // Hosts
     public List<HostResponse> fetchControllers() {
-        String url = urlBuilder.getControllersUrl();
+        String url = urlBuilder.hosts().getControllersUrl();
         return executor.fetchList(url, HostResponse.class, "Controllers list");
     }
 
     public List<HostResponse> fetchLoadGenerators() {
-        String url = urlBuilder.getLoadGeneratorsUrl();
+        String url = urlBuilder.hosts().getLoadGeneratorsUrl();
         return executor.fetchList(url, HostResponse.class, "Load Generators list");
     }
 
     public boolean getRunResultData(int runId, int resultsId, String filePath) {
-        String url = urlBuilder.getRunResultsFileUrl(runId, resultsId);
+        String url = urlBuilder.runs().getRunResultsFileUrl(runId, resultsId);
         return executor.download(url, filePath);
     }
 
     public LreScript uploadScript(Path scriptPath, String payload) {
-        String url = urlBuilder.getUploadScriptUrl();
+        String url = urlBuilder.scripts().getUploadScriptUrl();
         return executor.upload(url, payload, scriptPath.toFile(), LreScript.class, "Upload");
 
     }
 
     public void deleteScript(int id) {
-        String url = urlBuilder.getDeleteScriptUrl(id);
+        String url = urlBuilder.scripts().getDeleteScriptUrl(id);
         executor.deleteById(url, "delete");
     }
 
     public LreOpenRunDashboardResponse getPCRunId(String payload) {
-        String url = urlBuilder.getOpenRunDashboardUrl();
+        String url = urlBuilder.runs().getOpenRunDashboardUrl();
         Map<String, String> headers = Map.of("X-XSRF-Header", UUID.randomUUID().toString());
         return executor.createWeb(url, payload, ContentType.APPLICATION_JSON,
                 LreOpenRunDashboardResponse.class, "Open Dashboard", headers);
     }
 
     public LreTransactionMetricsResponse fetchTransactions(String payload) {
-        String url = urlBuilder.getTransactionsDataUrl();
+        String url = urlBuilder.runs().getTransactionsDataUrl();
         Map<String, String> headers = Map.of("X-XSRF-Header", UUID.randomUUID().toString());
 
         return executor.createWeb(url, payload, ContentType.APPLICATION_JSON, LreTransactionMetricsResponse.class,

@@ -5,11 +5,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.lre.common.exceptions.LreException;
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
 @Slf4j
+@UtilityClass
 public class JsonUtils {
     private static final ObjectMapper MAPPER = new ObjectMapper();
     static {
@@ -24,7 +27,7 @@ public class JsonUtils {
             return MAPPER.readValue(json, valueType);
         } catch (JsonProcessingException e) {
             log.error("Failed to deserialize JSON to {}: {}", valueType.getSimpleName(), e.getMessage());
-            throw new RuntimeException("JSON deserialization error", e);
+            throw new LreException("JSON deserialization error", e);
         }
     }
 
@@ -33,7 +36,7 @@ public class JsonUtils {
             return MAPPER.writeValueAsString(object);
         } catch (JsonProcessingException e) {
             log.error("Failed to serialize object to JSON: {}", e.getMessage());
-            throw new RuntimeException("JSON serialization error", e);
+            throw new LreException("JSON serialization error", e);
         }
     }
 
@@ -43,7 +46,7 @@ public class JsonUtils {
             return MAPPER.readValue(json, type);
         } catch (JsonProcessingException e) {
             log.error("Failed to deserialize JSON array to List<{}>: {}", clazz.getSimpleName(), e.getMessage());
-            throw new RuntimeException("JSON array deserialization error", e);
+            throw new LreException("JSON array deserialization error", e);
         }
     }
 
