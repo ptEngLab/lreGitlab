@@ -51,7 +51,7 @@ public record AutomaticTrendingValidator(TestContent content, YamlTest yamlTest)
             AutomaticTrending.TrendRangeType trendRange = parseTrendRange(yamlTrending.getTrendRange());
             automaticTrending.setTrendRange(trendRange);
 
-            if (trendRange == AutomaticTrending.TrendRangeType.CompleteRun) {
+            if (trendRange == AutomaticTrending.TrendRangeType.COMPLETE_RUN) {
                 automaticTrending.setStartTime(null);
                 automaticTrending.setEndTime(null);
             } else applyTimeSettings(automaticTrending, yamlTrending);

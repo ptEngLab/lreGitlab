@@ -1,5 +1,8 @@
 package com.lre.db;
 
+import lombok.experimental.UtilityClass;
+
+@UtilityClass
 public class SqlQueries {
 
     public static final String RUN_INFO_SQL = """

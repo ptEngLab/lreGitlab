@@ -65,13 +65,18 @@ public record GitRepositoryScanner(GitLabRestApis gitLabRestApis, int threadPool
     private List<GitLabTreeItem> scanEntireRepository() {
         List<GitLabTreeItem> all = new ArrayList<>();
         int page = 1;
-        while (true) {
+        boolean hasMoreItems = true;
+
+        while (hasMoreItems) {
             List<GitLabTreeItem> items = Optional.ofNullable(gitLabRestApis.getRepositoryTree(page)).orElse(List.of());
-            if (items.isEmpty()) break;
-            all.addAll(items);
-            if (items.size() < GITLAB_PER_PAGE_RECORDS) break;
-            page++;
+            if (items.isEmpty()) hasMoreItems = false;
+            else {
+                all.addAll(items);
+                hasMoreItems = items.size() == GITLAB_PER_PAGE_RECORDS;
+                page++;
+            }
         }
+
         return all;
     }
 

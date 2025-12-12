@@ -1,5 +1,6 @@
 package com.lre.core.http;
 
+import lombok.experimental.UtilityClass;
 import org.apache.hc.client5.http.config.ConnectionConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
@@ -14,6 +15,7 @@ import org.apache.hc.core5.util.Timeout;
 
 import javax.net.ssl.SSLContext;
 import java.util.List;
+@UtilityClass
 public class HttpClientFactory {
 
     private static final Timeout SOCKET_TIMEOUT = Timeout.ofMinutes(3);

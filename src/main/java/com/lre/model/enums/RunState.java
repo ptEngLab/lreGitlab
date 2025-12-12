@@ -14,7 +14,7 @@ public enum RunState implements StringValueEnum{
     PENDING_CREATING_ANALYSIS_DATA("Pending Creating Analysis Data"),
     CREATING_ANALYSIS_DATA("Creating Analysis Data"),
     FINISHED("Finished"),
-    FAILED_COLlATING_RESULTS("Failed Collating Results"),
+    FAILED_COLLATING_RESULTS("Failed Collating Results"),
     FAILED_CREATING_ANALYSIS_DATA("Failed Creating Analysis Data"),
     CANCELED("Canceled"),
     RUN_FAILURE("Run Failure");

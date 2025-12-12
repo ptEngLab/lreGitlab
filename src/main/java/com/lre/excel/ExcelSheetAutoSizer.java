@@ -1,8 +1,10 @@
 package com.lre.excel;
 
+import lombok.experimental.UtilityClass;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
+@UtilityClass
 public class ExcelSheetAutoSizer {
 
     // Constant extra width in 1/256th units

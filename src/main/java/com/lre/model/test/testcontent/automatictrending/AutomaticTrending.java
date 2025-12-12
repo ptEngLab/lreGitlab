@@ -23,11 +23,11 @@ public class AutomaticTrending {
 
     @JsonProperty("TrendRangeType")
     @JacksonXmlProperty(localName = "TrendRangeType", namespace = LRE_API_XMLNS)
-    private TrendRangeType trendRange = TrendRangeType.CompleteRun;
+    private TrendRangeType trendRange = TrendRangeType.COMPLETE_RUN;
 
     @JsonProperty("MaxRunsReachedOption")
     @JacksonXmlProperty(localName = "MaxRunsReachedOption", namespace = LRE_API_XMLNS)
-    private MaxRunsReachedOption onMaxRuns = MaxRunsReachedOption.DeleteFirstSetNewBaseline;
+    private MaxRunsReachedOption onMaxRuns = MaxRunsReachedOption.DELETE_FIRST_SET_NEW_BASELINE;
 
     @JsonProperty("StartTime")
     @JacksonXmlProperty(localName = "StartTime", namespace = LRE_API_XMLNS)
@@ -39,11 +39,11 @@ public class AutomaticTrending {
 
 
     public enum TrendRangeType {
-        CompleteRun, PartOfRun
+        COMPLETE_RUN, PART_OF_RUN
     }
 
     public enum MaxRunsReachedOption {
-        DoNotPublishAdditionalRuns,
-        DeleteFirstSetNewBaseline
+        DO_NOT_PUBLISH_ADDITIONAL_RUNS,
+        DELETE_FIRST_SET_NEW_BASELINE
     }
 }

@@ -2,6 +2,7 @@ package com.lre.core.http;
 
 import com.lre.common.utils.JsonUtils;
 import com.lre.model.errors.LreErrorResponse;
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.commons.lang3.StringUtils;
@@ -10,6 +11,7 @@ import com.lre.common.exceptions.LreException;
 import java.util.List;
 
 @Slf4j
+@UtilityClass
 public class HttpErrorHandler {
 
     private static final List<Integer> VALID_STATUS_CODES = List.of(200, 201, 202, 204, 206, 304);

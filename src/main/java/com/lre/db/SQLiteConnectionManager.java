@@ -40,9 +40,12 @@ public class SQLiteConnectionManager implements AutoCloseable {
                 consumer.accept(rs);
             }
 
-        } catch (Exception e) {
+        } catch (SQLException e) {
             log.error("Query execution failed: {} | params: {}", sql, parameters, e);
             throw new SQLiteQueryException("Failed to execute query: " + sql, e);
+        } catch (Exception e) {
+            log.error("Error processing result set for query: {}", sql, e);
+            throw new SQLiteQueryException("Error processing query results", e);
         }
     }
 
@@ -53,8 +56,9 @@ public class SQLiteConnectionManager implements AutoCloseable {
 
             try (Statement stmt = conn.createStatement()) {
                 for (String pragma : PRAGMA_LIST) {
-                    stmt.execute(pragma);
+                    stmt.addBatch(pragma);
                 }
+                stmt.executeBatch(); // executes all PRAGMAs in one call
             }
 
             conn.setAutoCommit(true);
@@ -93,7 +97,7 @@ public class SQLiteConnectionManager implements AutoCloseable {
 
     @FunctionalInterface
     public interface ResultSetConsumer {
-        void accept(ResultSet rs) throws Exception;
+        void accept(ResultSet rs) throws SQLException;
     }
 
     public static class SQLiteQueryException extends RuntimeException {

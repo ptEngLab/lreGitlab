@@ -58,18 +58,12 @@ public class LreRunStatusPoller {
                 LreRunStatus currentStatus = statusMonitor.fetchCurrentStatus();
                 RunState currentState = RunState.fromValue(currentStatus.getRunState());
                 lastKnownStatus = currentStatus;
-
                 logStatus(currentState, startTime);
-
+                // Early return for terminal state
                 if (isTerminalState(currentState)) return currentStatus;
-                if (statusMonitor.shouldAbortDueToErrors(currentStatus, currentState)) {
-                    statusMonitor.abortRunDueToErrors(currentStatus);
-                    break;
-                }
-                if (isTimeslotExceeded(startTime)) {
-                    logTimeslotExceeded();
-                    break;
-                }
+
+                // Handle non-terminal exit conditions
+                if (handleNonTerminalExitConditions(currentStatus, currentState, startTime)) break;
 
                 consecutiveFailures = 0;
                 sleep(pollIntervalSeconds);
@@ -81,6 +75,15 @@ public class LreRunStatusPoller {
 
         log.debug("Returning last known status for run [{}]: {}", model.getRunId(), lastKnownStatus.getRunState());
         return lastKnownStatus;
+    }
+
+    private boolean handleNonTerminalExitConditions(LreRunStatus status, RunState state, long startTime) {
+        boolean shouldAbort = statusMonitor.shouldAbortDueToErrors(status, state);
+        boolean timeslotExceeded = isTimeslotExceeded(startTime);
+        // Perform actions if needed
+        if (shouldAbort) statusMonitor.abortRunDueToErrors(status);
+        if (timeslotExceeded) logTimeslotExceeded();
+        return shouldAbort || timeslotExceeded;
     }
 
     private LreRunStatus createInitialStatus() {

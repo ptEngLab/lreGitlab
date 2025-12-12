@@ -1,6 +1,7 @@
 package com.lre.excel;
 
 import com.lre.common.constants.ConfigConstants;
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Workbook;
 
@@ -13,6 +14,7 @@ import static com.lre.common.constants.ConfigConstants.ARTIFACTS_DIR;
 import static com.lre.common.constants.ConfigConstants.EXCEL_FILE;
 
 @Slf4j
+@UtilityClass
 public class ExcelReportFileManager {
 
     /**

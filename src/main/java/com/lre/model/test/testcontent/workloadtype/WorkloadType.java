@@ -70,21 +70,21 @@ public class WorkloadType {
 
     @JsonIgnore
     public String getWorkloadTypeAsStr() {
-        String type = safeValue(getType());
-        String subType = safeValue(getSubType());
-        return String.format("%s %s", type, subType).trim().toLowerCase(Locale.ROOT);
+        String workloadType = safeValue(getType());
+        String workloadSubType = safeValue(getSubType());
+        return String.format("%s %s", workloadType, workloadSubType).trim().toLowerCase(Locale.ROOT);
     }
 
 
     @JsonIgnore
     public String getFullWorkloadTypeAsStr() {
-        String type = safeValue(getType());
-        String subType = safeValue(getSubType());
+        String workloadType = safeValue(getType());
+        String workloadSubType = safeValue(getSubType());
         String mode = (getVusersDistributionMode() != null) ? getVusersDistributionMode().getValue() : null;
 
         String raw = StringUtils.isBlank(mode)
-                ? String.format("%s %s", type, subType)
-                : String.format("%s %s (%s)", type, subType, mode);
+                ? String.format("%s %s", workloadType, workloadSubType)
+                : String.format("%s %s (%s)", workloadType, workloadSubType, mode);
 
         return toTitleCase(raw);
     }
