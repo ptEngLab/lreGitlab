@@ -1,5 +1,6 @@
 package com.lre.core.http;
 
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -16,6 +17,7 @@ import java.io.OutputStream;
 import java.util.function.Function;
 
 @Slf4j
+@UtilityClass
 public class HttpRequestExecutor {
 
     public static String sendRequest(CloseableHttpClient httpClient, ClassicRequestBuilder requestBuilder) {
@@ -37,10 +39,8 @@ public class HttpRequestExecutor {
         // Ensure parent directories exist
         File file = new File(destPath);
         File parentDir = file.getParentFile();
-        if (parentDir != null && !parentDir.exists()) {
-            if (!parentDir.mkdirs()) {
-                throw new LreException("Failed to create directory: " + parentDir.getAbsolutePath());
-            }
+        if (parentDir != null && !parentDir.exists() && !parentDir.mkdirs()) {
+            throw new LreException("Failed to create directory: " + parentDir.getAbsolutePath());
         }
 
         log.debug("Downloading file to: {}", destPath);
@@ -90,9 +90,7 @@ public class HttpRequestExecutor {
         } catch (IOException e) {
             throw new LreException("I/O error executing request to " + url, e);
         } catch (RuntimeException e) {
-            if (e.getCause() instanceof LreException) {
-                throw (LreException) e.getCause();
-            }
+            if (e.getCause() instanceof LreException lreException) throw lreException;
             throw new LreException("Error executing request to " + url, e);
         }
     }

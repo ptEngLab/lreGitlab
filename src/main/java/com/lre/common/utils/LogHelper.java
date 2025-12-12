@@ -7,8 +7,13 @@ import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.FileAppender;
 import ch.qos.logback.core.ConsoleAppender;
+import lombok.experimental.UtilityClass;
 import org.slf4j.LoggerFactory;
 
+import static org.slf4j.Logger.ROOT_LOGGER_NAME;
+
+
+@UtilityClass
 public class LogHelper {
     private static boolean isInitialized = false;
 
@@ -19,24 +24,20 @@ public class LogHelper {
      * @param enableConsoleLogging true to also log to console
      */
     public static synchronized void setup(String logLevelStr, boolean enableConsoleLogging) {
-        String logFileName = CommonUtils.createLogFileName();
-
         if (isInitialized) return;
-
+        String logFileName = CommonUtils.createLogFileName();
         LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
-        Logger rootLogger = context.getLogger(Logger.ROOT_LOGGER_NAME);
+        Logger rootLogger = context.getLogger(ROOT_LOGGER_NAME);
 
         Level logLevel;
         try {
             logLevel = Level.valueOf(logLevelStr.toUpperCase());
         } catch (IllegalArgumentException e) {
-            System.err.println("[LogHelper] Invalid log level: " + logLevelStr + " → falling back to INFO");
+            rootLogger.warn("[LogHelper] Invalid log level: {} → falling back to INFO", logLevelStr);
             logLevel = Level.INFO;
         }
 
         rootLogger.setLevel(logLevel);
-
-        if (!isInitialized) rootLogger.detachAndStopAllAppenders();
 
         if (isAppenderMissing(rootLogger, "FileAppender"))
             rootLogger.addAppender(createFileAppender(context, logFileName));

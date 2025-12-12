@@ -1,10 +1,10 @@
 package com.lre.app;
 
-import com.lre.client.runclient.*;
 import com.lre.client.runmodel.EmailConfigModel;
 import com.lre.client.runmodel.GitTestRunModel;
 import com.lre.client.runmodel.LreTestRunModel;
 import com.lre.common.exceptions.LreException;
+import com.lre.common.exceptions.OperationExecutionException;
 import com.lre.common.utils.LogHelper;
 import com.lre.core.config.ReadConfigFile;
 import com.lre.model.enums.Operation;
@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -25,152 +25,137 @@ public class Main {
     private static final int EXIT_UNHANDLED_FAILURE = 3;
     private static final int EXIT_LRE_FAILURE = 4;
 
+    @FunctionalInterface
+    private interface OperationExecutor {
+        boolean execute(ExecutionContext ctx) throws OperationExecutionException;
+    }
+
+    private record ExecutionContext(
+            LreTestRunModel lre,
+            GitTestRunModel git,
+            EmailConfigModel email
+    ) {}
+
+    private static final OperationService OPERATION_SERVICE = new OperationService();
+
+    private static final Map<Operation, OperationExecutor> EXECUTORS = Map.of(
+            Operation.RUN_LRE_TEST, ctx -> OPERATION_SERVICE.runLreTest(ctx.lre()),
+            Operation.SYNC_GITLAB_WITH_LRE, ctx -> OPERATION_SERVICE.syncGitlabWithLre(ctx.git(), ctx.lre()),
+            Operation.SEND_EMAIL, ctx -> OPERATION_SERVICE.sendEmail(ctx.email(), ctx.lre()),
+            Operation.EXTRACT_RESULTS, ctx -> OPERATION_SERVICE.extractResults(ctx.lre())
+    );
+
     public static void main(String[] args) {
+        int exitCode;
+
         try {
             List<Operation> operations = parseArguments(args);
             if (operations.isEmpty()) {
                 printHelp();
-                System.exit(EXIT_CODE_SUCCESS);
+                exitCode = EXIT_CODE_SUCCESS;
+                System.exit(exitCode);
             }
 
-            // Setup logging
-            String logLevelStr = System.getenv().getOrDefault("logLevel", "INFO");
-            LogHelper.setup(logLevelStr, true);
+            setupLogging();
 
-            log.info("Starting operations: {}", operations);
-
-            // Load configuration
             String configFilePath = getConfigFilePath(args);
-            ReadConfigFile configFileData = new ReadConfigFile(configFilePath, operations.get(0));
-            LreTestRunModel lreTestRunModel = configFileData.buildLreTestRunModel();
-            GitTestRunModel gitTestRunModel = configFileData.buildGitTestRunModel();
-            EmailConfigModel emailConfigModel = configFileData.buildEmailConfigModel();
+            ReadConfigFile config = new ReadConfigFile(configFilePath, operations.get(0));
+            ExecutionContext ctx = new ExecutionContext(
+                    config.buildLreTestRunModel(),
+                    config.buildGitTestRunModel(),
+                    config.buildEmailConfigModel()
+            );
 
-            // Execute all operations in sequence
-            boolean allOperationsSuccess = true;
-            for (Operation operation : operations) {
-                boolean operationResult = executeOperation(operation, lreTestRunModel, gitTestRunModel, emailConfigModel);
-                if (!operationResult) {
-                    allOperationsSuccess = false;
-                    log.error("Operation {} failed.", operation);
-                }
-            }
-
-            System.exit(allOperationsSuccess ? EXIT_CODE_SUCCESS : EXIT_LRE_FAILURE);
+            exitCode = executeOperations(operations, ctx);
 
         } catch (LreException e) {
-            exitWithError(EXIT_LRE_FAILURE, "LRE execution error", e);
+            log.error("LRE execution error: {}", e.getMessage(), e);
+            exitCode = EXIT_LRE_FAILURE;
+
         } catch (IllegalArgumentException e) {
-            exitWithError(EXIT_CONFIG_ERROR, "Configuration error", e);
+            log.error("Configuration error: {}", e.getMessage(), e);
+            exitCode = EXIT_CONFIG_ERROR;
+
         } catch (IOException e) {
-            exitWithError(EXIT_IO_FAILURE, "I/O error", e);
+            log.error("I/O error: {}", e.getMessage(), e);
+            exitCode = EXIT_IO_FAILURE;
+
         } catch (Exception e) {
-            exitWithError(EXIT_UNHANDLED_FAILURE, "Unhandled error", e);
+            log.error("Unhandled error: {}", e.getMessage(), e);
+            exitCode = EXIT_UNHANDLED_FAILURE;
         }
+
+        System.exit(exitCode);
+    }
+
+    private static void setupLogging() {
+        String logLevel = System.getenv().getOrDefault("logLevel", "INFO");
+        LogHelper.setup(logLevel, true);
+    }
+
+    private static int executeOperations(List<Operation> operations, ExecutionContext ctx) {
+        log.info("Executing operations: {}", operations);
+        boolean success = true;
+
+        for (Operation op : operations) {
+            OperationExecutor executor = EXECUTORS.get(op);
+            if (executor == null) {
+                log.error("Unsupported operation: {}", op);
+                success = false;
+                continue;
+            }
+
+            try {
+                if (!executor.execute(ctx)) {
+                    log.error("Operation {} failed", op);
+                    success = false;
+                }
+            } catch (OperationExecutionException e) {
+                log.error("Operation {} failed: {}", op, e.getMessage(), e);
+                success = false;
+            }
+        }
+
+        return success ? EXIT_CODE_SUCCESS : EXIT_LRE_FAILURE;
     }
 
     private static List<Operation> parseArguments(String[] args) {
-        if (args.length == 0 || args[0].equalsIgnoreCase("help")) {
-            return List.of();  // No operations, show help
+        if (args.length == 0 || "help".equalsIgnoreCase(args[0])) {
+            return List.of();
         }
 
         return Stream.of(args)
-                .map(arg -> {
-                    switch (arg.toLowerCase()) {
-                        case "run" -> {
-                            return Operation.RUN_LRE_TEST;
-                        }
-                        case "sync" -> {
-                            return Operation.SYNC_GITLAB_WITH_LRE;
-                        }
-                        case "sendemail" -> {
-                            return Operation.SEND_EMAIL;
-                        }
-                        case "extract" -> {
-                            return Operation.EXTRACT_RESULTS;
-                        }
-                        default -> {
-                            System.err.println("Unknown operation: " + arg);
-                            return Operation.HELP;
-                        }
+                .map(arg -> switch (arg.toLowerCase()) {
+                    case "run" -> Operation.RUN_LRE_TEST;
+                    case "sync" -> Operation.SYNC_GITLAB_WITH_LRE;
+                    case "sendemail" -> Operation.SEND_EMAIL;
+                    case "extract" -> Operation.EXTRACT_RESULTS;
+                    default -> {
+                        log.warn("Unknown operation: {}", arg);
+                        yield Operation.HELP;
                     }
                 })
-                .collect(Collectors.toList());
-    }
-
-    private static boolean executeOperation(Operation operation, LreTestRunModel lreTestRunModel, GitTestRunModel gitTestRunModel, EmailConfigModel emailConfigModel) throws IOException {
-        return switch (operation) {
-            case RUN_LRE_TEST -> runLreTest(lreTestRunModel);
-            case SYNC_GITLAB_WITH_LRE -> syncGitlabWithLre(gitTestRunModel, lreTestRunModel);
-            case SEND_EMAIL -> sendEmail(emailConfigModel, lreTestRunModel);
-            case EXTRACT_RESULTS -> extractResults(lreTestRunModel);
-            default -> {
-                log.error("Unsupported operation: {}", operation);
-                yield false;
-            }
-        };
-    }
-
-    private static boolean runLreTest(LreTestRunModel lreTestRunModel) throws LreException {
-        if (!lreTestRunModel.isRunTestFromGitlab()) {
-            log.info("RUN_LRE_TEST_FROM_GITLAB_FLAG is set to false. Skipping LRE test execution.");
-            return true;
-        }
-
-        try (LreRunClient lreRunClient = new LreRunClient(lreTestRunModel)) {
-            lreRunClient.startRun();
-            lreRunClient.printRunSummary();
-            return true;
-
-        } catch (Exception e) {
-            log.error("Error starting LRE Test Run: {}", e.getMessage(), e);
-            return false;
-        }
-    }
-
-    private static boolean syncGitlabWithLre(GitTestRunModel gitTestRunModel, LreTestRunModel lreTestRunModel) throws LreException {
-        log.info("Starting GitLab and LRE synchronization...");
-        try (GitSyncClient gitSyncClient = new GitSyncClient(gitTestRunModel, lreTestRunModel)) {
-            return gitSyncClient.sync();
-        }
-    }
-
-    private static boolean sendEmail(EmailConfigModel emailConfigModel, LreTestRunModel lreTestRunModel) {
-        log.info("Starting email sending process...");
-        return EmailUtils.sendEmailWithPipelineArtifacts(emailConfigModel, lreTestRunModel);
-    }
-
-    private static boolean extractResults(LreTestRunModel lreTestRunModel) {
-        log.info("Starting the extraction of results...");
-
-        try (ResultsExtractionClient extractClient = new ResultsExtractionClient(lreTestRunModel)) {
-            extractClient.fetchRunDetails();
-            extractClient.publishHtmlReportIfFinished();
-            extractClient.publishAnalysedReportIfFinished();
-            extractClient.extractRunReportsToExcel();
-            extractClient.createRunResultsForEmail();
-            return true;
-        } catch (Exception e) {
-            log.error("Error during results extraction for Run ID {}: {}", lreTestRunModel.getRunId(), e.getMessage(), e);
-            return false;
-        }
-
+                .filter(op -> op != Operation.HELP)
+                .toList();
     }
 
     private static void printHelp() {
-        System.out.println("Usage: java -jar lre-actions.jar <operation> [--config <path>]");
-        System.out.println("Operations:");
-        System.out.println("  run         Run LRE test");
-        System.out.println("  sync        Sync GitLab with LRE");
-        System.out.println("  sendemail   Send email with test results");
-        System.out.println("  extract     Extract test results from LRE DB");
-        System.out.println("  help        Show this help message");
-        System.out.println();
-        System.out.println("Options:");
-        System.out.println("  -c, --config <path>   Specify configuration file (default: ./config.json)");
-        System.out.println();
-        System.out.println("Environment:");
-        System.out.println("  logLevel=DEBUG|INFO|WARN|ERROR   Set logging level (default: INFO)");
+        log.info("""
+                Usage: java -jar lre-actions.jar <operation> [--config <path>]
+
+                Operations:
+                  run         Run LRE test
+                  sync        Sync GitLab with LRE
+                  sendemail   Send email with test results
+                  extract     Extract test results
+                  help        Show this help message
+
+                Options:
+                  -c, --config <path>   Use specific config file (default ./config.json)
+
+                Env:
+                  logLevel=DEBUG|INFO|WARN|ERROR  (default INFO)
+                """);
     }
 
     private static String getConfigFilePath(String[] args) {
@@ -180,11 +165,5 @@ public class Main {
             }
         }
         return System.getProperty("user.dir") + File.separator + "config.json";
-    }
-
-    private static void exitWithError(int code, String message, Exception e) {
-        log.error("{}: {}", message, e.getMessage(), e);
-        System.err.printf("Exiting with code %d: %s%n", code, message);
-        System.exit(code);
     }
 }

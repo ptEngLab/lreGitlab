@@ -12,7 +12,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public record ExcelSheetWriter(Workbook workbook, ExcelStyleFactory styles, ExcelValueWriter valueWriter) {
 
@@ -69,7 +68,7 @@ public record ExcelSheetWriter(Workbook workbook, ExcelStyleFactory styles, Exce
                     }
                 })
                 .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /** Writes the header row with styles. */

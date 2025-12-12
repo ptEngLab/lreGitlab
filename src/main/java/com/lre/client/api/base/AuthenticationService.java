@@ -1,6 +1,7 @@
 package com.lre.client.api.base;
 
 import com.lre.client.api.builder.ApiUrlBuilderLre;
+import com.lre.common.exceptions.LreException;
 import com.lre.common.utils.JsonUtils;
 import com.lre.core.http.HttpRequestExecutor;
 import com.lre.model.auth.AuthenticationClient;
@@ -73,7 +74,7 @@ public record AuthenticationService(CloseableHttpClient httpClient, ApiUrlBuilde
             log.debug("Web login successful for project: {}/{}", urlBuilder.getDomain(), urlBuilder.getProject());
         } catch (URISyntaxException e) {
             log.error("Invalid URL for web login", e);
-            throw new RuntimeException(e);
+            throw new LreException("Token authentication failed", e);
         }
     }
 

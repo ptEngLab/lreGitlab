@@ -110,7 +110,7 @@ public class LreTestContentValidator {
 
         List<CommandLine> domainCommandLines = yamlCommandLines.stream()
                 .map(this::convertToDomainCommandLine)
-                .collect(Collectors.toList());
+                        .toList();
 
         content.setGlobalCommandLines(domainCommandLines);
     }

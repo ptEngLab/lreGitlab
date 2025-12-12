@@ -6,6 +6,7 @@ import com.lre.common.utils.WorkloadUtils;
 import com.lre.model.test.testcontent.TestContent;
 import com.lre.model.test.testcontent.groups.Group;
 import com.lre.model.test.testcontent.groups.commandline.CommandLine;
+import com.lre.model.test.testcontent.groups.hosts.Host;
 import com.lre.model.test.testcontent.groups.rts.RTS;
 import com.lre.model.test.testcontent.scheduler.Scheduler;
 import com.lre.model.yaml.YamlGroup;
@@ -61,7 +62,8 @@ public record LreGroupValidator(LreRestApis restApis, TestContent content, YamlT
         Group build() {
             group.setName(yamlGroup.getName());
             group.setScript(new LreGroupScriptValidator(restApis).validateYamlGroupScript(yamlGroup));
-            group.setHosts(new LreGroupHostValidator(restApis, content).validateAndPopulateHosts(yamlGroup));
+            List<Host> hosts = new LreGroupHostValidator(restApis, content).validateAndPopulateHosts(yamlGroup);
+            setHostsIfPresent(group, hosts);
 
             resolveCommandLine();
             resolveRts();
@@ -70,6 +72,11 @@ public record LreGroupValidator(LreRestApis restApis, TestContent content, YamlT
 
             return group;
         }
+
+        private void setHostsIfPresent(Group group, List<Host> hosts) {
+            if (!hosts.isEmpty()) group.setHosts(hosts);
+        }
+
 
         private void resolveCommandLine() {
             if (StringUtils.isEmpty(yamlGroup.getGlobalCommandLine())) return;

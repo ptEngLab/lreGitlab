@@ -48,7 +48,8 @@ public class LreGroupHostValidator {
 
     public List<Host> validateAndPopulateHosts(YamlGroup group) {
         if (content.getLgDistribution().getType() == LGDistributionType.MANUAL) return parseHosts(group);
-        return null;
+        return List.of();
+
     }
 
     private List<Host> parseHosts(YamlGroup group) {

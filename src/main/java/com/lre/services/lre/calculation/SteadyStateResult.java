@@ -11,35 +11,34 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SteadyStateResult {
-    // Basic info
+
+    // Identification
     private String groupName;
     private String workloadType;
     private Integer totalUsers;
 
-    // StartGroup configuration
+    // StartGroup metadata
     private SchedulerStartGroupType startGroupType;
     private String dependencyGroupName;
     private Long delaySeconds;
 
-    // Timing metrics
+    // Timing (from TimeModel)
     private Long rampUpTimeSeconds;
     private Long steadyStateDurationSeconds;
     private Long rampDownTimeSeconds;
-    private Long groupTotalTimeSeconds;  // rampUp + steady + rampDown
+    private Long groupTotalTimeSeconds;
 
     // Offsets
-    private Long groupStartOffsetSeconds;  // When group starts relative to test
+    private Long groupStartOffsetSeconds;
 
-    // Relative to group start
+    // Relative times
     private Long relativeToGroupStartSeconds;
     private Long relativeToGroupEndSeconds;
-
-    // Relative to test start
     private Long relativeToTestStartSeconds;
     private Long relativeToTestEndSeconds;
     private Long relativeGroupEndSeconds;
 
-    // Absolute epoch times
+    // Absolute times
     private Long absoluteTestStartEpoch;
     private Long absoluteGroupStartEpoch;
     private Long absoluteSteadyStateStartEpoch;
