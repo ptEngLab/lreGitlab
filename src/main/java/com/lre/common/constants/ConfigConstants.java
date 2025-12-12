@@ -1,8 +1,10 @@
 package com.lre.common.constants;
 
+import lombok.experimental.UtilityClass;
+
 import java.io.File;
 import java.util.regex.Pattern;
-
+@UtilityClass
 public class ConfigConstants {
 
 
@@ -88,13 +90,18 @@ public class ConfigConstants {
 
     // Simultaneously: "50vu:simultaneously+wait:30s" or "simultaneously" or "simultaneously:wait:1m"
     public static final Pattern SIMULTANEOUSLY_PATTERN =
-            Pattern.compile("^(?:(?<vusersCount>\\d+)vu:)?simultaneously(?:[+:]?wait:(?<wait>(\\d+[dhms])+))?$",
-                    Pattern.CASE_INSENSITIVE);
+            Pattern.compile(
+                    "^(?:(?<vusersCount>\\d+)vu:)?simultaneously(?:[+:]?wait:(?<wait>(?>\\d+[dhms])+))?$",
+                    Pattern.CASE_INSENSITIVE
+            );
+
 
     // Gradually: "gradually:10u@30s" or "gradually:25u@1m+wait:10s" or "50vu:gradually:10u@30s"
     public static final Pattern GRADUALLY_PATTERN =
-            Pattern.compile("^(?:(?<vusersCount>\\d+)vu:)?gradually:(?<users>\\d+)u@(?<interval>(\\d+[dhms])+)(?:[+:]wait:(?<wait>(\\d+[dhms])+))?$",
-                    Pattern.CASE_INSENSITIVE);
+            Pattern.compile(
+                    "^(?:(?<vusersCount>\\d+)vu:)?gradually:(?<users>\\d+)u@(?<interval>(?>\\d+[dhms])+)(?:[+:]wait:(?<wait>(?>\\d+[dhms])+))?$",
+                    Pattern.CASE_INSENSITIVE
+            );
 
     // Just before: "just before"
     public static final Pattern JUST_BEFORE_PATTERN =
@@ -106,20 +113,20 @@ public class ConfigConstants {
 
     // Run for duration: "1h30m" or "30s" or "2d"
     public static final Pattern RUN_FOR_PATTERN =
-            Pattern.compile("^(?<interval>(\\d+[dhms])+)$", Pattern.CASE_INSENSITIVE);
+            Pattern.compile("^(?<interval>(?>\\d+[dhms])+)$", Pattern.CASE_INSENSITIVE);
 
     // Start group delay: "delay:30s" or "delay:1h"
     public static final Pattern START_GROUP_DELAY_PATTERN =
-            Pattern.compile("^delay:(?<interval>(\\d+[dhms])+)$", Pattern.CASE_INSENSITIVE);
+            Pattern.compile("^delay:(?<interval>(?>\\d+[dhms])+)$", Pattern.CASE_INSENSITIVE);
 
     // Start group finish: "Group1" or "API_Users"
     public static final Pattern START_GROUP_FINISH_PATTERN =
-            Pattern.compile("^after (?<groupName>[a-zA-Z0-9_-]+)$", Pattern.CASE_INSENSITIVE);
+            Pattern.compile("^after (?<groupName>[\\w-]+)$", Pattern.CASE_INSENSITIVE);
 
 
     public static final String GIT_REPO_EXTRACT_PATH = "GitLabRepo";
     public static final String GIT_COMMIT_HISTORY_FILE = "Gitlab_Commit_History.json";
 
-    public static final String COMMIT_HISTORY_ARTIFACT_PATH = ARTIFACTS_DIR + "/" + GIT_REPO_EXTRACT_PATH + "/" + GIT_COMMIT_HISTORY_FILE;
+    public static final String COMMIT_HISTORY_ARTIFACT_PATH = ARTIFACTS_DIR + File.separator + GIT_REPO_EXTRACT_PATH + File.separator + GIT_COMMIT_HISTORY_FILE;
 
 }

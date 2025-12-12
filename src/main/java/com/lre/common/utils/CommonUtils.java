@@ -54,7 +54,7 @@ public class CommonUtils {
         try {
             Files.createDirectories(logDirPath);
         } catch (IOException e) {
-            throw new RuntimeException("Failed to create directory for log file: " + logDirPath, e);
+            throw new LreException("Failed to create directory for log file: " + logDirPath, e);
         }
         return logDirPath.resolve(logFileName).toAbsolutePath().toString();
     }
@@ -110,13 +110,17 @@ public class CommonUtils {
         // Step 1: Normalize all slashes to backslashes
         String normalized = path.replace("/", "\\");
 
-        // Step 2: Remove repeated backslashes (e.g., "folder\\\\sub" -> "folder\sub")
-        normalized = normalized.replaceAll("\\\\+", "\\\\");
+        // Step 2: Remove repeated backslashes with possessive quantifier
+        normalized = normalized.replaceAll("\\\\++", "\\\\");
 
-        // Step 3: Trim leading and trailing backslashes
-        normalized = normalized.replaceAll("^\\\\+|\\\\+$", "");
+        // Step 3: Trim leading backslashes with possessive quantifier
+        normalized = normalized.replaceAll("^\\\\++", "");
 
-        // Step 4: Ensure "Subject\" prefix (case-insensitive)
+        // Step 4: Trim trailing backslashes with possessive quantifier
+        while (normalized.endsWith("\\")) {
+            normalized = normalized.substring(0, normalized.length() - 1);
+        }
+        // Step 5: Ensure "Subject\" prefix (case-insensitive)
         if (!normalized.toLowerCase().startsWith("subject\\")) {
             normalized = "Subject\\" + normalized;
         }
@@ -147,30 +151,30 @@ public class CommonUtils {
     }
 
     public static void removeRunIdFile() {
-        try {
-            File runIdFile = new File(LRE_RUN_ID_FILE);
+        Path runIdPath = Paths.get(LRE_RUN_ID_FILE);
 
-            if (!runIdFile.exists()) {
+        try {
+            if (!Files.exists(runIdPath)) {
                 log.debug("Run ID file does not exist, no need to delete");
                 return;
             }
 
-            if (runIdFile.delete()) {
-                log.debug("Successfully deleted temporary Run ID file: {}", LRE_RUN_ID_FILE);
-            } else {
-                log.warn("Failed to delete temporary Run ID file. Path: {}, Absolute Path: {}, Readable: {}, Writable: {}",
-                        LRE_RUN_ID_FILE,
-                        runIdFile.getAbsolutePath(),
-                        runIdFile.canRead(),
-                        runIdFile.canWrite());
-            }
+            Files.delete(runIdPath);
+            log.debug("Successfully deleted temporary Run ID file: {}", LRE_RUN_ID_FILE);
 
+        } catch (java.nio.file.NoSuchFileException e) {
+            log.debug("Run ID file already deleted or not found: {}", LRE_RUN_ID_FILE);
+        } catch (java.nio.file.DirectoryNotEmptyException e) {
+            log.warn("Failed to delete Run ID file because directory is not empty: {}", LRE_RUN_ID_FILE);
         } catch (SecurityException e) {
             log.error("Security exception while trying to delete Run ID file '{}': {}", LRE_RUN_ID_FILE, e.getMessage());
+        } catch (IOException e) {
+            log.error("I/O error while trying to delete Run ID file '{}': {}", LRE_RUN_ID_FILE, e.getMessage());
         } catch (Exception e) {
             log.error("Unexpected error while trying to delete Run ID file '{}' - {}", LRE_RUN_ID_FILE, e.getMessage());
         }
     }
+
 
     public static void createZipFile(Path sourceDir, Path zipFile) {
         try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(zipFile))) {
