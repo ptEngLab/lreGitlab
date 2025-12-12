@@ -3,10 +3,12 @@ package com.lre.services.lre.report.renderer.text;
 import com.lre.client.runmodel.LreTestRunModel;
 import com.lre.model.run.LreRunStatusExtended;
 import com.lre.services.lre.summary.ThresholdResult;
+import lombok.experimental.UtilityClass;
 
 import static com.lre.common.utils.CommonUtils.calculateTestDuration;
 import static com.lre.common.utils.CommonUtils.formatDateTime;
 
+@UtilityClass
 public class TextSummaryGenerator {
     public static String[][] generate(LreTestRunModel model, LreRunStatusExtended runStatusExtended, ThresholdResult thresholds) {
         return new String[][]{

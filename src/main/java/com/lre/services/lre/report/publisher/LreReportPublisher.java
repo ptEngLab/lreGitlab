@@ -2,6 +2,7 @@ package com.lre.services.lre.report.publisher;
 
 import com.lre.client.api.lre.LreRestApis;
 import com.lre.client.runmodel.LreTestRunModel;
+import com.lre.common.exceptions.LreException;
 import com.lre.common.utils.CommonUtils;
 import com.lre.common.utils.ReportPathUtils;
 import com.lre.model.run.LreRunResult;
@@ -53,7 +54,7 @@ public record LreReportPublisher(LreRestApis lreRestApis, LreTestRunModel model)
             return Optional.of(extractedPath);
         } catch (IOException e) {
             log.error("Failed to publish LRE {} report for Run ID: {}", reportType, runId, e);
-            throw new RuntimeException("Failed to publish LRE " + reportType + " report for Run ID: " + runId, e);
+            throw new LreException("Failed to publish LRE " + reportType + " report for Run ID: " + runId, e);
         }
     }
 

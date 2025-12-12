@@ -4,6 +4,7 @@ import com.lre.client.runmodel.LreTestRunModel;
 import com.lre.model.run.LreRunStatusExtended;
 import com.lre.services.lre.report.renderer.html.LgHtmlBuilder;
 import com.lre.services.lre.summary.ThresholdResult;
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
@@ -13,6 +14,7 @@ import static com.lre.common.utils.CommonUtils.calculateTestDuration;
 import static com.lre.common.utils.CommonUtils.formatDateTime;
 
 @Slf4j
+@UtilityClass
 public class RunDataPreparer {
     public static Map<String, String> prepare(LreTestRunModel model, LreRunStatusExtended runStatusExtended, ThresholdResult thresholds) {
         var runData = new java.util.HashMap<String, String>();

@@ -1,10 +1,14 @@
 package com.lre.services.lre.report.renderer.html;
 
+import com.lre.common.exceptions.LreException;
+import lombok.experimental.UtilityClass;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
+@UtilityClass
 public class HtmlTemplateEngine {
 
     private static final String[] TEMPLATE_KEYS = {
@@ -31,11 +35,11 @@ public class HtmlTemplateEngine {
     private static String loadHtmlTemplate() {
         try (InputStream inputStream = HtmlTemplateEngine.class.getResourceAsStream("/template.html")) {
             if (inputStream == null) {
-                throw new RuntimeException("Template file not found in resources");
+                throw new LreException("Template file not found in resources");
             }
             return new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
         } catch (IOException e) {
-            throw new RuntimeException("Failed to load HTML template", e);
+            throw new LreException("Failed to load HTML template", e);
         }
     }
 }

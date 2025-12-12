@@ -1,5 +1,8 @@
 package com.lre.services.lre.report.renderer.html;
 
+import lombok.experimental.UtilityClass;
+
+@UtilityClass
 public class LgHtmlBuilder {
 
     public static String generate(String lgsData) {
