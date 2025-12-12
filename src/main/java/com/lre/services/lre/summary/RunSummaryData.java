@@ -11,8 +11,10 @@ import com.lre.services.lre.report.renderer.html.HtmlTemplateEngine;
 import com.lre.services.lre.report.renderer.html.TransactionHtmlBuilder;
 import com.lre.services.lre.report.renderer.text.TextSummaryGenerator;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public record RunSummaryData(String htmlContent, String[][] textSummary) {
 
@@ -46,5 +48,26 @@ public record RunSummaryData(String htmlContent, String[][] textSummary) {
         String[][] textSummary = TextSummaryGenerator.generate(model, runStatusExtended, thresholds);
 
         return new RunSummaryData(htmlContent, textSummary);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof RunSummaryData that)) return false;
+        return Objects.equals(htmlContent, that.htmlContent) &&
+                Arrays.deepEquals(textSummary, that.textSummary);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(htmlContent, Arrays.deepHashCode(textSummary));
+    }
+
+    @Override
+    public String toString() {
+        return "RunSummaryData{" +
+                "htmlContent='" + htmlContent + '\'' +
+                ", textSummary=" + Arrays.deepToString(textSummary) +
+                '}';
     }
 }
