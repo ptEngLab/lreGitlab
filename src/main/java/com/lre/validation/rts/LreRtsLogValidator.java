@@ -21,8 +21,14 @@ public class LreRtsLogValidator {
     private static final Set<String> VALID_FLAGS = Set.of("substitution", "server", "trace");
 
     public static class LogException extends IllegalArgumentException {
-        public LogException(String message) { super(message); }
-        @Override public synchronized Throwable fillInStackTrace() { return this; }
+        public LogException(String message) {
+            super(message);
+        }
+
+        @Override
+        public synchronized Throwable fillInStackTrace() {
+            return this;
+        }
     }
 
     private static final String VALID_EXAMPLES = """
@@ -54,81 +60,101 @@ public class LreRtsLogValidator {
         Log logObj = new Log();
         if (StringUtils.isBlank(input)) return logObj;
 
-        String[] tokens = Arrays.stream(input.trim().toLowerCase().split(":"))
-                .map(String::trim)
-                .filter(StringUtils::isNotBlank)
-                .toArray(String[]::new);
-
+        String[] tokens = tokenize(input);
         if (tokens.length == 0) return logObj;
 
         logObj.setType(parseLogType(tokens[0]));
 
-        if (logObj.getType() == LogType.IGNORE) {
-            logObj.setLogOptions(null);
-            logObj.setParametersSubstitution(null);
-            logObj.setDataReturnedByServer(null);
-            logObj.setAdvanceTrace(null);
-            if (tokens.length > 1) log.warn("Ignore type cannot have additional parameters, ignoring them");
-            return logObj;
-        }
-
-        logObj.setLogOptions(parseOptions(tokens));
-
-        int flagStartIndex = 2;
-        Log.LogOptions options = logObj.getLogOptions();
-        if (options != null && options.getType() == LogOptionsType.ON_ERROR &&
-                tokens.length > 2 && StringUtils.isNumeric(tokens[2])) {
-            flagStartIndex = 3;
-        }
-
-        // STANDARD type: ignore extra flags
-        if (logObj.getType() == LogType.STANDARD && tokens.length > flagStartIndex) {
-            log.warn("Standard type cannot have logging flags, ignoring them");
-            logObj.setParametersSubstitution(null);
-            logObj.setDataReturnedByServer(null);
-            logObj.setAdvanceTrace(null);
-            return logObj;
-        }
-
-        // EXTENDED type: parse flags
-        if (logObj.getType() == LogType.EXTENDED && tokens.length > flagStartIndex) {
-            String flagsStr = String.join(",", Arrays.copyOfRange(tokens, flagStartIndex, tokens.length));
-            Set<String> flags = Arrays.stream(flagsStr.split(","))
-                    .map(String::trim)
-                    .filter(f -> !f.isEmpty())
-                    .filter(f -> {
-                        boolean valid = VALID_FLAGS.contains(f);
-                        if (!valid) log.warn("Invalid flag: '{}'. Valid flags are: substitution, server, trace.", f);
-                        return valid;
-                    })
-                    .collect(Collectors.toSet());
-
-            logObj.setParametersSubstitution(flags.contains("substitution"));
-            logObj.setDataReturnedByServer(flags.contains("server"));
-            logObj.setAdvanceTrace(flags.contains("trace"));
-        } else if (logObj.getType() == LogType.EXTENDED) {
-            // Default flags for EXTENDED
-            logObj.setParametersSubstitution(false);
-            logObj.setDataReturnedByServer(false);
-            logObj.setAdvanceTrace(false);
-        } else {
-            // STANDARD or IGNORE
-            logObj.setParametersSubstitution(null);
-            logObj.setDataReturnedByServer(null);
-            logObj.setAdvanceTrace(null);
+        switch (logObj.getType()) {
+            case IGNORE -> handleIgnore(logObj, tokens);
+            case STANDARD -> handleStandard(logObj, tokens);
+            case EXTENDED -> handleExtended(logObj, tokens);
+            default -> clearFlags(logObj);
         }
 
         return logObj;
     }
 
+    private String[] tokenize(String input) {
+        return Arrays.stream(input.trim().toLowerCase().split(":"))
+                .map(String::trim)
+                .filter(StringUtils::isNotBlank)
+                .toArray(String[]::new);
+    }
+
+    private void handleIgnore(Log logObj, String[] tokens) {
+        clearFlags(logObj);
+        logObj.setLogOptions(null);
+        if (tokens.length > 1) log.warn("Ignore type cannot have additional parameters, ignoring them");
+    }
+
+    private void handleStandard(Log logObj, String[] tokens) {
+        logObj.setLogOptions(parseOptions(tokens));
+        int flagStartIndex = getFlagStartIndex(logObj, tokens);
+        if (tokens.length > flagStartIndex) log.warn("Standard type cannot have logging flags, ignoring them");
+        clearFlags(logObj);
+    }
+
+    private void handleExtended(Log logObj, String[] tokens) {
+        logObj.setLogOptions(parseOptions(tokens));
+        int flagStartIndex = getFlagStartIndex(logObj, tokens);
+
+        if (tokens.length > flagStartIndex) {
+            Set<String> flags = parseFlags(tokens, flagStartIndex);
+            logObj.setParametersSubstitution(flags.contains("substitution"));
+            logObj.setDataReturnedByServer(flags.contains("server"));
+            logObj.setAdvanceTrace(flags.contains("trace"));
+        } else {
+            // Default flags for EXTENDED
+            logObj.setParametersSubstitution(false);
+            logObj.setDataReturnedByServer(false);
+            logObj.setAdvanceTrace(false);
+        }
+    }
+
+    private int getFlagStartIndex(Log logObj, String[] tokens) {
+        Log.LogOptions options = logObj.getLogOptions();
+        if (options != null && options.getType() == LogOptionsType.ON_ERROR &&
+                tokens.length > 2 && StringUtils.isNumeric(tokens[2])) {
+            return 3;
+        }
+        return 2;
+    }
+
+    private Set<String> parseFlags(String[] tokens, int startIndex) {
+        return Arrays.stream(tokens, startIndex, tokens.length)
+                .map(String::trim)
+                .filter(f -> !f.isEmpty())
+                .filter(f -> {
+                    if (!VALID_FLAGS.contains(f)) {
+                        log.warn("Invalid flag: '{}'. Valid flags are: {}", f, VALID_FLAGS);
+                        return false;
+                    }
+                    return true;
+                })
+                .collect(Collectors.toSet());
+    }
+
+    private void clearFlags(Log logObj) {
+        logObj.setParametersSubstitution(null);
+        logObj.setDataReturnedByServer(null);
+        logObj.setAdvanceTrace(null);
+    }
+
     private LogType parseLogType(String token) {
-        try { return LogType.fromValue(token); }
-        catch (IllegalArgumentException e) { throw new LogException("Invalid Log type: '" + token + "'\n" + VALID_EXAMPLES); }
+        try {
+            return LogType.fromValue(token);
+        } catch (IllegalArgumentException e) {
+            throw new LogException("Invalid Log type: '" + token + "'\n" + VALID_EXAMPLES);
+        }
     }
 
     private LogOptionsType parseOptionsType(String token) {
-        try { return LogOptionsType.fromValue(token); }
-        catch (IllegalArgumentException e) { throw new LogException("Invalid Log option: '" + token + "'\n" + VALID_EXAMPLES); }
+        try {
+            return LogOptionsType.fromValue(token);
+        } catch (IllegalArgumentException e) {
+            throw new LogException("Invalid Log option: '" + token + "'\n" + VALID_EXAMPLES);
+        }
     }
 
     private Log.LogOptions parseOptions(String[] tokens) {
@@ -136,15 +162,19 @@ public class LreRtsLogValidator {
         LogOptionsType type = tokens.length > 1 ? parseOptionsType(tokens[1]) : LogOptionsType.ON_ERROR;
         options.setType(type);
 
-        if (type == LogOptionsType.ON_ERROR && tokens.length > 2 && StringUtils.isNumeric(tokens[2])) {
-            options.setCacheSize(validateCacheSize(Integer.parseInt(tokens[2])));
-        } else if (tokens.length > 2 && StringUtils.isNumeric(tokens[2])) {
-            log.warn("Cache size only allowed with 'on error' type, ignoring: {}", tokens[2]);
-            options.setCacheSize(null);
+        if (type == LogOptionsType.ON_ERROR) {
+            options.setCacheSize(parseCacheSize(tokens));
         } else {
             options.setCacheSize(null);
         }
         return options;
+    }
+
+    private Integer parseCacheSize(String[] tokens) {
+        if (tokens.length > 2 && StringUtils.isNumeric(tokens[2])) {
+            return validateCacheSize(Integer.parseInt(tokens[2]));
+        }
+        return null;
     }
 
     private int validateCacheSize(int size) {
@@ -157,8 +187,9 @@ public class LreRtsLogValidator {
 
     private void validateBusinessRules(Log lreLog) {
         switch (lreLog.getType()) {
-            case IGNORE, STANDARD -> clearAllFlags(lreLog);
+            case IGNORE, STANDARD -> clearFlags(lreLog);
             case EXTENDED -> setDefaultFlags(lreLog);
+            default -> { /* no-op */ }
         }
 
         Log.LogOptions options = lreLog.getLogOptions();
@@ -167,20 +198,13 @@ public class LreRtsLogValidator {
             lreLog.setLogOptions(options);
         }
 
-        if (options != null) {
-            if (options.getType() == LogOptionsType.ON_ERROR) {
-                if (options.getCacheSize() == null) options.setCacheSize(DEFAULT_CACHE_SIZE);
-            } else {
-                // Clear cache for any non-ON_ERROR type
-                options.setCacheSize(null);
+        if (options != null && options.getType() == LogOptionsType.ON_ERROR) {
+            if (options.getCacheSize() == null) {
+                options.setCacheSize(DEFAULT_CACHE_SIZE);
             }
+        } else if (options != null) {
+            options.setCacheSize(null);
         }
-    }
-
-    private void clearAllFlags(Log lreLog) {
-        lreLog.setParametersSubstitution(null);
-        lreLog.setDataReturnedByServer(null);
-        lreLog.setAdvanceTrace(null);
     }
 
     private void setDefaultFlags(Log lreLog) {
@@ -188,5 +212,4 @@ public class LreRtsLogValidator {
         if (lreLog.getDataReturnedByServer() == null) lreLog.setDataReturnedByServer(false);
         if (lreLog.getAdvanceTrace() == null) lreLog.setAdvanceTrace(false);
     }
-
 }
